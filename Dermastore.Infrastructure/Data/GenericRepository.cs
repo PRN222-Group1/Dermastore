@@ -1,6 +1,6 @@
-﻿using Dermastore.Core.Entities;
-using Dermastore.Core.Interfaces;
-using Dermastore.Core.Specifications;
+﻿using Dermastore.Domain.Entities;
+using Dermastore.Domain.Interfaces;
+using Dermastore.Domain.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dermastore.Infrastructure.Data

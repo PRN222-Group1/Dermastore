@@ -1,4 +1,4 @@
-﻿using Dermastore.Core.Entities.OrderAggregate;
+﻿using Dermastore.Domain.Entities.OrderAggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

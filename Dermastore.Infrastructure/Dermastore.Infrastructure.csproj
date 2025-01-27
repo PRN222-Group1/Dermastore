@@ -16,7 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dermastore.Core\Dermastore.Core.csproj" />
+	<None Include="Data\SeedData\**" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="..\Dermastore.Application\Dermastore.Application.csproj" />
+    <ProjectReference Include="..\Dermastore.Domain\Dermastore.Domain.csproj" />
   </ItemGroup>
 
 </Project>

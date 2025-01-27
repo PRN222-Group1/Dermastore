@@ -1,7 +1,7 @@
-﻿using Dermastore.Core.Entities;
+﻿using Dermastore.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dermastore.Core.Specifications
+namespace Dermastore.Domain.Specifications
 {
     /// <summary>
     /// This class chains the queries together to create the final specification.

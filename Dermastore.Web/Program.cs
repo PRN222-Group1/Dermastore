@@ -1,4 +1,4 @@
-using Dermastore.Core.Entities;
+using Dermastore.Domain.Entities;
 using Dermastore.Infrastructure.Data;
 using Dermastore.Web.Components;
 using Microsoft.AspNetCore.Identity;
@@ -46,7 +46,9 @@ try
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<DermastoreContext>();
+    var userManager = services.GetRequiredService<UserManager<User>>();
     await context.Database.MigrateAsync();
+    await DermastoreContextSeed.SeedAsync(context, userManager);
 }
 catch (Exception ex)
 {

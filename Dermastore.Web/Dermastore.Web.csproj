@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dermastore.Application\Dermastore.Application.csproj" />
     <ProjectReference Include="..\Dermastore.Infrastructure\Dermastore.Infrastructure.csproj" />
   </ItemGroup>
 
