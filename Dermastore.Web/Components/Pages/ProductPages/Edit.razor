@@ -1,0 +1,106 @@
+﻿@page "/products/edit"
+@using Dermastore.Application.Commands.Products
+@using Dermastore.Application.DTOs
+@using Dermastore.Application.Queries.Products
+@using MediatR
+@using Microsoft.EntityFrameworkCore
+@using Dermastore.Domain.Entities
+@inject NavigationManager NavigationManager
+@inject IMediator Mediator
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Product</h2>
+<hr />
+@if (productDto is null || categories is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="productDto" OnValidSubmit="UpdateProduct" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="productDto.Id" value="@productDto.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="productDto.Name" class="form-control" />
+                    <ValidationMessage For="() => productDto.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="productDto.Description" class="form-control" />
+                    <ValidationMessage For="() => productDto.Description" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="quantity" class="form-label">Quantity:</label>
+                    <InputNumber id="quantity" @bind-Value="productDto.Quantity" class="form-control" />
+                    <ValidationMessage For="() => productDto.Quantity" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="imageurl" class="form-label">ImageUrl:</label>
+                    <InputText id="imageurl" @bind-Value="productDto.ImageUrl" class="form-control" />
+                    <ValidationMessage For="() => productDto.ImageUrl" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="categoryid" class="form-label">Category:</label>
+                    <InputSelect id="categoryid" @bind-Value="productDto.CategoryId" class="form-control">
+                        <option value="">Select a category</option>
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Id">@category.Name</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => productDto.CategoryId" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/products">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private ProductToUpdateDto productDto { get; set; } = new();
+
+    private IReadOnlyList<Category>? categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var prodQuery = new GetProductQuery(Id);
+        var product = await Mediator.Send(prodQuery);
+
+        productDto.Id = Id;
+        productDto.Name = product.Name;
+        productDto.Description = product.Description;
+        productDto.Quantity = product.Quantity;
+        productDto.ImageUrl = product.ImageUrl;
+        productDto.CategoryId = product.CategoryId;
+
+        var catQuery = new GetCategoriesQuery();
+        categories = await Mediator.Send(catQuery);
+    }
+
+    private async Task UpdateProduct()
+    {
+        // Create the command using the DTO
+        var command = new UpdateProductCommand(productDto);
+
+        // Send the command to MediatR to handle it
+        var productId = await Mediator.Send(command);
+
+        // Route to detail page
+        NavigationManager.NavigateTo($"/products/details?id={productId}");
+    }
+}

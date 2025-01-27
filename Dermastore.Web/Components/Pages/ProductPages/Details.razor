@@ -1,0 +1,59 @@
+﻿@page "/products/details"
+@using Dermastore.Application.DTOs
+@using Dermastore.Application.Queries.Products
+@using Microsoft.EntityFrameworkCore
+@using Dermastore.Domain.Entities
+@inject NavigationManager NavigationManager
+@using MediatR
+@inject IMediator Mediator
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Product</h2>
+    <hr />
+    @if (productDto is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@productDto.Name</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@productDto.Description</dd>
+            <dt class="col-sm-2">Status</dt>
+            <dd class="col-sm-10">@productDto.Status</dd>
+            <dt class="col-sm-2">Quantity</dt>
+            <dd class="col-sm-10">@productDto.Quantity</dd>
+            <dt class="col-sm-2">ImageUrl</dt>
+            <dd class="col-sm-10">@productDto.ImageUrl</dd>
+            <dt class="col-sm-2">Category</dt>
+            <dd class="col-sm-10">@productDto.Category</dd>
+        </dl>
+        <div>
+            <a href="@($"/products/edit?id={productDto.Id}")">Edit</a> |
+            <a href="@($"/products")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private ProductDto? productDto;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var query = new GetProductQuery(Id);
+        productDto = await Mediator.Send(query);
+
+        if (productDto is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

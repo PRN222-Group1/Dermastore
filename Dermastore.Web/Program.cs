@@ -1,6 +1,9 @@
+using Dermastore.Application.Extensions;
 using Dermastore.Domain.Entities;
+using Dermastore.Domain.Interfaces;
 using Dermastore.Infrastructure.Data;
 using Dermastore.Web.Components;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +18,16 @@ builder.Services.AddDbContext<DermastoreContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddQuickGridEntityFrameworkAdapter();
+
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+// Add MediatR
+builder.Services.AddMediatR();
+
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<User>()
     .AddRoles<IdentityRole>()
@@ -28,6 +41,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseMigrationsEndPoint();
 }
 
 app.UseHttpsRedirection();
