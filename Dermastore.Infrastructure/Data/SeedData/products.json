@@ -1,0 +1,74 @@
+[
+  {
+    "Name": "Gentle Facial Cleanser",
+    "Description": "A gentle cleanser for all skin types. Removes impurities without stripping natural oils.",
+    "Status": "InStock",
+    "Quantity": 50,
+    "ImageUrl": "https://example.com/images/gentle_facial_cleanser.jpg",
+    "CategoryId": 1,
+    "AnswerId": 1
+  },
+  {
+    "Name": "Acne Fighting Cleanser",
+    "Description": "An acne-fighting facial cleanser that helps reduce blemishes and excess oil.",
+    "Status": "InStock",
+    "Quantity": 30,
+    "ImageUrl": "https://example.com/images/acne_fighting_cleanser.jpg",
+    "CategoryId": 1,
+    "AnswerId": 2
+  },
+  {
+    "Name": "Hydrating Moisturizer",
+    "Description": "A lightweight, hydrating moisturizer that locks in moisture without leaving a greasy feel.",
+    "Status": "InStock",
+    "Quantity": 40,
+    "ImageUrl": "https://example.com/images/hydrating_moisturizer.jpg",
+    "CategoryId": 2,
+    "AnswerId": 3
+  },
+  {
+    "Name": "Anti-Aging Cream",
+    "Description": "A rich anti-aging cream that helps reduce fine lines and wrinkles.",
+    "Status": "InStock",
+    "Quantity": 20,
+    "ImageUrl": "https://example.com/images/anti_aging_cream.jpg",
+    "CategoryId": 2,
+    "AnswerId": 4
+  },
+  {
+    "Name": "Vitamin C Serum",
+    "Description": "Brightens and evens skin tone while reducing signs of aging with powerful vitamin C.",
+    "Status": "InStock",
+    "Quantity": 60,
+    "ImageUrl": "https://example.com/images/vitamin_c_serum.jpg",
+    "CategoryId": 3,
+    "AnswerId": 5
+  },
+  {
+    "Name": "Hyaluronic Acid Serum",
+    "Description": "A hydrating serum that plumps and nourishes the skin with pure hyaluronic acid.",
+    "Status": "InStock",
+    "Quantity": 25,
+    "ImageUrl": "https://example.com/images/hyaluronic_acid_serum.jpg",
+    "CategoryId": 3,
+    "AnswerId": 6
+  },
+  {
+    "Name": "SPF 50 Sunscreen",
+    "Description": "Provides broad-spectrum protection against UVA and UVB rays. Suitable for all skin types.",
+    "Status": "InStock",
+    "Quantity": 75,
+    "ImageUrl": "https://example.com/images/spf50_sunscreen.jpg",
+    "CategoryId": 4,
+    "AnswerId": 7
+  },
+  {
+    "Name": "Tinted Sunscreen SPF 30",
+    "Description": "A tinted sunscreen that provides natural coverage and protects against the sun’s harmful rays.",
+    "Status": "InStock",
+    "Quantity": 35,
+    "ImageUrl": "https://example.com/images/tinted_sunscreen.jpg",
+    "CategoryId": 4,
+    "AnswerId": 8
+  }
+]

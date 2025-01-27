@@ -1,5 +1,5 @@
-﻿using Dermastore.Core.Entities;
-using Dermastore.Core.Entities.OrderAggregate;
+﻿using Dermastore.Domain.Entities;
+using Dermastore.Domain.Entities.OrderAggregate;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;

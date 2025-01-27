@@ -1,5 +1,5 @@
-﻿using Dermastore.Core.Entities;
-using Dermastore.Core.Interfaces;
+﻿using Dermastore.Domain.Entities;
+using Dermastore.Domain.Interfaces;
 using System.Collections.Concurrent;
 
 namespace Dermastore.Infrastructure.Data

@@ -1,5 +1,5 @@
-﻿using Dermastore.Core.Entities;
-using Dermastore.Core.Enums;
+﻿using Dermastore.Domain.Entities;
+using Dermastore.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

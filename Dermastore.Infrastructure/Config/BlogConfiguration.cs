@@ -1,4 +1,4 @@
-﻿using Dermastore.Core.Entities;
+﻿using Dermastore.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
