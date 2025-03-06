@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Dermastore.Infrastructure.Migrations
+namespace Dermastore.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(DermastoreContext))]
     partial class DermastoreContextModelSnapshot : ModelSnapshot
@@ -74,6 +74,26 @@ namespace Dermastore.Infrastructure.Migrations
                     b.ToTable("Blogs");
                 });
 
+            modelBuilder.Entity("Dermastore.Domain.Entities.Brand", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Brands");
+                });
+
             modelBuilder.Entity("Dermastore.Domain.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -81,6 +101,9 @@ namespace Dermastore.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -252,7 +275,7 @@ namespace Dermastore.Infrastructure.Migrations
                     b.Property<int>("AnswerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int>("BrandId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -274,11 +297,16 @@ namespace Dermastore.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(50)");
 
+                    b.Property<int>("SubCategoryId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AnswerId");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("BrandId");
+
+                    b.HasIndex("SubCategoryId");
 
                     b.ToTable("Products");
                 });
@@ -332,6 +360,31 @@ namespace Dermastore.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Questions");
+                });
+
+            modelBuilder.Entity("Dermastore.Domain.Entities.SubCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("SubCategories");
                 });
 
             modelBuilder.Entity("Dermastore.Domain.Entities.User", b =>
@@ -692,13 +745,32 @@ namespace Dermastore.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Dermastore.Domain.Entities.Category", "Category")
+                    b.HasOne("Dermastore.Domain.Entities.Brand", "Brand")
                         .WithMany()
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Dermastore.Domain.Entities.SubCategory", "SubCategory")
+                        .WithMany()
+                        .HasForeignKey("SubCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Answer");
+
+                    b.Navigation("Brand");
+
+                    b.Navigation("SubCategory");
+                });
+
+            modelBuilder.Entity("Dermastore.Domain.Entities.SubCategory", b =>
+                {
+                    b.HasOne("Dermastore.Domain.Entities.Category", "Category")
+                        .WithMany("SubCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
                 });
@@ -768,6 +840,11 @@ namespace Dermastore.Infrastructure.Migrations
             modelBuilder.Entity("Dermastore.Domain.Entities.Answer", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Dermastore.Domain.Entities.Category", b =>
+                {
+                    b.Navigation("SubCategories");
                 });
 
             modelBuilder.Entity("Dermastore.Domain.Entities.OrderAggregate.Order", b =>

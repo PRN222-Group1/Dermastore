@@ -5,7 +5,8 @@
     "Status": "InStock",
     "Quantity": 50,
     "ImageUrl": "https://example.com/images/gentle_facial_cleanser.jpg",
-    "CategoryId": 1,
+    "SubCategoryId": 1,
+    "BrandId": 1,
     "AnswerId": 1
   },
   {
@@ -14,7 +15,8 @@
     "Status": "InStock",
     "Quantity": 30,
     "ImageUrl": "https://example.com/images/acne_fighting_cleanser.jpg",
-    "CategoryId": 1,
+    "SubCategoryId": 2,
+    "BrandId": 1,
     "AnswerId": 2
   },
   {
@@ -23,7 +25,8 @@
     "Status": "InStock",
     "Quantity": 40,
     "ImageUrl": "https://example.com/images/hydrating_moisturizer.jpg",
-    "CategoryId": 2,
+    "SubCategoryId": 3,
+    "BrandId": 2,
     "AnswerId": 3
   },
   {
@@ -32,7 +35,8 @@
     "Status": "InStock",
     "Quantity": 20,
     "ImageUrl": "https://example.com/images/anti_aging_cream.jpg",
-    "CategoryId": 2,
+    "SubCategoryId": 4,
+    "BrandId": 2,
     "AnswerId": 4
   },
   {
@@ -41,7 +45,8 @@
     "Status": "InStock",
     "Quantity": 60,
     "ImageUrl": "https://example.com/images/vitamin_c_serum.jpg",
-    "CategoryId": 3,
+    "SubCategoryId": 5,
+    "BrandId": 3,
     "AnswerId": 5
   },
   {
@@ -50,7 +55,8 @@
     "Status": "InStock",
     "Quantity": 25,
     "ImageUrl": "https://example.com/images/hyaluronic_acid_serum.jpg",
-    "CategoryId": 3,
+    "SubCategoryId": 6,
+    "BrandId": 3,
     "AnswerId": 6
   },
   {
@@ -59,7 +65,8 @@
     "Status": "InStock",
     "Quantity": 75,
     "ImageUrl": "https://example.com/images/spf50_sunscreen.jpg",
-    "CategoryId": 4,
+    "SubCategoryId": 7,
+    "BrandId": 4,
     "AnswerId": 7
   },
   {
@@ -68,7 +75,8 @@
     "Status": "InStock",
     "Quantity": 35,
     "ImageUrl": "https://example.com/images/tinted_sunscreen.jpg",
-    "CategoryId": 4,
+    "SubCategoryId": 8,
+    "BrandId": 4,
     "AnswerId": 8
   }
 ]
