@@ -60,6 +60,34 @@ namespace Dermastore.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
+            if (!context.SubCategories.Any())
+            {
+                var subCatData = await File
+                    .ReadAllTextAsync(path + @"/Data/SeedData/subcategories.json");
+
+                var subCategories = JsonSerializer.Deserialize<List<SubCategory>>(subCatData);
+
+                if (subCategories == null) return;
+
+                context.SubCategories.AddRange(subCategories);
+
+                await context.SaveChangesAsync();
+            }
+
+            if (!context.Brands.Any())
+            {
+                var brandData = await File
+                    .ReadAllTextAsync(path + @"/Data/SeedData/brands.json");
+
+                var brands = JsonSerializer.Deserialize<List<Brand>>(brandData);
+
+                if (brands == null) return;
+
+                context.Brands.AddRange(brands);
+
+                await context.SaveChangesAsync();
+            }
+
             if (!context.Questions.Any())
             {
                 var questData = await File
@@ -94,7 +122,6 @@ namespace Dermastore.Infrastructure.Data
                     .ReadAllTextAsync(path + @"/Data/SeedData/products.json");
 
                 var products = JsonSerializer.Deserialize<List<Product>>(productsData, options);
-                    
 
                 if (products == null) return;
 

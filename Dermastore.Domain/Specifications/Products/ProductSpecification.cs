@@ -9,13 +9,13 @@ namespace Dermastore.Domain.Specifications.Products
             x.Status == ParseStatus("InStock")
         )
         {
-            AddInclude(p => p.Category);
+            AddInclude(p => p.SubCategory);
             AddOrderBy(p => p.Name);
         }
 
         public ProductSpecification(int id) : base(x => x.Id == id)
         {
-            AddInclude(p => p.Category);
+            AddInclude(p => p.SubCategory);
         }
 
         private static ProductStatus? ParseStatus(string status)
