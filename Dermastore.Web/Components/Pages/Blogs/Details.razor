@@ -1,0 +1,55 @@
+﻿@page "/blogs/details"
+@using Dermastore.Application.DTOs.Blogs
+@using Dermastore.Application.Queries.Blogs
+@using Microsoft.EntityFrameworkCore
+@using Dermastore.Domain.Entities
+@inject NavigationManager NavigationManager
+@using MediatR
+@inject IMediator Mediator
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Blog</h2>
+    <hr />
+    @if (blogDto is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@blogDto.Title</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@blogDto.Content</dd>
+            <dt class="col-sm-2">Status</dt>
+            <dd class="col-sm-10">@blogDto.UserId</dd>
+            <dt class="col-sm-2">Quantity</dt>
+            <dd class="col-sm-10">@blogDto.DatePublished</dd>
+        </dl>
+        <div>
+            <a href="@($"/blogs/edit?id={blogDto.Id}")">Edit</a> |
+            <a href="@($"/blogs")">Back to List</a>
+        </div>
+    }
+</div>
+@code {
+    private BlogDto? blogDto;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var query = new GetBlogQuery(Id);
+        blogDto = await Mediator.Send(query);
+
+        if (blogDto is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}
