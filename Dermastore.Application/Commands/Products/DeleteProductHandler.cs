@@ -1,4 +1,5 @@
-﻿using Dermastore.Domain.Entities;
+﻿using Dermastore.Application.Interfaces;
+using Dermastore.Domain.Entities;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Domain.Specifications.Products;
 using MediatR;
@@ -7,21 +8,16 @@ namespace Dermastore.Application.Commands.Products
 {
     public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, bool>
     {
-        private readonly IGenericRepository<Product> _productRepository;
+        private readonly IProduct _iproduct;
 
-        public DeleteProductHandler(IGenericRepository<Product> productRepository)
+        public DeleteProductHandler(IProduct iproduct)
         {
-            _productRepository = productRepository;
+            _iproduct = iproduct;
         }
 
         public async Task<bool> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            var spec = new ProductSpecification(request.Id);
-            var product = await _productRepository.GetEntityWithSpec(spec);
-
-            _productRepository.Delete(product);
-            var result = await _productRepository.SaveAllAsync();
-
+            bool result = await _iproduct.DeleteProduct(request.Id);
             return result;
         }
     }

@@ -11,9 +11,9 @@ namespace Dermastore.Domain.Entities
         public required string ImageUrl { get; set; }
         public int SubCategoryId { get; set; }
         public SubCategory SubCategory { get; set; }
-        public int BrandId { get; set; }
-        public Brand Brand { get; set; }
-        public int AnswerId { get; set; }
-        public Answer Answer { get; set; }
+        public int? BrandId { get; set; }
+        public Brand? Brand { get; set; }
+        public int? AnswerId { get; set; }
+        public Answer? Answer { get; set; }
     }
 }

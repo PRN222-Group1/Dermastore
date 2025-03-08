@@ -1,4 +1,6 @@
 using Dermastore.Application.Extensions;
+using Dermastore.Application.Interfaces;
+using Dermastore.Application.Services;
 using Dermastore.Domain.Entities;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Infrastructure.Data;
@@ -12,6 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<IProduct, ProductService>();
 
 builder.Services.AddDbContext<DermastoreContext>(opt =>
 {

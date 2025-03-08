@@ -1,4 +1,5 @@
 ﻿using Dermastore.Application.Extensions;
+using Dermastore.Application.Interfaces;
 using Dermastore.Domain.Entities;
 using Dermastore.Domain.Interfaces;
 using MediatR;
@@ -7,21 +8,22 @@ namespace Dermastore.Application.Commands.Products
 {
     public class CreateProductHandler : IRequestHandler<CreateProductCommand, int>
     {
-        private readonly IGenericRepository<Product> _productRepository;
+        private readonly IProduct _iproduct;
 
-        public CreateProductHandler(IGenericRepository<Product> productRepository)
+        public CreateProductHandler(IProduct iproduct)
         {
-            _productRepository = productRepository;
+            _iproduct = iproduct;
         }
 
         public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            var product = request.ProductDto.ToEntity();
-            product.AnswerId = 1;
-            _productRepository.Add(product);
-            await _productRepository.SaveAllAsync();
+            if (request.ProductDto == null)
+            {
+                throw new ArgumentNullException(nameof(request.ProductDto), "Product data is null");
+            }
 
-            return product.Id;
+            bool result = await _iproduct.CreateProduct(request.ProductDto);
+            return result ? 1 : 0;
         }
     }
 }

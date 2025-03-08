@@ -4,16 +4,19 @@ using Dermastore.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Dermastore.Infrastructure.Data.Migrations
+namespace Dermastore.Infrastructure.Migrations
 {
     [DbContext(typeof(DermastoreContext))]
-    partial class DermastoreContextModelSnapshot : ModelSnapshot
+    [Migration("20250308040837_a")]
+    partial class a
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -275,7 +278,7 @@ namespace Dermastore.Infrastructure.Data.Migrations
                     b.Property<int?>("AnswerId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("BrandId")
+                    b.Property<int>("BrandId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -745,7 +748,9 @@ namespace Dermastore.Infrastructure.Data.Migrations
 
                     b.HasOne("Dermastore.Domain.Entities.Brand", "Brand")
                         .WithMany()
-                        .HasForeignKey("BrandId");
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Dermastore.Domain.Entities.SubCategory", "SubCategory")
                         .WithMany()
