@@ -1,0 +1,161 @@
+﻿@page "/questions/test"
+@using MediatR
+@using Dermastore.Application.DTOs.QuestionDTOs
+@using Dermastore.Application.DTOs.AnswerDTOs
+@using Dermastore.Application.Commands.Questions
+@using Dermastore.Application.Queries.Questions
+@inject NavigationManager NavigationManager
+@inject IMediator Mediator
+
+<h3>Test Questions</h3>
+
+<h4>Add Question</h4>
+<EditForm Model="newQuestionDto" OnValidSubmit="AddQuestion">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Question Content:</label>
+        <InputText @bind-Value="newQuestionDto.content" />
+    </div>
+
+    <div>
+        <label>Answers:</label>
+        @foreach (var answer in newQuestionDto.answers)
+        {
+            <div>
+                <InputText @bind-Value="answer.content" />
+            </div>
+        }
+        <button type="button" @onclick="AddAnswer">Add Answer</button>
+    </div>
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+<h4>Update Question</h4>
+<EditForm Model="updateQuestionDto" OnValidSubmit="UpdateQuestion">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Question ID:</label>
+        <InputNumber @bind-Value="updateQuestionDto.questionId" />
+    </div>
+
+    <div>
+        <label>Question Content:</label>
+        <InputText @bind-Value="updateQuestionDto.content" />
+    </div>
+
+    <div>
+        <label>Answers:</label>
+        @foreach (var answer in updateQuestionDto.answerToUpdate)
+        {
+            <div>
+                <InputText @bind-Value="answer.content" />
+            </div>
+        }
+        <button type="button" @onclick="AddUpdateAnswer">Add Answer</button>
+    </div>
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+<h4>All Questions</h4>
+<button @onclick="GetAllQuestions">Get All Questions</button>
+@if (allQuestions != null)
+{
+    <ul>
+        @foreach (var question in allQuestions)
+        {
+            <li>@question.content</li>
+        }
+    </ul>
+}
+
+<h4>Get Question by ID</h4>
+<div>
+    <label>Question ID:</label>
+    <InputNumber @bind-Value="questionId" />
+    <button @onclick="GetQuestionById">Get Question</button>
+</div>
+@if (questionById != null)
+{
+    <div>
+        <h5>@questionById.content</h5>
+        <ul>
+            @foreach (var answer in questionById.answers)
+            {
+                <li>@answer.content</li>
+            }
+        </ul>
+    </div>
+}
+
+<h4>Delete Question by ID</h4>
+<div>
+    <label>Question ID:</label>
+    <InputNumber @bind-Value="deleteQuestionId" />
+    <button @onclick="DeleteQuestionById">Delete Question</button>
+</div>
+
+@code {
+    private QuestionToAddDTO newQuestionDto = new();
+    private QuestionToUpdateDTO updateQuestionDto = new();
+    private List<QuestionDto> allQuestions;
+    private QuestionDto questionById;
+    private int questionId;
+    private int deleteQuestionId;
+
+    private void AddAnswer()
+    {
+        newQuestionDto.answers.Add(new AnswerToAddDto());
+    }
+
+    private void AddUpdateAnswer()
+    {
+        updateQuestionDto.answerToUpdate.Add(new AnswerToUpdateDto());
+    }
+
+    private async Task AddQuestion()
+    {
+        var command = new CreateQuestionCommand(newQuestionDto);
+        var questionId = await Mediator.Send(command);
+        NavigationManager.NavigateTo($"/questions/details?id={questionId}");
+    }
+
+    private async Task UpdateQuestion()
+    {
+        var command = new UpdateQuestionCommand(updateQuestionDto);
+        var questionId = await Mediator.Send(command);
+        NavigationManager.NavigateTo($"/questions/details?id={questionId}");
+    }
+
+    private async Task GetAllQuestions()
+    {
+        var query = new GetQuestionsQuery();
+        allQuestions = (await Mediator.Send(query)).ToList();
+    }
+
+    private async Task GetQuestionById()
+    {
+        var query = new GetQuestionQuery(questionId);
+        questionById = await Mediator.Send(query);
+    }
+
+    private async Task DeleteQuestionById()
+    {
+        var command = new DeleteQuestionCommand(deleteQuestionId);
+        var result = await Mediator.Send(command);
+
+        if (result)
+        {
+            NavigationManager.NavigateTo("/questions/test");
+        }
+        else
+        {
+            // Handle error
+        }
+    }
+}

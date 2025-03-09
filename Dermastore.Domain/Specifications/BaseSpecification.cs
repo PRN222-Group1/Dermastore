@@ -31,7 +31,7 @@ namespace Dermastore.Domain.Specifications
         /// through navigation properties.
         /// </summary>
         public List<Expression<Func<T, object>>> Includes { get; } = new List<Expression<Func<T, object>>>();
-
+         
         /// <summary>
         /// Used for sorting ascendingly
         /// </summary>

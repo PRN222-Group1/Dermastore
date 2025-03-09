@@ -1,0 +1,36 @@
+﻿@page "/answers/add"
+@using MediatR
+@using Dermastore.Application.DTOs.AnswerDTOs
+@using Dermastore.Application.Commands.Answers
+@inject NavigationManager NavigationManager
+@inject IMediator Mediator
+
+<h3>Add Answer</h3>
+
+<EditForm Model="answerDto" OnValidSubmit="AddAnswer">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Answer Content:</label>
+        <InputText @bind-Value="answerDto.content" />
+    </div>
+
+    <div>
+        <label>Question ID:</label>
+        <InputNumber @bind-Value="answerDto.questionId" />
+    </div>
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code {
+    private AnswerToAddDto answerDto = new();
+
+    private async Task AddAnswer()
+    {
+        var command = new CreateAnswerCommand(answerDto);
+        var answerId = await Mediator.Send(command);
+        NavigationManager.NavigateTo($"/answers/details?id={answerId}");
+    }
+}

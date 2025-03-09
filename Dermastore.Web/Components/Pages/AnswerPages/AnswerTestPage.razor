@@ -1,0 +1,133 @@
+﻿@page "/answers/test"
+@using MediatR
+@using Dermastore.Application.DTOs.AnswerDTOs
+@using Dermastore.Application.Commands.Answers
+@using Dermastore.Application.Queries.Answers
+@inject NavigationManager NavigationManager
+@inject IMediator Mediator
+
+<h3>Test Answers</h3>
+
+<h4>Add Answer</h4>
+<EditForm Model="newAnswerDto" OnValidSubmit="AddAnswer">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Answer Content:</label>
+        <InputText @bind-Value="newAnswerDto.content" />
+    </div>
+
+    <div>
+        <label>Question ID:</label>
+        <InputNumber @bind-Value="newAnswerDto.questionId" />
+    </div>
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+<h4>Update Answer</h4>
+<EditForm Model="updateAnswerDto" OnValidSubmit="UpdateAnswer">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Answer ID:</label>
+        <InputNumber @bind-Value="updateAnswerDto.answerId" />
+    </div>
+
+    <div>
+        <label>Answer Content:</label>
+        <InputText @bind-Value="updateAnswerDto.content" />
+    </div>
+
+    <div>
+        <label>Question ID:</label>
+        <InputNumber @bind-Value="updateAnswerDto.questionId" />
+    </div>
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+<h4>All Answers</h4>
+<button @onclick="GetAllAnswers">Get All Answers</button>
+@if (allAnswers != null)
+{
+    <ul>
+        @foreach (var answer in allAnswers)
+        {
+            <li>@answer.content</li>
+        }
+    </ul>
+}
+
+<h4>Get Answer by ID</h4>
+<div>
+    <label>Answer ID:</label>
+    <InputNumber @bind-Value="answerId" />
+    <button @onclick="GetAnswerById">Get Answer</button>
+</div>
+@if (answerById != null)
+{
+    <div>
+        <h5>@answerById.content</h5>
+    </div>
+}
+
+<h4>Delete Answer by ID</h4>
+<div>
+    <label>Answer ID:</label>
+    <InputNumber @bind-Value="deleteAnswerId" />
+    <button @onclick="DeleteAnswerById">Delete Answer</button>
+</div>
+
+@code {
+    private AnswerToAddDto newAnswerDto = new();
+    private AnswerToUpdateDto updateAnswerDto = new();
+    private List<AnswerDto> allAnswers;
+    private AnswerDto answerById;
+    private int answerId;
+    private int deleteAnswerId;
+
+    private async Task AddAnswer()
+    {
+        var command = new CreateAnswerCommand(newAnswerDto);
+        var answerId = await Mediator.Send(command);
+        NavigationManager.NavigateTo($"/answers/details?id={answerId}");
+    }
+
+    private async Task UpdateAnswer()
+    {
+        var command = new UpdateAnswerCommand(updateAnswerDto);
+        var answerId = await Mediator.Send(command);
+        NavigationManager.NavigateTo($"/answers/details?id={answerId}");
+    }
+
+    private async Task GetAllAnswers()
+    {
+        var query = new GetAllAnswersQuery();
+        allAnswers = (await Mediator.Send(query)).ToList();
+    }
+
+    private async Task GetAnswerById()
+    {
+        var query = new GetAnswerQuery(answerId);
+        answerById = await Mediator.Send(query);
+    }
+
+    private async Task DeleteAnswerById()
+    {
+        var command = new DeleteAnswerCommand(deleteAnswerId);
+        var result = await Mediator.Send(command);
+
+        if (result)
+        {
+            NavigationManager.NavigateTo("/answers/test");
+        }
+        else
+        {
+            // Handle error
+        }
+    }
+}
+
