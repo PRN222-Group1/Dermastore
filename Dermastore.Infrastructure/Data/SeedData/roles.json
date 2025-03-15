@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "Customer",
+    "NormalizedName": "CUSTOMER"
+  },
+  {
+    "Name": "Staff",
+    "NormalizedName": "STAFF"
+  },
+  {
+    "Name": "Manager",
+    "NormalizedName": "MANAGER"
+  }
+]

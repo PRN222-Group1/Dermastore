@@ -90,7 +90,7 @@
                     </div>
                 </form>
                 <div class="nav-item">
-                    <a class="nav-link" href="#" role="button">
+                    <a class="nav-link" href="/accounts/login" role="button">
                         <i class="fa fa-sign-in me-2"></i> Login
                     </a>
                 </div>
@@ -118,14 +118,10 @@
 
 @code {
     private IReadOnlyList<CategoryDto> categories;
-    private IReadOnlyList<BrandDto> brands;
 
     protected override async Task OnInitializedAsync()
     {
         var categoryQuery = new GetCategoriesQuery();
         categories = await Mediator.Send(categoryQuery);
-
-        var brandQuery = new GetBrandsQuery();
-        brands = await Mediator.Send(brandQuery);
     }
 }
