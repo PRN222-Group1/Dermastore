@@ -20,23 +20,13 @@
     "Description": "Rich moisturizers formulated to repair and hydrate the skin overnight."
   },
   {
-    "Name": "Hydrating Serums",
-    "CategoryId": 3,
-    "Description": "Serums that help boost moisture levels and plump the skin."
-  },
-  {
-    "Name": "Anti-Aging Serums",
-    "CategoryId": 3,
-    "Description": "Serums designed to reduce the appearance of fine lines and wrinkles."
-  },
-  {
     "Name": "Mineral Sunscreens",
-    "CategoryId": 4,
+    "CategoryId": 3,
     "Description": "Sunscreens that use mineral-based ingredients like zinc oxide to protect the skin from UV rays."
   },
   {
     "Name": "Chemical Sunscreens",
-    "CategoryId": 4,
+    "CategoryId": 3,
     "Description": "Sunscreens formulated with chemical filters to absorb UV radiation."
   }
 ]
