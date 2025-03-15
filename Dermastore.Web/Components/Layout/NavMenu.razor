@@ -2,75 +2,100 @@
 @using Dermastore.Application.Queries.Products
 @using MediatR
 @inject IMediator Mediator
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand py-0" href="#">
-        <img src="/assets/logo.png" height="100" alt="Dermastore Logo">
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+    <div class="container-fluid ps-0">
+        <!-- Section 1: Logo -->
+        <div class="navbar-brand m-0 p-0">
+            <a class="navbar-brand py-0" href="#">
+                <img src="/assets/logo.png" height="100" alt="Dermastore Logo">
+            </a>
+        </div>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item dropdown p-3 d-flex align-items-center">
-                <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">
-                    Dermastore
-                </a>
-                <div class="dropdown-menu bg-secondary p-4 mt-5" aria-labelledby="categoryDropdown">
-                    <div class="container">
-                        <div class="row">
-                            <!-- Categories Section -->
-                            @if (categories != null)
-                            {
-                                @foreach (var category in categories)
+        <!-- Hamburger menu for mobile -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <!-- Section 2: Navigation Links -->
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item dropdown p-3 d-flex align-items-center">
+                    <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fa-solid fa-bag-shopping me-2"></i> Dermastore
+                    </a>
+                    <div class="dropdown-menu bg-secondary p-4 mt-5" aria-labelledby="categoryDropdown">
+                        <div class="p-3">
+                            <div class="row">
+                                <!-- Categories Section -->
+                                @if (categories != null)
                                 {
-                                    <div class="col-md-3 mb-3">
-                                        <h6 class="text-uppercase font-weight-bold text-white border-bottom pb-2">@category.Name</h6>
-                                        <ul class="nav flex-column">
-                                            @foreach (var subcategory in category.SubCategories)
-                                            {
-                                                <li class="nav-item">
-                                                    <a class="nav-link text-tertiary py-1 hover-highlight" href="#">@subcategory.Name</a>
-                                                </li>
-                                            }
-                                        </ul>
-                                    </div>
+                                    @foreach (var category in categories)
+                                    {
+                                        <div class="col-md-3 mb-3">
+                                            <h6 class="text-uppercase font-weight-bold text-white border-bottom pb-2">@category.Name</h6>
+                                            <ul class="nav flex-column">
+                                                @foreach (var subcategory in category.SubCategories)
+                                                {
+                                                    <li class="nav-item">
+                                                        <a class="nav-link text-tertiary py-1 hover-highlight" href="#">@subcategory.Name</a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
                                 }
-                            }
 
-                            <!-- Brands Section -->
-                            @if (brands != null)
-                            {
-                                <div class="col-md-3 mb-3">
-                                    <h6 class="text-uppercase font-weight-bold text-white border-bottom pb-2">Brands</h6>
-                                    <ul class="nav flex-column">
-                                        @foreach (var brand in brands)
-                                        {
-                                            <li class="nav-item">
-                                                <a class="nav-link text-tertiary py-1 hover-highlight" href="#">@brand.Name</a>
-                                            </li>
-                                        }
-                                    </ul>
-                                </div>
-                            }
-
-                            <!-- Image Section -->
-                            <div class="col-md-3 text-center ms-auto">
-                                <div class="promo-section">
-                                    <a target="_blank" href="#">
-                                        <img src="/assets/NavMenuPlaceholder.png"
-                                             alt="Our Latest Products" class="img-fluid rounded mb-2" style="max-height: 300px; object-fit: cover;">
-                                    </a>
-                                    <p class="text-white mb-0">Our Latest Products</p>
+                                <!-- Image Section -->
+                                <div class="col-md-3 text-center ms-auto">
+                                    <div class="promo-section">
+                                        <a target="_blank" href="#">
+                                            <img src="/assets/NavMenuPlaceholder.png"
+                                                 alt="Our Latest Products" class="img-fluid rounded mb-2" style="max-height: 300px; object-fit: cover;">
+                                        </a>
+                                        <p class="text-white mb-0">Our Latest Products</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </li>
+                <li class="nav-item p-3 d-flex align-items-center">
+                    <a class="nav-link" href="#" role="button">
+                        <i class="fa-solid fa-blog me-2"></i> Blogs
+                    </a>
+                </li>
+                <li class="nav-item p-3 d-flex align-items-center">
+                    <a class="nav-link" href="#" role="button">
+                        <i class="fa fa-check me-2"></i> Skin Test
+                    </a>
+                </li>
+                <li class="nav-item p-3 d-flex align-items-center">
+                    <a class="nav-link" href="#" role="button">
+                        <i class="fa-solid fa-cart-shopping me-2"></i> Cart
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Section 3: Search Bar and Login Button -->
+            <div class="d-flex align-items-center">
+                <form class="d-flex me-3">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Search products..." aria-label="Search">
+                        <button class="btn btn-light" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+                <div class="nav-item">
+                    <a class="nav-link" href="#" role="button">
+                        <i class="fa fa-sign-in me-2"></i> Login
+                    </a>
                 </div>
-            </li>
-        </ul>
+            </div>
+        </div>
     </div>
 </nav>
 

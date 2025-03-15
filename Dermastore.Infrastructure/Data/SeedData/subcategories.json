@@ -20,43 +20,13 @@
     "Description": "Rich moisturizers formulated to repair and hydrate the skin overnight."
   },
   {
-    "Name": "Hydrating Serums",
-    "CategoryId": 3,
-    "Description": "Serums that help boost moisture levels and plump the skin."
-  },
-  {
-    "Name": "Anti-Aging Serums",
-    "CategoryId": 3,
-    "Description": "Serums designed to reduce the appearance of fine lines and wrinkles."
-  },
-  {
     "Name": "Mineral Sunscreens",
-    "CategoryId": 4,
+    "CategoryId": 3,
     "Description": "Sunscreens that use mineral-based ingredients like zinc oxide to protect the skin from UV rays."
   },
   {
     "Name": "Chemical Sunscreens",
-    "CategoryId": 4,
+    "CategoryId": 3,
     "Description": "Sunscreens formulated with chemical filters to absorb UV radiation."
-  },
-  {
-    "Name": "Physical Exfoliators",
-    "CategoryId": 5,
-    "Description": "Exfoliators that use physical particles like scrubs to slough off dead skin cells."
-  },
-  {
-    "Name": "Chemical Exfoliators",
-    "CategoryId": 5,
-    "Description": "Exfoliators that use acids like AHAs and BHAs to dissolve dead skin cells without scrubbing."
-  },
-  {
-    "Name": "Anti-Puffiness Eye Creams",
-    "CategoryId": 6,
-    "Description": "Eye creams that target puffiness and reduce under-eye swelling."
-  },
-  {
-    "Name": "Dark Circle Correcting Eye Creams",
-    "CategoryId": 6,
-    "Description": "Eye creams formulated to brighten and reduce the appearance of dark circles."
   }
 ]
