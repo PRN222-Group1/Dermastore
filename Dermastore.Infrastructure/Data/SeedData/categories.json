@@ -14,5 +14,13 @@
   {
     "Name": "Sunscreens",
     "Description": "Products that protect the skin from harmful UV rays and prevent sun damage."
+  },
+  {
+    "Name": "Exfoliators",
+    "Description": "Products designed to remove dead skin cells and promote cell turnover for smoother skin."
+  },
+  {
+    "Name": "Eye Creams",
+    "Description": "Products specifically formulated for the delicate skin around the eyes to target puffiness, dark circles, and fine lines."
   }
 ]

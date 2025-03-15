@@ -103,3 +103,54 @@
         overflow-y: auto;
     }
 }
+
+.navbar-brand img {
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover img {
+    transform: scale(1.05);
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    min-width: 800px;
+}
+
+.nav-link.hover-highlight:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.promo-section {
+    padding: 1rem;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    height: 100%;
+}
+
+.promo-section:hover {
+    transform: translateY(-5px);
+}
+
+@media (max-width: 992px) {
+    .dropdown-menu {
+        min-width: 100%;
+    }
+}
+
+.see-more-link {
+    display: inline-block;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    padding: 4px 8px !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.see-more-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
+}
