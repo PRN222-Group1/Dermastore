@@ -1,13 +1,17 @@
 ﻿using Dermastore.Domain.Entities;
 using Dermastore.Domain.Entities.OrderAggregate;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace Dermastore.Infrastructure.Data
 {
-    public class DermastoreContext(DbContextOptions options) : IdentityDbContext<User>(options)
+    public class DermastoreContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
+        public DermastoreContext(DbContextOptions<DermastoreContext> options) : base(options)
+        {
+        }
         public DbSet<Question> Questions { get; set; }
         public DbSet<Answer> Answers { get; set; }
         public DbSet<Category> Categories { get; set; }

@@ -125,5 +125,21 @@ namespace Dermastore.Domain.Specifications
             Take = take;
             IsPagingEnabled = true;
         }
+
+        /// <summary>
+        /// Used this to parse status of some entities
+        /// </summary>
+        /// <typeparam name="E"></typeparam>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        protected static E? ParseStatus<E>(string status) where E : struct, Enum
+        {
+            if (Enum.TryParse<E>(status, true, out var result))
+            {
+                return result;
+            }
+
+            return null;
+        }
     }
 }
