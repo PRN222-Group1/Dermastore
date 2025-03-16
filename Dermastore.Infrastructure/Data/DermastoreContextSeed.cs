@@ -194,6 +194,16 @@ namespace Dermastore.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
+            if (!context.QuizResults.Any())
+            {
+                var quizDatas = await File
+                    .ReadAllTextAsync(path + @"/Data/SeedData/QuizResult.json");
+                var quizResult = JsonSerializer.Deserialize<List<QuizResult>>(quizDatas);
+                if (quizResult == null) return;
+                context.QuizResults.AddRange(quizResult);
+                await context.SaveChangesAsync();
+            }
+
             if (!context.Answers.Any())
             {
                 var ansData = await File
@@ -221,6 +231,7 @@ namespace Dermastore.Infrastructure.Data
 
                 await context.SaveChangesAsync();
             }
+            
         }
     }
 }

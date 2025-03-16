@@ -25,6 +25,7 @@ namespace Dermastore.Infrastructure.Data
         public DbSet<Membership> Memberships { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<DeliveryMethod> DeliveryMethods { get; set; }
+        public DbSet<QuizResult> QuizResults { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -11,11 +11,11 @@ namespace Dermastore.Domain.Specifications.Questions
     {
         public QuestionSpecification()
         {
-            Includes.Add(q => q.Answers);
+            AddInclude(q => q.Answers);
         }
         public QuestionSpecification(int id) : base(x => x.Id == id)
         {
-            Includes.Add(q => q.Answers);
+            AddInclude(q => q.Answers);
         }
     }
 }

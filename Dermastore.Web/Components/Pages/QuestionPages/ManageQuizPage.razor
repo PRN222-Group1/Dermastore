@@ -1,0 +1,673 @@
+﻿@page "/manage-quiz"
+@using System.Linq
+
+<!-- For quick demonstration, we place the styles here in a <style> block. -->
+<style>
+    .modal-backdrop {
+        /* Ensure modals have a backdrop. This is a minimal demonstration. */
+        opacity: 0.5;
+    }
+
+    .tab-content > .table {
+        margin-top: 1rem;
+    }
+
+    /* Example custom color for the Update button */
+    .btn-update {
+        background-color: #0d6efd; /* You can use #588157 if you want the greenish color you mentioned */
+        color: white;
+        border: none;
+    }
+
+        .btn-update:hover {
+            background-color: #0b5ed7;
+        }
+
+    /* Example custom color for the Create button */
+    .btn-create {
+        background-color: #588157;
+        color: white;
+        border: none;
+    }
+
+        .btn-create:hover {
+            background-color: #4a6b48;
+        }
+</style>
+
+<h2>Manage Quiz</h2>
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == 1 ? "active" : "")"
+           
+           @onclick="() => SetActiveTab(1)">
+            Manage Questions
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == 2 ? "active" : "")"
+          
+           @onclick="() => SetActiveTab(2)">
+            Manage Answers
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == 3 ? "active" : "")"
+           
+           @onclick="() => SetActiveTab(3)">
+            Manage Results
+        </a>
+    </li>
+</ul>
+
+<!-- Tab content -->
+<div class="tab-content p-3">
+
+    @if (ActiveTab == 1)
+    {
+        <!-- Manage Questions -->
+        <div>
+            <button class="btn btn-create mb-2" @onclick="ShowCreateQuestionModal">Create Question</button>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Question ID</th>
+                        <th>Question Content</th>
+                        <th>Answers</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var q in Questions)
+                    {
+                        <tr>
+                            <td>@q.Id</td>
+                            <td>@q.Content</td>
+                            <td>
+                                <!-- "View detail" button to show a modal listing all answers for this question -->
+                                <button class="btn btn-sm btn-info"
+                                        @onclick="() => ShowViewAnswersModal(q)">
+                                    View Detail
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-update btn-sm me-1"
+                                        @onclick="() => ShowUpdateQuestionModal(q)">
+                                    Update
+                                </button>
+                                <button class="btn btn-danger btn-sm"
+                                        @onclick="() => DeleteQuestion(q.Id)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (ActiveTab == 2)
+    {
+        <!-- Manage Answers -->
+        <div>
+            <button class="btn btn-create mb-2" @onclick="ShowCreateAnswerModal">Create Answer</button>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Answer ID</th>
+                        <th>Answer Content</th>
+                        <th>Question ID</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Answers)
+                    {
+                        <tr>
+                            <td>@a.Id</td>
+                            <td>@a.Content</td>
+                            <td>@a.QuestionId</td>
+                            <td>
+                                <button class="btn btn-update btn-sm me-1"
+                                        @onclick="() => ShowUpdateAnswerModal(a)">
+                                    Update
+                                </button>
+                                <button class="btn btn-danger btn-sm"
+                                        @onclick="() => DeleteAnswer(a.Id)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (ActiveTab == 3)
+    {
+        <!-- Manage Results -->
+        <div>
+            <button class="btn btn-create mb-2" @onclick="ShowCreateResultModal">Create Result</button>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Result ID</th>
+                        <th>Skin Type</th>
+                        <th>Skin Description</th>
+                        <th>Characteristic</th>
+                        <th>Care Tips</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Results)
+                    {
+                        <tr>
+                            <td>@r.Id</td>
+                            <td>@r.SkinType</td>
+                            <td>@r.SkinDescription</td>
+                            <td>@r.Characteristic</td>
+                            <td>@r.CareTips</td>
+                            <td>
+                                <button class="btn btn-update btn-sm me-1"
+                                        @onclick="() => ShowUpdateResultModal(r)">
+                                    Update
+                                </button>
+                                <button class="btn btn-danger btn-sm"
+                                        @onclick="() => DeleteResult(r.Id)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<!-- ====================== Modals ======================= -->
+<!-- Modal: Create/Update Question -->
+@if (ShowQuestionModal)
+{
+    <div class="modal show" style="display:block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@QuestionModalTitle</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            @onclick="CloseQuestionModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="questionContent" class="form-label">Question Content</label>
+                        <input id="questionContent" class="form-control"
+                               @bind="TempQuestion.Content" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseQuestionModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="SaveQuestion">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transparent backdrop -->
+    <div class="modal-backdrop fade show"></div>
+}
+
+<!-- Modal: View Answers for a question -->
+@if (ShowViewAnswers)
+{
+    <div class="modal show" style="display:block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Answers for Question ID @ViewAnswersQuestionId</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            @onclick="CloseViewAnswersModal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Answer ID</th>
+                                <th>Answer Content</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewAnswersList != null)
+                            {
+                                @foreach (var ans in ViewAnswersList)
+                                {
+                                    <tr>
+                                        <td>@ans.Id</td>
+                                        <td>@ans.Content</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseViewAnswersModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+<!-- Modal: Create/Update Answer -->
+@if (ShowAnswerModal)
+{
+    <div class="modal show" style="display:block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@AnswerModalTitle</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            @onclick="CloseAnswerModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="answerContent" class="form-label">Answer Content</label>
+                        <input id="answerContent" class="form-control"
+                               @bind="TempAnswer.Content" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="answerQuestionId" class="form-label">Question ID</label>
+                        <input id="answerQuestionId" class="form-control"
+                               type="number"
+                               @bind="TempAnswer.QuestionId" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseAnswerModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="SaveAnswer">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+<!-- Modal: Create/Update Result -->
+@if (ShowResultModal)
+{
+    <div class="modal show" style="display:block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@ResultModalTitle</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            @onclick="CloseResultModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Skin Type</label>
+                        <input class="form-control" @bind="TempResult.SkinType" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Skin Description</label>
+                        <input class="form-control" @bind="TempResult.SkinDescription" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Characteristic</label>
+                        <input class="form-control" @bind="TempResult.Characteristic" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Care Tips</label>
+                        <input class="form-control" @bind="TempResult.CareTips" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseResultModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="SaveResult">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    // ------------------ Sample Data Structures ---------------------
+    public class QuestionDto
+    {
+        public int Id { get; set; }
+        public string Content { get; set; }
+        public List<AnswerDto> Answers { get; set; } = new();
+    }
+
+    public class AnswerDto
+    {
+        public int Id { get; set; }
+        public string Content { get; set; }
+        public int QuestionId { get; set; }
+    }
+
+    public class ResultDto
+    {
+        public int Id { get; set; }
+        public string SkinType { get; set; }
+        public string SkinDescription { get; set; }
+        public string Characteristic { get; set; }
+        public string CareTips { get; set; }
+    }
+
+    // ------------------ State Fields ---------------------
+    private int ActiveTab = 1;
+
+    // Hard-coded lists for demonstration
+    private List<QuestionDto> Questions = new();
+    private List<AnswerDto> Answers = new();
+    private List<ResultDto> Results = new();
+
+    // For question create/update
+    private bool ShowQuestionModal = false;
+    private string QuestionModalTitle = "";
+    private QuestionDto TempQuestion = new();
+
+    // For viewing question answers
+    private bool ShowViewAnswers = false;
+    private int ViewAnswersQuestionId = 0;
+    private List<AnswerDto> ViewAnswersList = new();
+
+    // For answer create/update
+    private bool ShowAnswerModal = false;
+    private string AnswerModalTitle = "";
+    private AnswerDto TempAnswer = new();
+
+    // For result create/update
+    private bool ShowResultModal = false;
+    private string ResultModalTitle = "";
+    private ResultDto TempResult = new();
+
+    protected override void OnInitialized()
+    {
+        // Hard-coded sample data
+        Questions = new List<QuestionDto>
+        {
+            new QuestionDto { Id=1, Content="What is your skin type?",
+                Answers=new List<AnswerDto>{
+                    new AnswerDto{Id=101, Content="Oily", QuestionId=1},
+                    new AnswerDto{Id=102, Content="Dry", QuestionId=1},
+                    new AnswerDto{Id=103, Content="Combination", QuestionId=1},
+                    new AnswerDto{Id=104, Content="Normal", QuestionId=1}
+                }
+            },
+            new QuestionDto { Id=2, Content="What is your age range?",
+                Answers=new List<AnswerDto>{
+                    new AnswerDto{Id=105, Content="Under 20", QuestionId=2},
+                    new AnswerDto{Id=106, Content="20-30", QuestionId=2},
+                    new AnswerDto{Id=107, Content="30-40", QuestionId=2},
+                    new AnswerDto{Id=108, Content="Over 40", QuestionId=2}
+                }
+            },
+            new QuestionDto { Id=3, Content="What is your preferred cosmetic brand?",
+                Answers=new List<AnswerDto>{
+                    new AnswerDto{Id=109, Content="Brand A", QuestionId=3},
+                    new AnswerDto{Id=110, Content="Brand B", QuestionId=3},
+                    new AnswerDto{Id=111, Content="Brand C", QuestionId=3},
+                }
+            },
+        };
+
+        // Flatten answers from the question list to store in the Answers list
+        Answers = Questions.SelectMany(q => q.Answers).ToList();
+
+        Results = new List<ResultDto>
+        {
+            new ResultDto{ Id=1, SkinType="Oily", SkinDescription="Excess sebum", Characteristic="Shiny T-zone", CareTips="Use oil-free cleanser" },
+            new ResultDto{ Id=2, SkinType="Dry", SkinDescription="Lack of moisture", Characteristic="Flaky patches", CareTips="Hydrate regularly" },
+            new ResultDto{ Id=3, SkinType="Normal", SkinDescription="Balanced skin", Characteristic="Minimal issues", CareTips="Maintain routine" }
+        };
+    }
+
+    // ------------------ Tab Logic ---------------------
+    private void SetActiveTab(int tabIndex)
+    {
+        ActiveTab = tabIndex;
+    }
+
+    // ------------------ Manage Questions Methods ---------------------
+    private void ShowCreateQuestionModal()
+    {
+        QuestionModalTitle = "Create Question";
+        TempQuestion = new QuestionDto(); // empty
+        ShowQuestionModal = true;
+    }
+
+    private void ShowUpdateQuestionModal(QuestionDto q)
+    {
+        QuestionModalTitle = "Update Question";
+        // Create a copy so we don't modify original until Save
+        TempQuestion = new QuestionDto
+            {
+                Id = q.Id,
+                Content = q.Content
+            };
+        ShowQuestionModal = true;
+    }
+
+    private void SaveQuestion()
+    {
+        if (TempQuestion.Id == 0)
+        {
+            // Create
+            // Just pick a new ID
+            int newId = Questions.Any() ? Questions.Max(x => x.Id) + 1 : 1;
+            TempQuestion.Id = newId;
+            Questions.Add(new QuestionDto
+                {
+                    Id = TempQuestion.Id,
+                    Content = TempQuestion.Content,
+                    Answers = new List<AnswerDto>()
+                });
+        }
+        else
+        {
+            // Update
+            var existing = Questions.FirstOrDefault(x => x.Id == TempQuestion.Id);
+            if (existing != null)
+            {
+                existing.Content = TempQuestion.Content;
+            }
+        }
+
+        CloseQuestionModal();
+    }
+
+    private void DeleteQuestion(int id)
+    {
+        var q = Questions.FirstOrDefault(x => x.Id == id);
+        if (q != null)
+        {
+            Questions.Remove(q);
+            // Also remove from Answers
+            Answers.RemoveAll(a => a.QuestionId == id);
+        }
+    }
+
+    private void CloseQuestionModal()
+    {
+        ShowQuestionModal = false;
+    }
+
+    // For viewing question’s answers
+    private void ShowViewAnswersModal(QuestionDto question)
+    {
+        ViewAnswersQuestionId = question.Id;
+        ViewAnswersList = question.Answers; // or get from Answers list
+        ShowViewAnswers = true;
+    }
+
+    private void CloseViewAnswersModal()
+    {
+        ShowViewAnswers = false;
+        ViewAnswersList = new();
+        ViewAnswersQuestionId = 0;
+    }
+
+    // ------------------ Manage Answers Methods ---------------------
+    private void ShowCreateAnswerModal()
+    {
+        AnswerModalTitle = "Create Answer";
+        TempAnswer = new AnswerDto(); // empty
+        ShowAnswerModal = true;
+    }
+
+    private void ShowUpdateAnswerModal(AnswerDto ans)
+    {
+        AnswerModalTitle = "Update Answer";
+        TempAnswer = new AnswerDto
+            {
+                Id = ans.Id,
+                Content = ans.Content,
+                QuestionId = ans.QuestionId
+            };
+        ShowAnswerModal = true;
+    }
+
+    private void SaveAnswer()
+    {
+        if (TempAnswer.Id == 0)
+        {
+            // Create
+            int newId = Answers.Any() ? Answers.Max(a => a.Id) + 1 : 100;
+            TempAnswer.Id = newId;
+            Answers.Add(new AnswerDto
+                {
+                    Id = TempAnswer.Id,
+                    Content = TempAnswer.Content,
+                    QuestionId = TempAnswer.QuestionId
+                });
+
+            // Also add it to the corresponding question's Answers if found
+            var q = Questions.FirstOrDefault(x => x.Id == TempAnswer.QuestionId);
+            if (q != null)
+            {
+                q.Answers.Add(new AnswerDto
+                    {
+                        Id = TempAnswer.Id,
+                        Content = TempAnswer.Content,
+                        QuestionId = TempAnswer.QuestionId
+                    });
+            }
+        }
+        else
+        {
+            // Update
+            var existing = Answers.FirstOrDefault(x => x.Id == TempAnswer.Id);
+            if (existing != null)
+            {
+                existing.Content = TempAnswer.Content;
+                existing.QuestionId = TempAnswer.QuestionId;
+            }
+
+            // Also update in the question’s answers
+            var oldQ = Questions.FirstOrDefault(x => x.Answers.Any(a => a.Id == TempAnswer.Id));
+            if (oldQ != null)
+            {
+                var oldAns = oldQ.Answers.FirstOrDefault(a => a.Id == TempAnswer.Id);
+                if (oldAns != null)
+                {
+                    oldAns.Content = TempAnswer.Content;
+                    oldAns.QuestionId = TempAnswer.QuestionId;
+                }
+            }
+            // If questionId changed, we may want to remove from oldQ and add to newQ
+            // omitted for brevity
+        }
+
+        CloseAnswerModal();
+    }
+
+    private void DeleteAnswer(int id)
+    {
+        var ans = Answers.FirstOrDefault(x => x.Id == id);
+        if (ans != null)
+        {
+            Answers.Remove(ans);
+            // Also remove from question's Answers
+            var q = Questions.FirstOrDefault(x => x.Id == ans.QuestionId);
+            q?.Answers.RemoveAll(a => a.Id == id);
+        }
+    }
+
+    private void CloseAnswerModal()
+    {
+        ShowAnswerModal = false;
+    }
+
+    // ------------------ Manage Results Methods ---------------------
+    private void ShowCreateResultModal()
+    {
+        ResultModalTitle = "Create Result";
+        TempResult = new ResultDto();
+        ShowResultModal = true;
+    }
+
+    private void ShowUpdateResultModal(ResultDto r)
+    {
+        ResultModalTitle = "Update Result";
+        TempResult = new ResultDto
+            {
+                Id = r.Id,
+                SkinType = r.SkinType,
+                SkinDescription = r.SkinDescription,
+                Characteristic = r.Characteristic,
+                CareTips = r.CareTips
+            };
+        ShowResultModal = true;
+    }
+
+    private void SaveResult()
+    {
+        if (TempResult.Id == 0)
+        {
+            // Create
+            int newId = Results.Any() ? Results.Max(r => r.Id) + 1 : 1;
+            TempResult.Id = newId;
+            Results.Add(new ResultDto
+                {
+                    Id = TempResult.Id,
+                    SkinType = TempResult.SkinType,
+                    SkinDescription = TempResult.SkinDescription,
+                    Characteristic = TempResult.Characteristic,
+                    CareTips = TempResult.CareTips
+                });
+        }
+        else
+        {
+            // Update
+            var existing = Results.FirstOrDefault(x => x.Id == TempResult.Id);
+            if (existing != null)
+            {
+                existing.SkinType = TempResult.SkinType;
+                existing.SkinDescription = TempResult.SkinDescription;
+                existing.Characteristic = TempResult.Characteristic;
+                existing.CareTips = TempResult.CareTips;
+            }
+        }
+        CloseResultModal();
+    }
+
+    private void DeleteResult(int id)
+    {
+        var r = Results.FirstOrDefault(x => x.Id == id);
+        if (r != null)
+        {
+            Results.Remove(r);
+        }
+    }
+
+    private void CloseResultModal()
+    {
+        ShowResultModal = false;
+    }
+}

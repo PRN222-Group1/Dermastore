@@ -37,9 +37,14 @@ namespace Dermastore.Infrastructure.Data.Migrations
                     b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
+                    b.Property<int>("QuizResultId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("QuestionId");
+
+                    b.HasIndex("QuizResultId");
 
                     b.ToTable("Answers");
                 });
@@ -359,6 +364,35 @@ namespace Dermastore.Infrastructure.Data.Migrations
                     b.ToTable("Questions");
                 });
 
+            modelBuilder.Entity("Dermastore.Domain.Entities.QuizResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CareTips")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Characteristic")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SkinType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuizResults");
+                });
+
             modelBuilder.Entity("Dermastore.Domain.Entities.SubCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -669,7 +703,15 @@ namespace Dermastore.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Dermastore.Domain.Entities.QuizResult", "QuizResult")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuizResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Question");
+
+                    b.Navigation("QuizResult");
                 });
 
             modelBuilder.Entity("Dermastore.Domain.Entities.Blog", b =>
@@ -880,6 +922,11 @@ namespace Dermastore.Infrastructure.Data.Migrations
                 });
 
             modelBuilder.Entity("Dermastore.Domain.Entities.Question", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Dermastore.Domain.Entities.QuizResult", b =>
                 {
                     b.Navigation("Answers");
                 });
