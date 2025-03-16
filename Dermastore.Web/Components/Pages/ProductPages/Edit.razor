@@ -74,7 +74,7 @@ else
     [SupplyParameterFromForm]
     private ProductToUpdateDto productDto { get; set; } = new();
 
-    private IReadOnlyList<Category>? categories;
+    private IReadOnlyList<CategoryDto>? categories;
 
     protected override async Task OnInitializedAsync()
     {

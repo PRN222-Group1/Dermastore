@@ -1,0 +1,91 @@
+﻿@page "/accounts/login"
+
+@using Dermastore.Application.DTOs
+@using Dermastore.Application.Queries.Users
+@using Dermastore.Domain.Entities
+@using Dermastore.Domain.Interfaces
+@using Dermastore.Web.Extensions
+@using MediatR
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+
+@inject IUserService UserService
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+@inject IConfiguration configuration
+@inject SignInManager<User> SignInManager
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="font-weight-light my-2">Welcome Back</h3>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <EditForm method="post" Model="loginDto" OnValidSubmit="LoginUser" FormName="create" Enhance>
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger" role="alert" />
+                        <div class="form-floating mb-4">
+                            <div class="form-label">Email:</div>
+                            <InputText id="email" @bind-Value="loginDto.Email" class="form-control" />
+                            <ValidationMessage For="() => loginDto.Email" class="text-danger" />
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <div class="form-label">Password:</div>
+                            <InputText id="password" @bind-Value="loginDto.Password" type="password" class="form-control" />
+                            <ValidationMessage For="() => loginDto.Password" class="text-danger" />
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-secondary btn-lg text-white">Sign In</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private LoginDto loginDto { get; set; } = new();
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            // Clear the existing external cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+    }
+
+    private async Task LoginUser()
+    {
+        // Create the user query with email
+        var query = new GetUserQuery(loginDto.Email);
+
+        // Send the command to MediatR to handle it
+        var user = await Mediator.Send(query);
+
+        if (user == null) {
+            // Route to detail page
+            NavigationManager.NavigateTo($"/accounts/login");
+            return;
+        }
+
+        // Sign in with the user's password
+        var signInResult = await SignInManager.PasswordSignInAsync(user, 
+            loginDto.Password, loginDto.RememberMe, lockoutOnFailure: false);
+
+        if (signInResult.Succeeded) {
+            // Redirect to home page or return URL
+            NavigationManager.NavigateTo(loginDto.ReturnUrl ?? "/");
+        }
+    }
+}

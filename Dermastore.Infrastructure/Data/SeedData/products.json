@@ -40,32 +40,12 @@
     "AnswerId": 4
   },
   {
-    "Name": "Vitamin C Serum",
-    "Description": "Brightens and evens skin tone while reducing signs of aging with powerful vitamin C.",
-    "Status": "InStock",
-    "Quantity": 60,
-    "ImageUrl": "https://example.com/images/vitamin_c_serum.jpg",
-    "SubCategoryId": 5,
-    "BrandId": 3,
-    "AnswerId": 5
-  },
-  {
-    "Name": "Hyaluronic Acid Serum",
-    "Description": "A hydrating serum that plumps and nourishes the skin with pure hyaluronic acid.",
-    "Status": "InStock",
-    "Quantity": 25,
-    "ImageUrl": "https://example.com/images/hyaluronic_acid_serum.jpg",
-    "SubCategoryId": 6,
-    "BrandId": 3,
-    "AnswerId": 6
-  },
-  {
     "Name": "SPF 50 Sunscreen",
     "Description": "Provides broad-spectrum protection against UVA and UVB rays. Suitable for all skin types.",
     "Status": "InStock",
     "Quantity": 75,
     "ImageUrl": "https://example.com/images/spf50_sunscreen.jpg",
-    "SubCategoryId": 7,
+    "SubCategoryId": 5,
     "BrandId": 4,
     "AnswerId": 7
   },
@@ -75,7 +55,7 @@
     "Status": "InStock",
     "Quantity": 35,
     "ImageUrl": "https://example.com/images/tinted_sunscreen.jpg",
-    "SubCategoryId": 8,
+    "SubCategoryId": 6,
     "BrandId": 4,
     "AnswerId": 8
   }

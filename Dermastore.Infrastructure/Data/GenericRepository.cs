@@ -70,7 +70,11 @@ namespace Dermastore.Infrastructure.Data
         /// <returns>The task result contains an integer as the count of the items</returns>
         public async Task<int> CountAsync(ISpecification<T> spec)
         {
-            return await ApplySpecification(spec).CountAsync();
+            var query = _context.Set<T>().AsQueryable();
+
+            query = spec.ApplyCriteria(query);
+
+            return await query.CountAsync();
         }
 
         /// <summary>
