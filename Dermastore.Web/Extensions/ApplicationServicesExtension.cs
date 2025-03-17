@@ -17,7 +17,8 @@ namespace Dermastore.Web.Extensions
             IConfiguration config)
         {
             // Add services to the container.
-            services.AddRazorComponents();
+            services.AddRazorComponents()
+                .AddInteractiveServerComponents();
 
             services.AddQuickGridEntityFrameworkAdapter();
 
