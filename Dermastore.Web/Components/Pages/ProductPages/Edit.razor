@@ -11,107 +11,123 @@
 @inject IProductService ProductService
 @inject IServiceScopeFactory ServiceScopeFactory
 
-<PageTitle>Edit Product</PageTitle>
+<PageTitle>Chỉnh sửa sản phẩm</PageTitle>
 
-<h1>Edit Product</h1>
-<hr />
+<h1 class="mb-4">Chỉnh sửa sản phẩm</h1>
 
 @if (productDto is null || categories is null)
 {
-    <p><em>Loading...</em></p>
+    <p class="text-muted">Đang tải...</p>
 }
 else
 {
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
+    <div class="card shadow-sm p-4">
+        <div class="row">
+            <div class="col-md-5">
+                <img src="@productDto.ImageUrl" class="img-fluid rounded" alt="@productDto.Name" style="max-height: 300px; object-fit: cover;">
+            </div>
+            <div class="col-md-7">
                 <EditForm Model="productDto" OnValidSubmit="UpdateProduct" FormName="EditProductForm">
                     <DataAnnotationsValidator />
                     <ValidationSummary class="alert alert-danger" />
-                    
-                    <input type="hidden" name="productDto.Id" value="@productDto.Id"/>
+
+                    <input type="hidden" name="productDto.Id" value="@productDto.Id" />
 
                     <div class="mb-3">
-                        <label for="name" class="form-label">Name:</label>
-                        <InputText id="name" @bind-Value="productDto.Name" class="form-control"/>
-                        <ValidationMessage For="() => productDto.Name" class="text-danger"/>
+                        <label for="name" class="form-label">Tên sản phẩm:</label>
+                        <InputText id="name" @bind-Value="productDto.Name" class="form-control" />
+                        <ValidationMessage For="() => productDto.Name" class="text-danger" />
                     </div>
 
                     <div class="mb-3">
-                        <label for="description" class="form-label">Description:</label>
-                        <InputText id="description" @bind-Value="productDto.Description" class="form-control"/>
-                        <ValidationMessage For="() => productDto.Description" class="text-danger"/>
+                        <label for="description" class="form-label">Mô tả:</label>
+                        <InputTextArea id="description" @bind-Value="productDto.Description" class="form-control" />
+                        <ValidationMessage For="() => productDto.Description" class="text-danger" />
                     </div>
 
                     <div class="mb-3">
-                        <label for="quantity" class="form-label">Quantity:</label>
-                        <InputNumber id="quantity" @bind-Value="productDto.Quantity" class="form-control"/>
-                        <ValidationMessage For="() => productDto.Quantity" class="text-danger"/>
+                        <label for="quantity" class="form-label">Số lượng:</label>
+                        <InputNumber id="quantity" @bind-Value="productDto.Quantity" class="form-control" />
+                        <ValidationMessage For="() => productDto.Quantity" class="text-danger" />
                     </div>
 
                     <div class="mb-3">
-                        <label for="imageurl" class="form-label">Image URL:</label>
-                        <InputText id="imageurl" @bind-Value="productDto.ImageUrl" class="form-control"/>
-                        <ValidationMessage For="() => productDto.ImageUrl" class="text-danger"/>
+                        <label for="imageurl" class="form-label">Ảnh sản phẩm (URL):</label>
+                        <InputText id="imageurl" @bind-Value="productDto.ImageUrl" class="form-control" />
+                        <ValidationMessage For="() => productDto.ImageUrl" class="text-danger" />
                     </div>
 
                     <div class="mb-3">
-                        <label for="categoryid" class="form-label">Category:</label>
+                        <label for="categoryid" class="form-label">Danh mục:</label>
                         <InputSelect id="categoryid" @bind-Value="productDto.CategoryId" class="form-control">
-                            <option value="">Select a category</option>
+                            <option value="">Chọn danh mục</option>
                             @foreach (var category in categories)
                             {
                                 <option value="@category.Id">@category.Name</option>
                             }
                         </InputSelect>
-                        <ValidationMessage For="() => productDto.CategoryId" class="text-danger"/>
+                        <ValidationMessage For="() => productDto.CategoryId" class="text-danger" />
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100">Save</button>
+                    <div class="d-flex justify-content-between">
+                        <a href="/products" class="btn btn-outline-secondary">Quay lại</a>
+                        <button type="submit" class="btn btn-primary">Lưu</button>
+                    </div>
                 </EditForm>
             </div>
         </div>
     </div>
 }
 
-<div class="mt-3">
-    <a href="/products" class="btn btn-outline-secondary">Back to List</a>
-</div>
-
 @code {
     [SupplyParameterFromQuery]
     private int Id { get; set; }
 
-    [SupplyParameterFromForm]
     private ProductToUpdateDto productDto { get; set; } = new();
-
     private IReadOnlyList<CategoryDto>? categories;
 
     protected override async Task OnInitializedAsync()
     {
-        var prodQuery = new GetProductQuery(Id);
-        var product = await Mediator.Send(prodQuery);
+        if (productDto != null && productDto.Id == Id) return;
 
-        productDto.Id = Id;
-        productDto.Name = product.Name;
-        productDto.Description = product.Description;
-        productDto.Quantity = product.Quantity;
-        productDto.ImageUrl = product.ImageUrl;
-        productDto.CategoryId = product.CategoryId;
+        try
+        {
+            var prodQuery = new GetProductQuery(Id);
+            var product = await Mediator.Send(prodQuery);
+            if (product == null)
+            {
+                NavigationManager.NavigateTo("/products");
+                return;
+            }
 
-        var catQuery = new GetCategoriesQuery();
-        categories = await Mediator.Send(catQuery);
+            productDto = new ProductToUpdateDto
+                {
+                    Id = product.Id,
+                    Name = product.Name ?? string.Empty,
+                    Description = product.Description ?? string.Empty,
+                    Quantity = product.Quantity,
+                    ImageUrl = product.ImageUrl ?? string.Empty,
+                    CategoryId = product.CategoryId
+                };
+
+            var catQuery = new GetCategoriesQuery();
+            categories = await Mediator.Send(catQuery);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi tải dữ liệu: {ex.Message}");
+        }
+        finally
+        {
+            StateHasChanged();
+        }
     }
 
     private async Task UpdateProduct()
     {
-        // Create the command using the DTO
         var command = new UpdateProductCommand(productDto);
-
-        // Send the command to MediatR to handle it
         var productId = await Mediator.Send(command);
 
-        // Route to detail page
         NavigationManager.NavigateTo($"/products/details?id={productId}");
     }
 }

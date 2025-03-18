@@ -4,6 +4,7 @@ using Dermastore.Domain.Entities;
 using Dermastore.Domain.Enums;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Domain.Specifications.Products;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dermastore.Infrastructure.Services;
 
@@ -20,39 +21,23 @@ public class ProductService : IProductService
 
     public async Task<bool> EditProduct(int id, Product product)
     {
-        if (product == null)
-        {
-            throw new ArgumentNullException(nameof(product), "Product data is null");
-        }
-
         var repository = _unitOfWork.Repository<Product>();
-        if (repository == null)
+
+        Console.WriteLine("----------------------------------------------");
+        Console.WriteLine(product.Quantity);
+        Console.WriteLine("----------------------------------------------");
+
+        if (repository.GetEntityState(product) == EntityState.Detached)
         {
-            throw new InvalidOperationException("Product repository is not available.");
+            repository.Attach(product);
         }
 
-        // Lấy sản phẩm trước khi bắt đầu transaction mới
-        Product productUpdate = await repository.GetByIdAsync(id);
+        repository.Update(product);
 
-        if (productUpdate == null)
-        {
-            throw new KeyNotFoundException($"Product with ID {id} not found");
-        }
-
-        // Cập nhật thông tin
-        productUpdate.Name = product.Name;
-        productUpdate.Description = product.Description;
-        productUpdate.Status = product.Status;
-        productUpdate.Quantity = product.Quantity;
-        productUpdate.ImageUrl = product.ImageUrl;
-        productUpdate.SubCategoryId = product.SubCategoryId;
-
-        repository.Update(productUpdate);
-        repository.SaveAllAsync();
-        // Chờ transaction hoàn thành trước khi tiếp tục
-        var result = await _unitOfWork.Complete();
-        return result;
+        return await _unitOfWork.Complete();
     }
+
+
 
 
 

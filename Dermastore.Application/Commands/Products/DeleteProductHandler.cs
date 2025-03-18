@@ -7,22 +7,18 @@ namespace Dermastore.Application.Commands.Products
 {
     public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, bool>
     {
-        private readonly IGenericRepository<Product> _productRepository;
+        public readonly IProductService _productService;
 
-        public DeleteProductHandler(IGenericRepository<Product> productRepository)
+        public DeleteProductHandler(IProductService productService)
         {
-            _productRepository = productRepository;
+            _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         }
 
         public async Task<bool> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
             var spec = new ProductSpecification(request.Id);
-            var product = await _productRepository.GetEntityWithSpec(spec);
-
-            _productRepository.Delete(product);
-            var result = await _productRepository.SaveAllAsync();
-
-            return result;
+            var product = await _productService.DeleteProduct(request.Id);
+            return product;
         }
     }
 }

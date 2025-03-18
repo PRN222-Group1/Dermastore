@@ -10,4 +10,7 @@ public interface IProductService
     Task<bool> DeleteProduct(int id);
     Task<IReadOnlyList<Product>> GetProducts();
     Task<Product> GetProduct(int id);
+
+
+
 }

@@ -1,4 +1,4 @@
-using System.Configuration;
+﻿using System.Configuration;
 using Dermastore.Domain.Entities;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Infrastructure.Data;
@@ -32,6 +32,7 @@ app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>();
+
 
 try
 {
