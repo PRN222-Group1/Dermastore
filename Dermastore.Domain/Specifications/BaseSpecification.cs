@@ -63,6 +63,20 @@ namespace Dermastore.Domain.Specifications
         public List<Func<IQueryable<T>, IIncludableQueryable<T, object>>> ThenIncludes { get; } = new List<Func<IQueryable<T>, IIncludableQueryable<T, object>>>();
 
         /// <summary>
+        /// Apply criteria only for paging without sorting or paging
+        /// </summary>
+        /// <param name="query"></param>
+        public IQueryable<T> ApplyCriteria(IQueryable<T> query)
+        {
+            if (Criteria != null)
+            {
+                query = query.Where(Criteria);
+            }
+
+            return query;
+        }
+
+        /// <summary>
         /// Adds Include expression to the Includes list
         /// </summary>
         /// <param name="includeExpression"></param>
@@ -110,6 +124,22 @@ namespace Dermastore.Domain.Specifications
             Skip = skip;
             Take = take;
             IsPagingEnabled = true;
+        }
+
+        /// <summary>
+        /// Used this to parse status of some entities
+        /// </summary>
+        /// <typeparam name="E"></typeparam>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        protected static E? ParseStatus<E>(string status) where E : struct, Enum
+        {
+            if (Enum.TryParse<E>(status, true, out var result))
+            {
+                return result;
+            }
+
+            return null;
         }
     }
 }

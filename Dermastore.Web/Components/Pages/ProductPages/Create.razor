@@ -8,51 +8,42 @@
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
 
-<PageTitle>Create Product</PageTitle>
+<PageTitle>Create</PageTitle>
 
-<div class="container mt-4">
-    <div class="card shadow-lg p-4">
-        <h2 class="text-center mb-4">Create Product</h2>
+<h1>Create</h1>
 
-        @if (categories is null)
-        {
-            <p class="text-center text-muted"><em>Loading categories...</em></p>
-        }
-        else
-        {
-            <EditForm Model="productDto" OnValidSubmit="AddProduct">
+<h2>Product</h2>
+<hr />
+@if (categories is null)
+{
+    <p><em>Loading...</em></p>
+}
+else {
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="productDto" OnValidSubmit="AddProduct" FormName="create" Enhance>
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-danger" role="alert" />
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Name:</label>
-                            <InputText id="name" @bind-Value="productDto.Name" class="form-control" />
-                            <ValidationMessage For="() => productDto.Name" class="text-danger" />
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="quantity" class="form-label">Quantity:</label>
-                            <InputNumber id="quantity" @bind-Value="productDto.Quantity" class="form-control" />
-                            <ValidationMessage For="() => productDto.Quantity" class="text-danger" />
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="productDto.Name" class="form-control" />
+                    <ValidationMessage For="() => productDto.Name" class="text-danger" />
                 </div>
-
                 <div class="mb-3">
                     <label for="description" class="form-label">Description:</label>
                     <InputText id="description" @bind-Value="productDto.Description" class="form-control" />
                     <ValidationMessage For="() => productDto.Description" class="text-danger" />
                 </div>
-
                 <div class="mb-3">
-                    <label for="imageurl" class="form-label">Image URL:</label>
+                    <label for="quantity" class="form-label">Quantity:</label>
+                    <InputNumber id="quantity" @bind-Value="productDto.Quantity" class="form-control" />
+                    <ValidationMessage For="() => productDto.Quantity" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="imageurl" class="form-label">ImageUrl:</label>
                     <InputText id="imageurl" @bind-Value="productDto.ImageUrl" class="form-control" />
                     <ValidationMessage For="() => productDto.ImageUrl" class="text-danger" />
                 </div>
-
                 <div class="mb-3">
                     <label for="categoryid" class="form-label">Category:</label>
                     <InputSelect id="categoryid" @bind-Value="productDto.CategoryId" class="form-control">
@@ -64,37 +55,38 @@
                     </InputSelect>
                     <ValidationMessage For="() => productDto.CategoryId" class="text-danger" />
                 </div>
-
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="/products" class="btn btn-outline-secondary">Back to List</a>
-                    <button type="submit" class="btn btn-primary">Create</button>
-                </div>
+                <button type="submit" class="btn btn-primary">Create</button>
             </EditForm>
-        }
+        </div>
     </div>
+}
+
+
+<div>
+    <a href="/products">Back to List</a>
 </div>
 
 @code {
     [SupplyParameterFromForm]
     private ProductToAddDto productDto { get; set; } = new();
 
-    private IReadOnlyList<Category>? categories;
+    private IReadOnlyList<CategoryDto>? categories;
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await Mediator.Send(new GetCategoriesQuery());
+        var query = new GetCategoriesQuery();
+        categories = await Mediator.Send(query);
     }
 
     private async Task AddProduct()
     {
-        if (productDto == null)
-        {
-            Console.WriteLine("productDto is NULL!");
-            return;
-        }
-
+        // Create the command using the DTO
         var command = new CreateProductCommand(productDto);
+
+        // Send the command to MediatR to handle it
         var productId = await Mediator.Send(command);
-        // NavigationManager.NavigateTo($"/products/details?id={productId}");
+
+        // Route to detail page
+        NavigationManager.NavigateTo($"/products/details?id={productId}");
     }
 }

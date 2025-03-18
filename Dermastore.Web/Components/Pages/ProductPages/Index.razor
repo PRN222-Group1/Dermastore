@@ -1,66 +1,47 @@
 ﻿@page "/products"
 @using Dermastore.Application.DTOs
+@using Dermastore.Application.Extensions
 @using Dermastore.Application.Queries.Products
-@using Dermastore.Domain.Entities
-@using Dermastore.Domain.Enums
+@using Dermastore.Domain.Specifications.Products
 @using MediatR
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Dermastore.Domain.Entities
+@using Dermastore.Domain.Interfaces
+@using Dermastore.Infrastructure.Services
 @inject IMediator Mediator
+@inject IProductService _productService
 
-<PageTitle>Product List</PageTitle>
 
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">Product List</h2>
-        <a href="products/create" class="btn btn-success"><i class="bi bi-plus-lg"></i> Create New</a>
-    </div>
+<PageTitle>Index</PageTitle>
 
-    @if (products != null && products.Any())
-    {
-        <div class="table-responsive">
-            <table class="table table-hover align-middle shadow-sm">
-                <thead class="table-primary">
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th>Quantity</th>
-                        <th>Image</th>
-                        <th>Category</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var product in products)
-                    {
-                        <tr>
-                            <td>@product.Name</td>
-                            <td>@product.Description</td>
-                            <td>
-                                @product.Status
-                            </td>
-                            <td>@product.Quantity</td>
-                            <td>
-                                <img src="@product.ImageUrl" alt="@product.Name" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
-                            </td>
-                            <td>@product.Category</td>
-                            <td>
-                                <a href="@($"products/edit?id={product.Id}")" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i> Edit</a>
-                                <a href="@($"products/details?id={product.Id}")" class="btn btn-info btn-sm"><i class="bi bi-eye"></i> Details</a>
-                                <a href="@($"products/delete?id={product.Id}")" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Delete</a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-info text-center">
-            <p>No products available.</p>
-        </div>
-    }
-</div>
+<h1>Index</h1>
+
+<p>
+    <a href="products/create">Create New</a>
+</p>
+
+@if (products != null && products.Any())
+{
+    <QuickGrid Class="table" Items="products.AsQueryable()" TGridItem="ProductDto">
+        <PropertyColumn Property="product => product.Name"/>
+        <PropertyColumn Property="product => product.Description"/>
+        <PropertyColumn Property="product => product.Status"/>
+        <PropertyColumn Property="product => product.Quantity"/>
+        <PropertyColumn Property="product => product.ImageUrl"/>
+        <PropertyColumn Property="product => product.Category"/>
+
+        <TemplateColumn Context="product">
+            <a href="@($"products/edit?id={product.Id}")">Edit</a> |
+            <a href="@($"products/details?id={product.Id}")">Details</a> |
+            <a href="@($"products/delete?id={product.Id}")">Delete</a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>Loading products...</p>
+}
 
 @code {
     private IReadOnlyList<ProductDto> products;
@@ -69,5 +50,6 @@
     {
         var query = new GetProductsQuery();
         products = await Mediator.Send(query);
+        var jv = 1;
     }
 }
