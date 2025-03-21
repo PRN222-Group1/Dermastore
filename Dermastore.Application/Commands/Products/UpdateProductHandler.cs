@@ -25,10 +25,6 @@ namespace Dermastore.Application.Commands.Products
 
                 var spec = new ProductSpecification(request.ProductDto.Id);
 
-            Console.WriteLine("----------------------------------------------");
-            Console.WriteLine(request.ProductDto.Quantity);
-            Console.WriteLine("----------------------------------------------");
-
 
             if (_productService == null)
                 {

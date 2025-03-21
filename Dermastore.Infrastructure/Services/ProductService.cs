@@ -3,6 +3,7 @@ using Dermastore.Application.Extensions;
 using Dermastore.Domain.Entities;
 using Dermastore.Domain.Enums;
 using Dermastore.Domain.Interfaces;
+using Dermastore.Domain.Specifications;
 using Dermastore.Domain.Specifications.Products;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,22 +24,10 @@ public class ProductService : IProductService
     {
         var repository = _unitOfWork.Repository<Product>();
 
-        Console.WriteLine("----------------------------------------------");
-        Console.WriteLine(product.Quantity);
-        Console.WriteLine("----------------------------------------------");
-
-        if (repository.GetEntityState(product) == EntityState.Detached)
-        {
-            repository.Attach(product);
-        }
-
         repository.Update(product);
 
         return await _unitOfWork.Complete();
     }
-
-
-
 
 
     public async Task<bool> CreateProduct(Product product)
@@ -90,9 +79,9 @@ public class ProductService : IProductService
     }
 
 
-    public async Task<IReadOnlyList<Product>> GetProducts()
+    public async Task<IReadOnlyList<Product>> GetProducts(ISpecification<Product> spec)
     {
-        var products = await _unitOfWork.Repository<Product>().ListAllAsync();
+        var products = await _unitOfWork.Repository<Product>().ListAsync(spec);
         return products ?? new List<Product>();
     }
 

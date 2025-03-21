@@ -1,8 +1,5 @@
-﻿using System.Configuration;
-using Dermastore.Domain.Entities;
-using Dermastore.Domain.Interfaces;
+﻿using Dermastore.Domain.Entities;
 using Dermastore.Infrastructure.Data;
-using Dermastore.Infrastructure.Services;
 using Dermastore.Web.Components;
 using Dermastore.Web.Extensions;
 using Microsoft.AspNetCore.Identity;
