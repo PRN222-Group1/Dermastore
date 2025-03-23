@@ -16,7 +16,7 @@ namespace Dermastore.Application.Commands.Products
 
         public async Task<bool> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            var spec = new ProductSpecification(request.Id);
+            Console.WriteLine(request.Id);
             var product = await _productService.DeleteProduct(request.Id);
             return product;
         }

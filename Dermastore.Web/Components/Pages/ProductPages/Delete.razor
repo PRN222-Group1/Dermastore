@@ -43,13 +43,19 @@
 
 @code {
     [SupplyParameterFromQuery]
-    private int Id { get; set; }
+    private int? Id { get; set; }
 
     private ProductDto? productDto;
 
     protected override async Task OnInitializedAsync()
     {
-        var query = new GetProductQuery(Id);
+        if (Id == null || Id <= 0)
+        {
+            NavigationManager.NavigateTo("notfound");
+            return;
+        }
+
+        var query = new GetProductQuery(Id.Value);
         productDto = await Mediator.Send(query);
 
         if (productDto is null)
@@ -60,16 +66,27 @@
 
     private async Task DeleteProduct()
     {
-        var command = new DeleteProductCommand(Id);
+        if (Id is null || Id <= 0)
+        {
+            Console.WriteLine("DeleteProduct: Id is null or invalid");
+            return;
+        }
+
+        Console.WriteLine($"DeleteProduct: Sending delete request for Id = {Id}");
+
+        var command = new DeleteProductCommand(Id.Value);
         var result = await Mediator.Send(command);
 
         if (!result)
         {
+            Console.WriteLine("DeleteProduct: Product not found, navigating to 'notfound'");
             NavigationManager.NavigateTo("notfound");
         }
         else
         {
+            Console.WriteLine("DeleteProduct: Product deleted successfully, navigating to '/products'");
             NavigationManager.NavigateTo("/products");
         }
     }
+
 }

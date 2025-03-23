@@ -23,8 +23,21 @@ public class ProductService : IProductService
     public async Task<bool> EditProduct(int id, Product product)
     {
         var repository = _unitOfWork.Repository<Product>();
+        Product product1 = await repository.GetByIdAsync(id);
 
-        repository.Update(product);
+        if (product1 == null)
+        {
+            throw new KeyNotFoundException($"Product with ID {id} not found");
+        }
+
+        product1.Name = product.Name;
+        product1.Description = product.Description;
+        product1.ImageUrl = product.ImageUrl;
+        product1.Status = product.Status;
+        product1.Quantity = product.Quantity;
+        product1.SubCategoryId = product.SubCategoryId;
+       
+        repository.Update(product1);
 
         return await _unitOfWork.Complete();
     }
@@ -63,15 +76,14 @@ public class ProductService : IProductService
 
     public async Task<bool> DeleteProduct(int id)
     {
-        var spec = new ProductSpecification(id);
-        var product = await _unitOfWork.Repository<Product>().GetEntityWithSpec(spec);
+        var product = await _unitOfWork.Repository<Product>().GetByIdAsync(id);
 
         if (product == null)
         {
             throw new KeyNotFoundException($"Product with ID {id} not found");
         }
 
-        product.Status = ProductStatus.InStock;
+        product.Status = ProductStatus.OutOfStock;
 
         _unitOfWork.Repository<Product>().Update(product);
         var result = await _unitOfWork.Complete();
