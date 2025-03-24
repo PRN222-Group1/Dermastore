@@ -21,9 +21,8 @@ namespace Dermastore.Application.Queries.Products
         }
         public async Task<IReadOnlyList<ProductForQuizResultDto>> Handle(GetProductByAnswerIdQuery request, CancellationToken cancellationToken)
         {
-            //var spec = new ProductSpecification(request.answerIds);
-            //var product = await _productRepository.ListAsync(spec);
-            var product = await _productRepository.ListAllAsync();
+            var spec = new ProductSpecification(request.answerIds);
+            var product = await _productRepository.ListAsync(spec);
             return product.Select(p => p.toProductQuizDto()).ToList();
         }
     }
