@@ -189,11 +189,7 @@
         var command = new DetermineQuizResultCommand(selectedAnswerIds);
         var quizResult = await Mediator.Send(command);
         string serializedResult = JsonSerializer.Serialize(quizResult);
-
-        // URL-encode the serialized JSON string to make it safe for the query string
         string encodedResult = Uri.EscapeDataString(serializedResult);
-
-        // Navigate to the quiz-result page with the serialized result
         NavigationManager.NavigateTo($"/quiz-result?result={encodedResult}");
     }
 }
