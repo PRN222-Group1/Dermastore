@@ -2,6 +2,8 @@
 using Dermastore.Domain.Interfaces;
 using MediatR;
 using Dermastore.Domain.Entities;
+using Dermastore.Application.Extensions;
+using Dermastore.Domain.Specifications.Answers;
 
 namespace Dermastore.Application.Queries.Answers
 {
@@ -16,12 +18,15 @@ namespace Dermastore.Application.Queries.Answers
 
         public async Task<IReadOnlyList<AnswerDto>> Handle(GetAllAnswersQuery request, CancellationToken cancellationToken)
         {
-            var answers = await _answerRepository.ListAllAsync();
+            var spec = new AnswerSpecification();
+            var answers = await _answerRepository.ListAsync(spec);
             return answers.Select(a => new AnswerDto
             {
                 id = a.Id,
                 content = a.Content,
-                questionId = a.QuestionId
+                questionId = a.QuestionId,
+                quizResultId = a.QuizResultId,
+                productDtos = a.Products.Select(a => a.ToDto()).ToList()
             }).ToList();
         }
     }

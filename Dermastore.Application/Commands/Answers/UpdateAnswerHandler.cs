@@ -23,6 +23,8 @@ namespace Dermastore.Application.Commands.Answers
             }
 
             answer.Content = request.AnswerDto.content;
+            answer.QuestionId = request.AnswerDto.questionId;
+            answer.QuizResultId = request.AnswerDto.quizResultId;
             _answerRepository.Update(answer);
             await _answerRepository.SaveAllAsync();
 

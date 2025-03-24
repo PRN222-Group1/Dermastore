@@ -19,7 +19,7 @@ namespace Dermastore.Application.Extensions
                 Quantity = product.Quantity,
                 ImageUrl = product.ImageUrl,
                 CategoryId = product.SubCategoryId,
-                Category = product.SubCategory.Name
+                Category = product.SubCategory?.Name
             };
         }
 
@@ -51,6 +51,22 @@ namespace Dermastore.Application.Extensions
             product.ImageUrl = productDto.ImageUrl;
             product.SubCategoryId = productDto.CategoryId;
             product.AnswerId = productDto.AnswerId;
+        }
+
+        public static ProductForQuizResultDto toProductQuizDto(this Product product)
+        {
+            if (product == null) throw new ArgumentNullException();
+            return new ProductForQuizResultDto
+            {
+                answerId = product.AnswerId,
+                description = product.Description,
+                id = product.Id,
+                imageUrl = product.ImageUrl,
+                name = product.Name,
+                quantity = product.Quantity,
+                status = product.Status,
+                price = product.Price,
+            };
         }
     }
 }

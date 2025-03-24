@@ -10,5 +10,6 @@ namespace Dermastore.Application.DTOs.AnswerDTOs
     {
         public string content { get; set; }
         public int questionId { get; set; }
+        public int quizResultId { get; set; }
     }
 }

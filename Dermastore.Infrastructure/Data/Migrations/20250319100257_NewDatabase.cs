@@ -431,7 +431,8 @@ namespace Dermastore.Infrastructure.Data.Migrations
                     Description = table.Column<string>(type: "nvarchar(1000)", nullable: false),
                     Status = table.Column<string>(type: "varchar(50)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    ImageUrl = table.Column<string>(type: "varchar(200)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "varchar(600)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     SubCategoryId = table.Column<int>(type: "int", nullable: false),
                     BrandId = table.Column<int>(type: "int", nullable: false),
                     AnswerId = table.Column<int>(type: "int", nullable: false)

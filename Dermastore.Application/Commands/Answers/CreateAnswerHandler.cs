@@ -23,7 +23,8 @@ namespace Dermastore.Application.Commands.Answers
             var answer = new Answer
             {
                 Content = request.AnswerDto.content,
-                QuestionId = request.AnswerDto.questionId
+                QuestionId = request.AnswerDto.questionId,
+                QuizResultId = request.AnswerDto.quizResultId
             };
 
             _answerRepository.Add(answer);

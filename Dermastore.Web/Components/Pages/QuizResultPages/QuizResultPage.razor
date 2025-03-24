@@ -1,0 +1,145 @@
+﻿@page "/quiz-result"
+@using Newtonsoft.Json
+@using MediatR
+@using Dermastore.Application.DTOs.QuizResultDTOs
+@using Dermastore.Application.Queries.QuizResults
+@using Dermastore.Application.DTOs
+@using Dermastore.Application.Queries.Products
+@using Newtonsoft.Json.Serialization
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IMediator Mediator
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card p-4 shadow-sm">
+                @if (quizResultData != null)
+                {
+                    <div class="card-body">
+                        <h2 class="card-title mb-4 pb-2 border-bottom text-center">Result</h2>
+                        <div class="result-content">
+                            <p class="mb-3"><strong class="d-block">Your skin type:</strong> @quizResultData.skinType</p>
+                            <p class="mb-3"><strong class="d-block">Skin description:</strong> @quizResultData.description</p>
+                            <p class="mb-3"><strong class="d-block">Characteristic:</strong> @quizResultData.characteristic</p>
+                            <p class="mb-3"><strong class="d-block">Care tips:</strong> @quizResultData.careTips</p>
+                            <div class="text-center">
+                                <button class="btn btn-warning mt-4" @onclick="DiscoverYourSolution">Discover your solution</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (isLoading)
+                {
+                    <div class="card-body text-center">
+                        <p>Loading result...</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="card-body text-center">
+                        <p>Error: Unable to load quiz result.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (showProductCard)
+        {
+            <div class="row justify-content-center mt-4">
+                <div class="col-12 col-md-10 col-lg-8">
+                    <div class="card p-4 shadow-sm recommendation-card">
+                        <div class="card-body">
+                            <h2 class="card-title mb-4 pb-2 border-bottom text-center">Our recommendation</h2>
+                            <div class="row justify-content-center">
+                                @foreach (var product in displayedProducts)
+                                {
+                                    <div class="col-6 col-md-3 mb-3 d-flex justify-content-center align-items-center">
+                                        <div class="card text-center product-card">
+                                            @if (!string.IsNullOrEmpty(product.imageUrl))
+                                            {
+                                                <img src="@product.imageUrl" alt="@product.name" class="card-img-top mx-auto d-block product-image" />
+                                            }
+                                            else
+                                            {
+                                                <div class="text-center p-3">No image available</div>
+                                            }
+                                            <div class="card-body p-2">
+                                                @if (product.price > 0)
+                                                {
+                                                    <p class="card-text mb-1">@product.price.ToString("#,##0")</p>
+                                                }
+                                                else
+                                                {
+                                                    <p class="card-text mb-1">Price not available</p>
+                                                }
+                                                <p class="card-text">@product.name</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                @if (productForQuizResultDto?.Count > 10 && !showAllProducts)
+                                {
+                                    <div class="text-center">
+                                        <button class="btn btn-warning mt-4" @onclick="SeeMore">See more</button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private QuizResultResponseDto quizResultData;
+    private IReadOnlyList<ProductForQuizResultDto> productForQuizResultDto;
+    private bool isLoading = true;
+    private bool showProductCard = false;
+    private bool showAllProducts = false;
+    private IReadOnlyList<ProductForQuizResultDto> displayedProducts => showAllProducts? productForQuizResultDto : productForQuizResultDto?.Take(10).ToList(); // Limit to 3 products
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var uri = new Uri(NavigationManager.Uri);
+            var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            string resultString = queryParams["result"];
+
+            if (!string.IsNullOrEmpty(resultString))
+            {
+                var decodedResult = Uri.UnescapeDataString(resultString);
+                var quizResultWithAnswerId = JsonConvert.DeserializeObject<FinalQuizResultDto>(decodedResult);
+                var quizResultCommand = new GetQuizResultByIdQueury(quizResultWithAnswerId.resultId);
+                quizResultData = await Mediator.Send(quizResultCommand);
+                var productQuery = new GetProductByAnswerIdQuery(quizResultWithAnswerId.answerIds);
+                productForQuizResultDto = await Mediator.Send(productQuery);
+            }
+            else
+            {
+                quizResultData = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading quiz result: {ex.Message}");
+            quizResultData = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void DiscoverYourSolution()
+    {
+        showProductCard = true; // Show the product card when button is clicked
+    }
+
+    private void SeeMore()
+    {
+        showAllProducts = true; // Show all products when "See more" is clicked
+    }
+}

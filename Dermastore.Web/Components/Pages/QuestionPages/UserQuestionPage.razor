@@ -2,16 +2,28 @@
 @using MediatR
 @using Dermastore.Application.DTOs.QuestionDTOs
 @using Dermastore.Application.Queries.Questions
+@using System.Net.Http
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using Dermastore.Application.DTOs.QuizResultDTOs
+@using Dermastore.Application.Commands.QuizResults
+@using Newtonsoft.Json.Serialization
+@using System.Text.Json
+@rendermode InteractiveServer
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
 
 <style>
     .selected-answer {
-        background-color: #588157 !important;
-        color: white !important;
+    background-color: #588157 !important;
+    color: white !important;
     }
     .progress-bar-custom {
-        background-color: #588157 !important;
+    background-color: #588157 !important;
     }
 </style>
 
@@ -98,11 +110,11 @@
                 } else {
                     <button class="btn btn-primary" style="background-color: darkgreen"
                     @onclick="NextQuestion"
-                            disabled="@(questionDtos == null || !selectedAnswerIds.ContainsKey(currentQuestion.id))">
+                    disabled="@(questionDtos == null || !selectedAnswerIds.ContainsKey(currentQuestion.id))">
                         Next Question
                     </button>
                 }
-                
+
             </div>
         </div>
     </div>
@@ -114,8 +126,12 @@
     // Dictionary to track selected answers (key: question id, value: answer id)
     private Dictionary<int, int> selectedAnswerIds = new Dictionary<int, int>();
     private int currentQuestionIndex = 0;
+    public UserQuestionPage()
+    {
+    }
+
     private QuestionDto currentQuestion => questionDtos != null && questionDtos.Count > currentQuestionIndex
-        ? questionDtos[currentQuestionIndex]
+    ? questionDtos[currentQuestionIndex]
         : null;
 
     protected override async Task OnInitializedAsync()
@@ -164,11 +180,20 @@
         return ((currentQuestionIndex + 1) / (double)questionDtos.Count) * 100;
     }
 
-    private void FinishQuiz() {
+    private async Task FinishQuiz() {
         Console.WriteLine("Quiz finished. Selected answers:");
         foreach (var kvp in selectedAnswerIds)
         {
             Console.WriteLine($"Question ID: {kvp.Key}, Selected Answer ID: {kvp.Value}");
         }
+        var command = new DetermineQuizResultCommand(selectedAnswerIds);
+        var quizResult = await Mediator.Send(command);
+        string serializedResult = JsonSerializer.Serialize(quizResult);
+
+        // URL-encode the serialized JSON string to make it safe for the query string
+        string encodedResult = Uri.EscapeDataString(serializedResult);
+
+        // Navigate to the quiz-result page with the serialized result
+        NavigationManager.NavigateTo($"/quiz-result?result={encodedResult}");
     }
 }

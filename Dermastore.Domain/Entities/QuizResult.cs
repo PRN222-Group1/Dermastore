@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace Dermastore.Domain.Entities
 {
-    public class QuizResult
+    public class QuizResult : BaseEntity
     {
-        public int Id { get; set; }
         [Required]
         public string SkinType {  get; set; }
         public string Description {  get; set; }

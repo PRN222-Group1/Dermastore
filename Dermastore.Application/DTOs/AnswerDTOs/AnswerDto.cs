@@ -11,5 +11,7 @@ namespace Dermastore.Application.DTOs.AnswerDTOs
         public int id { get;set; }
         public string content { get;set; }
         public int questionId { get; set; }
+        public int quizResultId { get; set; }
+        public List<ProductDto>? productDtos { get; set; }
     }
 }

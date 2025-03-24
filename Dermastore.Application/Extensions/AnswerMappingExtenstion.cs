@@ -23,6 +23,7 @@ namespace Dermastore.Application.Extensions
                 id = answer.Id,
                 content = answer.Content,
                 questionId =  answer.QuestionId,
+                quizResultId = answer.QuizResultId
             };
         }
     }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dermastore.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(DermastoreContext))]
-    [Migration("20250316115204_NewDatabase")]
+    [Migration("20250319100257_NewDatabase")]
     partial class NewDatabase
     {
         /// <inheritdoc />
@@ -289,11 +289,14 @@ namespace Dermastore.Infrastructure.Data.Migrations
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("varchar(200)");
+                        .HasColumnType("varchar(600)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
