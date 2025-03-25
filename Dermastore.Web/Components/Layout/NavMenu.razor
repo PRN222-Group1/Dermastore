@@ -21,13 +21,13 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <!-- Section 2: Navigation Links -->
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item dropdown p-3 d-flex align-items-center">
+                <li class="nav-item dropdown p-3 d-flex align-items-center position-static">
                     <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
                         <i class="fa-solid fa-bag-shopping me-2"></i> Dermastore
                     </a>
-                    <div class="dropdown-menu bg-secondary p-4 mt-5" aria-labelledby="categoryDropdown">
-                        <div class="p-3">
+                    <div class="dropdown-menu bg-secondary p-4 w-100 position-absolute top-100 start-0" aria-labelledby="categoryDropdown">
+                        <div class="container">
                             <div class="row">
                                 <!-- Categories Section -->
                                 @if (categories != null)
@@ -62,6 +62,7 @@
                         </div>
                     </div>
                 </li>
+                <!-- Rest of the navigation items remain the same -->
                 <li class="nav-item p-3 d-flex align-items-center">
                     <a class="nav-link" href="#" role="button">
                         <i class="fa-solid fa-blog me-2"></i> Blogs
@@ -101,20 +102,33 @@
 
 <script>
     $(document).ready(function () {
-        $(window).resize(function () {
-            if ($(window).width() >= 980) {
-                $(".navbar .dropdown-toggle").hover(function () {
-                    $(this).parent().toggleClass("show");
-                    $(this).parent().find(".dropdown-menu").toggleClass("show");
-                });
+        if ($(window).width() >= 980) {
+            var timeout;
 
-                $(".navbar .dropdown-menu").mouseleave(function () {
-                    $(this).removeClass("show");
-                });
-            }
-        });
+            // Show the dropdown menu when hovering over the toggle
+            $(".navbar .dropdown-toggle").hover(function () {
+                clearTimeout(timeout);
+                $(this).parent().addClass("show");
+                $(this).parent().find(".dropdown-menu").addClass("show");
+            });
+
+            // Delay closing the dropdown menu when moving the cursor away
+            $(".navbar .dropdown-menu").mouseleave(function () {
+                var $this = $(this);
+                timeout = setTimeout(function () {
+                    $this.removeClass("show");
+                    $this.parent().removeClass("show");
+                }, 300);  // Adjust delay (in milliseconds) as needed
+            });
+
+            // Also keep the dropdown open when hovering over the menu
+            $(".navbar .dropdown-menu").mouseenter(function () {
+                clearTimeout(timeout);
+            });
+        }
     });
 </script>
+
 
 @code {
     private IReadOnlyList<CategoryDto> categories;
