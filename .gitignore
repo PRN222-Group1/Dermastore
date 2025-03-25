@@ -482,3 +482,5 @@ $RECYCLE.BIN/
 /publish
 TeamoWeb.API/appsettings.json
 .vscode
+/Dermastore.Web/appsettings.Development.json
+/Dermastore.Web/appsettings.json

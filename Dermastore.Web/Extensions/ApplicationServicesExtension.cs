@@ -1,13 +1,8 @@
-﻿using Dermastore.Domain.Entities;
+﻿using Dermastore.Application.Extensions;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Infrastructure.Data;
 using Dermastore.Infrastructure.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Dermastore.Application.Extensions;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Server;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity;
 
 namespace Dermastore.Web.Extensions
 {
