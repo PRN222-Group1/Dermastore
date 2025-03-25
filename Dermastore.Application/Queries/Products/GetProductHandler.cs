@@ -9,17 +9,16 @@ namespace Dermastore.Application.Queries.Products
 {
     public class GetProductHandler : IRequestHandler<GetProductQuery, ProductDto>
     {
-        private readonly IGenericRepository<Product> _productRepository;
+        private readonly IProductService _productService;
 
-        public GetProductHandler(IGenericRepository<Product> productRepository)
+        public GetProductHandler(IProductService productService)
         {
-            _productRepository = productRepository;
+            _productService = productService;
         }
 
         public async Task<ProductDto> Handle(GetProductQuery request, CancellationToken cancellationToken)
         {
-            var spec = new ProductSpecification(request.Id);
-            var product = await _productRepository.GetEntityWithSpec(spec);
+            var product = await _productService.GetProduct(request.Id);
             return product.ToDto();
         }
     }

@@ -133,5 +133,15 @@ namespace Dermastore.Infrastructure.Data
         {
             return _context.Set<T>().Any(x => x.Id == id);
         }
+
+        public void Attach(T t)
+        {
+            _context.Set<T>().Attach(t);
+        }
+
+        public EntityState GetEntityState(T entity)
+        {
+            return _context.Entry(entity).State;
+        }
     }
 }

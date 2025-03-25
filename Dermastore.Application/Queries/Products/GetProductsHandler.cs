@@ -9,17 +9,23 @@ namespace Dermastore.Application.Queries.Products
 {
     public class GetProductsHandler : IRequestHandler<GetProductsQuery, IReadOnlyList<ProductDto>>
     {
-        private readonly IGenericRepository<Product> _productRepository;
+        private readonly IProductService _productService;
 
-        public GetProductsHandler(IGenericRepository<Product> productRepository)
+        public GetProductsHandler(IProductService productService)
         {
-            _productRepository = productRepository;
+            _productService = productService;
         }
 
         public async Task<IReadOnlyList<ProductDto>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
+            if (_productService == null)
+            {
+                throw new InvalidOperationException("ProductRepository is not initialized.");
+            }
+
             var spec = new ProductSpecification();
-            var products = await _productRepository.ListAsync(spec);
+            var products = await _productService.GetProducts(spec) ?? new List<Product>();
+
             var productsToReturn = products.Select(p => p.ToDto()).ToList();
             return productsToReturn;
         }
