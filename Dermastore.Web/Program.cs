@@ -1,16 +1,18 @@
-﻿using Dermastore.Domain.Entities;
+﻿using Dermastore.Application.Commands.Vnpays;
+using Dermastore.Application.Extensions;
+using Dermastore.Domain.Entities;
 using Dermastore.Infrastructure.Data;
 using Dermastore.Web.Components;
 using Dermastore.Web.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
-
 
 var app = builder.Build();
 

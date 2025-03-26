@@ -1,16 +1,15 @@
-﻿@page "/orders/pending"
+﻿@page "/orders"
 @using Dermastore.Domain.Entities.OrderAggregate
 @using Dermastore.Application.Queries.Orders
-@using Dermastore.Application.Commands.Vnpays
 @using Dermastore.Application.DTOs.Orders
 @using MediatR
-@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @inject IMediator Mediator
-@inject NavigationManager NavigationManager
 
 <PageTitle>Pending Orders</PageTitle>
 
 <h1>Pending Orders</h1>
+
+
 
 @if (orders == null)
 {
@@ -30,7 +29,6 @@ else
                     <th>Shipping Address</th>
                     <th>SubTotal</th>
                     <th>Order Items</th>
-                    <th>Payment</th>
                 </tr>
             </thead>
             <tbody>
@@ -52,10 +50,6 @@ else
                                 }
                             </ul>
                         </td>
-                        <td>
-                            <!-- Button gọi CreatePaymentUrlByOrderCommand -->
-                            <button class="btn btn-primary" @onclick="() => OnPay(order.Id)">Pay Now</button>
-                        </td>
                     </tr>
                 }
             </tbody>
@@ -70,13 +64,5 @@ else
     {
         var query = new GetOrdersQuery();
         orders = await Mediator.Send(query);
-    }
-    private async Task OnPay(int orderId)
-    {
-        var command = new CreatePaymentUrlCommand(orderId);
-        // Gửi command CreatePaymentUrlByOrderCommand qua Mediator
-        var paymentUrl = await Mediator.Send(command);
-        // Điều hướng đến trang thanh toán của VNPAY
-        NavigationManager.NavigateTo(paymentUrl, true);
     }
 }

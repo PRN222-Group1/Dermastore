@@ -32,6 +32,9 @@ namespace Dermastore.Web.Extensions
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IVnpayService, VnpayService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddHttpContextAccessor();
 
             return services;
         }

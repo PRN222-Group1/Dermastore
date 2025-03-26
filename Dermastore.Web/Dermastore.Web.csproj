@@ -26,4 +26,8 @@
     <ProjectReference Include="..\Dermastore.Infrastructure\Dermastore.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Pages\Vnpays\" />
+  </ItemGroup>
+
 </Project>
