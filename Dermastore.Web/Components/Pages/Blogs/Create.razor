@@ -28,7 +28,7 @@
             </div>
             <div class="mb-3">
                 <label for="userid" class="form-label">User Id:</label>
-                <InputText id="userid" @bind-Value="blogDto.UserId" class="form-control" />
+                <InputNumber id="userid" @bind-Value="blogDto.UserId" class="form-control" />
                 <ValidationMessage For="() => blogDto.UserId" class="text-danger" />
             </div>
             <button type="submit" class="btn btn-primary">Create</button>

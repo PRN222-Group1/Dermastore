@@ -1,5 +1,6 @@
 ﻿using Dermastore.Domain.Entities;
 using Dermastore.Domain.Specifications;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dermastore.Domain.Interfaces
 {
@@ -19,5 +20,9 @@ namespace Dermastore.Domain.Interfaces
         void Delete(T entity);
         bool Exists(int id);
         Task<bool> SaveAllAsync ();
+        void Attach(T t);
+
+        EntityState GetEntityState(T entity);
+
     }
 }

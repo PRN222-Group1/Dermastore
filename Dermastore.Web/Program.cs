@@ -1,37 +1,16 @@
-using Dermastore.Application.Extensions;
-using Dermastore.Domain.Entities;
-using Dermastore.Domain.Interfaces;
+﻿using Dermastore.Domain.Entities;
 using Dermastore.Infrastructure.Data;
 using Dermastore.Web.Components;
-using MediatR;
+using Dermastore.Web.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddIdentityServices(builder.Configuration);
 
-builder.Services.AddDbContext<DermastoreContext>(opt =>
-{
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-builder.Services.AddQuickGridEntityFrameworkAdapter();
-
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-// Add MediatR
-builder.Services.AddMediatR();
-
-builder.Services.AddAuthorization();
-builder.Services.AddIdentityApiEndpoints<User>()
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<DermastoreContext>();
 
 var app = builder.Build();
 
@@ -46,14 +25,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 try
 {
@@ -61,8 +36,9 @@ try
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<DermastoreContext>();
     var userManager = services.GetRequiredService<UserManager<User>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
     await context.Database.MigrateAsync();
-    await DermastoreContextSeed.SeedAsync(context, userManager);
+    await DermastoreContextSeed.SeedAsync(context, userManager, roleManager);
 }
 catch (Exception ex)
 {

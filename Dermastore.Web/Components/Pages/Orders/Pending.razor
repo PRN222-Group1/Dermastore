@@ -1,0 +1,68 @@
+﻿@page "/orders/pending"
+@using Dermastore.Domain.Entities.OrderAggregate
+@using Dermastore.Application.Queries.Orders
+@using Dermastore.Application.DTOs.Orders
+@using MediatR
+@inject IMediator Mediator
+
+<PageTitle>Pending Orders</PageTitle>
+
+<h1>Pending Orders</h1>
+
+
+
+@if (orders == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!orders.Any())
+{
+    <p>No pending orders found.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Order Date</th>
+                    <th>Shipping Address</th>
+                    <th>SubTotal</th>
+                    <th>Order Items</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in orders)
+                {
+                    <tr>
+                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                        <td>@order.ShippingAddress</td>
+                        <td>@order.SubTotal.ToString("C")</td>
+                        <td>
+                            <ul>
+                                @foreach (var item in order.OrderItems)
+                                {
+                                    <li>
+                                        <strong>@item.ItemOrdered.ProductName</strong> -
+                                        Price: @item.Price.ToString("C"),
+                                        Quantity: @item.Quantity
+                                    </li>
+                                }
+                            </ul>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private IReadOnlyList<OrderDto> orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var query = new GetOrdersQuery();
+        orders = await Mediator.Send(query);
+    }
+}

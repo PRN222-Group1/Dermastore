@@ -1,42 +1,53 @@
 ﻿@page "/products"
 @using Dermastore.Application.DTOs
+@using Dermastore.Application.Extensions
 @using Dermastore.Application.Queries.Products
 @using Dermastore.Domain.Specifications.Products
 @using MediatR
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Dermastore.Domain.Entities
+@using Dermastore.Domain.Interfaces
+@using Dermastore.Infrastructure.Services
 @inject IMediator Mediator
+@inject IProductService _productService
 
+<PageTitle>Danh sách sản phẩm</PageTitle>
 
-<PageTitle>Index</PageTitle>
-
-<h1>Index</h1>
+<h1 class="mb-4">Danh sách sản phẩm</h1>
 
 <p>
-    <a href="products/create">Create New</a>
+    <a href="products/create" class="btn btn-primary">Thêm sản phẩm</a>
 </p>
 
 @if (products != null && products.Any())
 {
-    <QuickGrid Class="table" Items="products.AsQueryable()" TGridItem="ProductDto">
-        <PropertyColumn Property="product => product.Name" />
-        <PropertyColumn Property="product => product.Description" />
-        <PropertyColumn Property="product => product.Status" />
-        <PropertyColumn Property="product => product.Quantity" />
-        <PropertyColumn Property="product => product.ImageUrl" />
-        <PropertyColumn Property="product => product.Category" />
-
-        <TemplateColumn Context="product">
-            <a href="@($"products/edit?id={product.Id}")">Edit</a> |
-            <a href="@($"products/details?id={product.Id}")">Details</a> |
-            <a href="@($"products/delete?id={product.Id}")">Delete</a>
-        </TemplateColumn>
-    </QuickGrid>
+    <div class="row">
+        @foreach (var product in products)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text text-muted">@product.Description</p>
+                        <p class="card-text"><strong>Trạng thái:</strong> @product.Status</p>
+                        <p class="card-text"><strong>Số lượng:</strong> @product.Quantity</p>
+                        <p class="card-text"><strong>Danh mục:</strong> @product.Category</p>
+                        <div class="d-flex justify-content-between">
+                            <a href="@($"products/details?id={product.Id}")" class="btn btn-sm btn-info">Chi tiết</a>
+                            <a href="@($"products/edit?id={product.Id}")" class="btn btn-sm btn-warning">Sửa</a>
+                            <a href="@($"products/delete?id={product.Id}")" class="btn btn-sm btn-danger">Xóa</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }
 else
 {
-    <p>Loading products...</p>
+    <p>Đang tải sản phẩm...</p>
 }
 
 @code {
@@ -46,6 +57,5 @@ else
     {
         var query = new GetProductsQuery();
         products = await Mediator.Send(query);
-        var jv = 1;
     }
 }

@@ -70,7 +70,11 @@ namespace Dermastore.Infrastructure.Data
         /// <returns>The task result contains an integer as the count of the items</returns>
         public async Task<int> CountAsync(ISpecification<T> spec)
         {
-            return await ApplySpecification(spec).CountAsync();
+            var query = _context.Set<T>().AsQueryable();
+
+            query = spec.ApplyCriteria(query);
+
+            return await query.CountAsync();
         }
 
         /// <summary>
@@ -128,6 +132,16 @@ namespace Dermastore.Infrastructure.Data
         public bool Exists(int id)
         {
             return _context.Set<T>().Any(x => x.Id == id);
+        }
+
+        public void Attach(T t)
+        {
+            _context.Set<T>().Attach(t);
+        }
+
+        public EntityState GetEntityState(T entity)
+        {
+            return _context.Entry(entity).State;
         }
     }
 }

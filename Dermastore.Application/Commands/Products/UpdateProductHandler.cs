@@ -8,24 +8,50 @@ namespace Dermastore.Application.Commands.Products
 {
     public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, int>
     {
-        private readonly IGenericRepository<Product> _productRepository;
 
-        public UpdateProductHandler(IGenericRepository<Product> productRepository)
+        public readonly IProductService _productService;
+
+        public UpdateProductHandler(IProductService productService)
         {
-            _productRepository = productRepository;
+            _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         }
 
-        public async Task<int> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
-        {
-            var spec = new ProductSpecification(request.ProductDto.Id);
-            var product = await _productRepository.GetEntityWithSpec(spec);
+            public async Task<int> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+            {
+                if (request.ProductDto == null)
+                {
+                    throw new ArgumentNullException(nameof(request.ProductDto), "ProductDto is null");
+                }
 
-            product.UpdateFromDto(request.ProductDto);
-            product.AnswerId = 1;
-            _productRepository.Update(product);
-            await _productRepository.SaveAllAsync();
+                var spec = new ProductSpecification(request.ProductDto.Id);
 
-            return product.Id;
-        }
+
+            if (_productService == null)
+                {
+                    throw new InvalidOperationException("ProductService is not initialized.");
+                }
+
+                Product product = await _productService.GetProduct(request.ProductDto.Id);
+
+                // Gán dữ liệu từ DTO vào Product
+                product.Name = request.ProductDto.Name;
+                product.Description = request.ProductDto.Description;
+                product.Status = request.ProductDto.Status;
+                product.Quantity = request.ProductDto.Quantity;
+                product.ImageUrl = request.ProductDto.ImageUrl;
+                product.SubCategoryId = request.ProductDto.CategoryId;
+
+                // Gọi hàm EditProduct
+                bool updateResult = await _productService.EditProduct(request.ProductDto.Id, product);
+
+
+                if (!updateResult)
+                {
+                    throw new Exception("Failed to update product.");
+                }
+
+                return product.Id;
+            }
+
     }
 }

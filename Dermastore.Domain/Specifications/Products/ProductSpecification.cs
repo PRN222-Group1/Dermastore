@@ -18,6 +18,12 @@ namespace Dermastore.Domain.Specifications.Products
             AddInclude(p => p.SubCategory);
         }
 
+        public ProductSpecification(List<int> answerIds) : base(p => answerIds.Contains(p.AnswerId) && p.Status == ParseStatus("InStock"))
+        {
+            AddInclude(p => p.Answer);
+            AddOrderBy(p => p.Name);
+        }
+
         private static ProductStatus? ParseStatus(string status)
         {
             if (Enum.TryParse<ProductStatus>(status, true, out var result)) return result;

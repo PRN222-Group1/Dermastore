@@ -1,0 +1,195 @@
+﻿@page "/beauty-match"
+@using MediatR
+@using Dermastore.Application.DTOs.QuestionDTOs
+@using Dermastore.Application.Queries.Questions
+@using System.Net.Http
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using Dermastore.Application.DTOs.QuizResultDTOs
+@using Dermastore.Application.Commands.QuizResults
+@using Newtonsoft.Json.Serialization
+@using System.Text.Json
+@rendermode InteractiveServer
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+
+<style>
+    .selected-answer {
+    background-color: #588157 !important;
+    color: white !important;
+    }
+    .progress-bar-custom {
+    background-color: #588157 !important;
+    }
+</style>
+
+<!-- Main layout container (optional) -->
+<div class="main-layout">
+
+    <!-- HERO / HEADER SECTION -->
+    <header class="hero-section text-white"
+    style="
+                background-image: url('https://img.freepik.com/free-vector/cosmetics-beauty-products-makeup-sale-banner-with-glowing-neon-background-pink-sparkles_33099-1429.jpg');
+                background-size: cover;
+                background-position: center;
+                height: 400px;
+                display: flex;
+                align-items: center;
+                justify-content: center;">
+        <div class="container text-center">
+            <h1>Discover Your Perfect Beauty Match</h1>
+            <p>Take our personalized quiz to unveil your ideal cosmetic collection</p>
+        </div>
+    </header>
+
+    <!-- QUIZ SECTION -->
+    <div class="quiz-section py-5">
+        <div class="container">
+            @if (questionDtos == null)
+            {
+                <p class="text-center">Loading questions...</p>
+            }
+            else if (!questionDtos.Any())
+            {
+                <p class="text-center">No question available</p>
+            }
+            else
+            {
+                <!-- Progress section -->
+                <div class="mb-3">
+                    <p class="text-center">
+                        Question @(currentQuestionIndex + 1) of @questionDtos.Count
+                    </p>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-custom"
+                        role="progressbar"
+                        style="width: @(GetProgressPercentage())%;"
+                        aria-valuenow="@(GetProgressPercentage())"
+                        aria-valuemin="0"
+                        aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display the question content -->
+                <h2 class="text-center mb-4">@currentQuestion?.content</h2>
+
+                <!-- Dynamically generate answer cards -->
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    @foreach (var answer in currentQuestion?.answers)
+                    {
+                        var isSelected = selectedAnswerIds.ContainsKey(currentQuestion.id) && selectedAnswerIds[currentQuestion.id] == answer.id;
+                        <div class="col">
+                            <div class="card text-center @(isSelected ? "selected-answer" : "")" style="cursor: pointer"
+                            @onclick = "() => SelectAnswer(currentQuestion.id, answer.id)">
+                                <div class="card-body">
+                                    <h5 class="card-title">@answer.content</h5>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Navigation buttons for quiz steps -->
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-secondary"
+                @onclick="PreviousQuestion"
+                disabled="@(currentQuestionIndex == 0)">
+                    Previous
+                </button>
+                @if (questionDtos != null && currentQuestionIndex == questionDtos.Count - 1) {
+                    <button class="btn btn-success" @onclick="FinishQuiz" 
+                    disabled = "@(currentQuestion == null || !selectedAnswerIds.ContainsKey(currentQuestion.id))">
+                        Finish
+                    </button>
+                } else {
+                    <button class="btn btn-primary" style="background-color: darkgreen"
+                    @onclick="NextQuestion"
+                    disabled="@(questionDtos == null || !selectedAnswerIds.ContainsKey(currentQuestion.id))">
+                        Next Question
+                    </button>
+                }
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private IReadOnlyList<QuestionDto> questionDtos;
+    // Dictionary to track selected answers (key: question id, value: answer id)
+    private Dictionary<int, int> selectedAnswerIds = new Dictionary<int, int>();
+    private int currentQuestionIndex = 0;
+    public UserQuestionPage()
+    {
+    }
+
+    private QuestionDto currentQuestion => questionDtos != null && questionDtos.Count > currentQuestionIndex
+    ? questionDtos[currentQuestionIndex]
+        : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var query = new GetQuestionsQuery();
+            questionDtos = await Mediator.Send(query);
+            if (questionDtos.Count == 0)
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            Console.WriteLine($"Loaded {questionDtos.Count} questions.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching questions: {ex.Message}");
+        }
+    }
+
+    private void SelectAnswer(int questionId, int answerId) {
+        selectedAnswerIds[questionId] = answerId;
+    }
+
+    private void NextQuestion()
+    {
+        if (currentQuestionIndex < questionDtos.Count - 1)
+        {
+            currentQuestionIndex++;
+        }
+    }
+
+    private void PreviousQuestion()
+    {
+        if (currentQuestionIndex > 0)
+        {
+            currentQuestionIndex--;
+        }
+    }
+
+    private double GetProgressPercentage()
+    {
+        if (questionDtos == null || questionDtos.Count == 0)
+            return 0;
+        // Calculate progress as percentage of questions answered (1-indexed)
+        return ((currentQuestionIndex + 1) / (double)questionDtos.Count) * 100;
+    }
+
+    private async Task FinishQuiz() {
+        Console.WriteLine("Quiz finished. Selected answers:");
+        foreach (var kvp in selectedAnswerIds)
+        {
+            Console.WriteLine($"Question ID: {kvp.Key}, Selected Answer ID: {kvp.Value}");
+        }
+        var command = new DetermineQuizResultCommand(selectedAnswerIds);
+        var quizResult = await Mediator.Send(command);
+        string serializedResult = JsonSerializer.Serialize(quizResult);
+        string encodedResult = Uri.EscapeDataString(serializedResult);
+        NavigationManager.NavigateTo($"/quiz-result?result={encodedResult}");
+    }
+}
