@@ -11,7 +11,5 @@ public interface IProductService
     Task<bool> DeleteProduct(int id);
     Task<IReadOnlyList<Product>> GetProducts(ISpecification<Product> spec);
     Task<Product> GetProduct(int id);
-
-
-
+    Task<int> CountProduct(ISpecification<Product> spec);
 }

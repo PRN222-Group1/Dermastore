@@ -28,5 +28,15 @@
     "Name": "Chemical Sunscreens",
     "CategoryId": 3,
     "Description": "Sunscreens formulated with chemical filters to absorb UV radiation."
+  },
+  {
+    "Name": "Hydration Boosters",
+    "CategoryId": 4,
+    "Description": "Concentrated serums that deeply hydrate and plump the skin."
+  },
+  {
+    "Name": "Brightening Serums",
+    "CategoryId": 4,
+    "Description": "Serums designed to reduce hyperpigmentation and brighten the skin tone."
   }
 ]

@@ -17,9 +17,10 @@ namespace Dermastore.Application.Extensions
                 Description = product.Description,
                 Status = product.Status,
                 Quantity = product.Quantity,
+                Price = product.Price,
                 ImageUrl = product.ImageUrl,
-                CategoryId = product.SubCategoryId,
-                Category = product.SubCategory?.Name
+                SubCategory = product.SubCategory?.Name,
+                Brand = product.Brand.Name,
             };
         }
 

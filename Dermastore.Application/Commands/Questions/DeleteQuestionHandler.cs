@@ -2,12 +2,6 @@
 using Dermastore.Domain.Interfaces;
 using Dermastore.Domain.Specifications.Questions;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dermastore.Application.Commands.Questions
 {

@@ -1,0 +1,158 @@
+﻿@using Dermastore.Application.DTOs
+@using Dermastore.Application.Queries.Products
+@using Dermastore.Domain.Specifications.Products
+@using MediatR
+@rendermode InteractiveServer
+@inject IMediator Mediator
+
+<div class="filters p-3 border rounded shadow-sm">
+    <!-- Search Bar -->
+    <div class="mb-3">
+        <h5 class="text-primary"><strong>Search Products</strong></h5>
+        <input type="text" class="form-control" placeholder="Search products..."
+        @bind="ProductSpecParams.Search" />
+    </div>
+
+    <!-- Price Range -->
+    <div class="mb-3">
+        <h5 class="text-primary"><strong>Price</strong></h5>
+        <div class="d-flex align-items-center">
+            <input type="number" class="form-control me-2" placeholder="Min Price"
+            @bind="ProductSpecParams.StartPrice" />
+            <span class="mx-2">-</span>
+            <input type="number" class="form-control" placeholder="Max Price"
+            @bind="ProductSpecParams.EndPrice" />
+        </div>
+    </div>
+
+    <!-- Brands Filter -->
+    <div class="mb-3">
+        <h5 class="text-primary"><strong>Brands</strong></h5>
+        @if (Brands != null)
+        {
+            @foreach (var brand in Brands)
+            {
+                <div class="form-check">
+                    <input type="checkbox"
+                    class="form-check-input"
+                    checked="@ProductSpecParams.BrandIds.Contains(brand.Id)"
+                    @onchange="(e) => ToggleBrandSelection(brand.Id, e.Value)" />
+                    <label class="form-check-label">@brand.Name</label>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Categories Filter -->
+    <div class="mb-3">
+        <h5 class="text-primary"><strong>Categories</strong></h5>
+        @if (Categories != null)
+        {
+            @foreach (var category in Categories)
+            {
+                <div class="mb-2">
+                    <strong>@category.Name</strong>
+                    <div class="ms-3">
+                        @foreach (var subCategory in category.SubCategories)
+                        {
+                            <div class="form-check">
+                                <input type="checkbox"
+                                class="form-check-input"
+                                checked="@ProductSpecParams.SubCategoryIds.Contains(subCategory.Id)"
+                                @onchange="(e) => ToggleSubCategorySelection(subCategory.Id, e.Value)" />
+                                <label class="form-check-label">@subCategory.Name</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Sort By Filter -->
+    <div class="mb-3">
+        <h5 class="text-primary"><strong>Sort By</strong></h5>
+        <select class="form-select" @bind="ProductSpecParams.Sort">
+            <option value="nameAsc">Name, A to Z</option>
+            <option value="nameDesc">Name, Z to A</option>
+            <option value="priceAsc">Price, low to high</option>
+            <option value="priceDesc">Price, high to low</option>
+        </select>
+    </div>
+
+    <!-- Apply Filters Button -->
+    <div class="text-center">
+        <button class="btn btn-primary" @onclick="ApplyFilters"><i class="fa fa-search me-2"></i> Apply Filters</button>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center mt-5">
+    <!-- Pagination Controls -->
+    <ul class="pagination">
+        @for (var i = 1; i <= TotalPages; i++)
+        {
+            var pageNumber = i;
+            <li class="page-item @(i == ProductSpecParams.PageIndex ? "active" : "")">
+                <a class="page-link" style="cursor: pointer;" @onclick="(() => SetPage(pageNumber))">@i</a>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter]
+    public ProductSpecParams ProductSpecParams { get; set; } = new();
+
+    [Parameter]
+    public int TotalPages { get; set; }
+
+    [Parameter]
+    public EventCallback OnFilterChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnPageChanged { get; set; }
+
+    private IReadOnlyList<CategoryDto> Categories = new List<CategoryDto>();
+    private IReadOnlyList<BrandDto> Brands = new List<BrandDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var categoryQuery = new GetCategoriesQuery();
+        Categories = await Mediator.Send(categoryQuery);
+
+        var brandQuery = new GetBrandsQuery();
+        Brands = await Mediator.Send(brandQuery);
+    }
+
+    private void ToggleBrandSelection(int brandId, object isSelected)
+    {
+        var selected = Convert.ToBoolean(isSelected);
+
+        if (selected)
+            ProductSpecParams.BrandIds.Add(brandId);
+        else
+            ProductSpecParams.BrandIds.Remove(brandId);
+    }
+
+    private void ToggleSubCategorySelection(int subCategoryId, object isSelected)
+    {
+        var selected = Convert.ToBoolean(isSelected);
+
+        if (selected)
+            ProductSpecParams.SubCategoryIds.Add(subCategoryId);
+        else
+            ProductSpecParams.SubCategoryIds.Remove(subCategoryId);
+    }
+
+    private async Task ApplyFilters()
+    {
+        ProductSpecParams.PageIndex = 1;
+        await OnFilterChanged.InvokeAsync();
+    }
+
+    private async Task SetPage(int pageIndex)
+    {
+        ProductSpecParams.PageIndex = pageIndex;
+        await OnPageChanged.InvokeAsync();
+    }
+}

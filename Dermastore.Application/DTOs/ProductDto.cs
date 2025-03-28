@@ -9,8 +9,11 @@ namespace Dermastore.Application.DTOs
         public string Description { get; set; }
         public ProductStatus Status { get; set; }
         public int Quantity { get; set; } = 1;
+        public decimal Price { get; set; }
         public string ImageUrl { get; set; }
-        public int CategoryId { get; set; }
-        public string? Category { get; set; }
+        public int SubCategoryId { get; set; }
+        public string? SubCategory { get; set; }
+        public int BrandId { get; set; }
+        public string? Brand{ get; set; }
     }
 }

@@ -18,12 +18,7 @@ namespace Dermastore.Application.Queries.Products
 
         public async Task<IReadOnlyList<ProductDto>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
-            if (_productService == null)
-            {
-                throw new InvalidOperationException("ProductRepository is not initialized.");
-            }
-
-            var spec = new ProductSpecification();
+            var spec = new ProductSpecification(request.ProductParams);
             var products = await _productService.GetProducts(spec) ?? new List<Product>();
 
             var productsToReturn = products.Select(p => p.ToDto()).ToList();

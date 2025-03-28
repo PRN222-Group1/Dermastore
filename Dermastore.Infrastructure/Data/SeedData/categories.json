@@ -10,5 +10,9 @@
   {
     "Name": "Sunscreens",
     "Description": "Products that protect the skin from harmful UV rays and prevent sun damage."
+  },
+  {
+    "Name": "Serums",
+    "Description": "Concentrated treatments designed to target specific skin concerns like hydration, brightening, and anti-aging."
   }
 ]
