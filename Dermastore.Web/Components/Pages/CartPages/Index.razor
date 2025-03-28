@@ -1,0 +1,110 @@
+﻿@page "/cart"
+@using Dermastore.Application.DTOs.CartDTOs
+@using Dermastore.Web.Containers
+@using MediatR
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject CartStateContainer CartStateContainer
+@inject ProtectedLocalStorage ProtectedLocalStore
+@rendermode InteractiveServer
+@inject IMediator Mediator
+
+<div class="container py-4">
+    <h2 class="text-primary mb-4">Your Cart</h2>
+    @if (CartStateContainer.Cart != null && CartStateContainer.Cart.Items.Any())
+    {
+        <div class="row">
+            <!-- Cart Items -->
+            <div class="col-md-8">
+                @foreach (var item in CartStateContainer.Cart.Items)
+                {
+                    <div class="d-flex align-items-center border-bottom pb-3 mb-3">
+                        <img src="@item.ImageUrl" alt="@item.ProductName" class="img-thumbnail mr-3" style="width: 100px; height: 100px;" />
+                        <div class="ms-3 flex-grow-1">
+                            <h3 class="h5 font-weight-bold">@item.ProductName</h3>
+                            <p class="text-muted">@string.Format("{0}đ", item.Price.ToString("N0"))</p>
+                        </div>
+                        <div class="d-flex align-items-center me-3">
+                            <button class="btn btn-secondary btn-sm text-white" @onclick="() => DecreaseQuantity(item)"><i class="fa fa-minus"></i></button>
+                            <span class="mx-2">@item.Quantity</span>
+                            <button class="btn btn-secondary btn-sm text-white" @onclick="() => IncreaseQuantity(item)"><i class="fa fa-plus"></i></button>
+                        </div>
+                        <button class="btn btn-danger ml-3" @onclick="() => RemoveItem(item)"><i class="fa fa-trash-can"></i></button>
+                    </div>
+                }
+                <!-- Clear Cart Button -->
+                <button class="btn btn-danger mt-3" @onclick="ClearCart">Clear Cart</button>
+            </div>
+            <!-- Cart Summary -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">Summary</h4>
+                        <p class="card-text mb-2">Subtotal: <strong>@string.Format("{0}đ", CartStateContainer.Cart.Items.Sum(i => i.Price * i.Quantity).ToString("N0"))</strong></p>
+                        <!-- Promotion Code Input -->
+                        <div class="form-group mb-3">
+                            <input type="text" class="form-control" placeholder="Promotion code" @bind="promotionCode" />
+                        </div>
+                        <button class="btn btn-primary w-100" @onclick="ApplyPromotion">Apply Promotion</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Your cart is empty.</div>
+    }
+</div>
+
+@code {
+    private string promotionCode = string.Empty;
+
+    private async Task IncreaseQuantity(CartItemDto item)
+    {
+        item.Quantity++;
+        await CartStateContainer.UpdateCartAsync(CartStateContainer.Cart);
+    }
+
+    private async Task DecreaseQuantity(CartItemDto item)
+    {
+        if (item.Quantity > 1)
+        {
+            item.Quantity--;
+            await CartStateContainer.UpdateCartAsync(CartStateContainer.Cart);
+        }
+    }
+
+    private async Task RemoveItem(CartItemDto item)
+    {
+        CartStateContainer.Cart.Items.Remove(item);
+        await CartStateContainer.UpdateCartAsync(CartStateContainer.Cart);
+
+        if (CartStateContainer.Cart.Items.Count() == 0)
+        {
+            await CartStateContainer.DeleteCartAsync();
+        }
+    }
+
+    private async Task ClearCart()
+    {
+        await CartStateContainer.DeleteCartAsync();
+    }
+
+    private async Task ApplyPromotion()
+    {
+        // Implement logic to apply the promotion code
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await ProtectedLocalStore.GetAsync<string>("cartId");
+            if (result.Success && result.Value != null)
+            {
+                await CartStateContainer.LoadCartAsync(result.Value);
+            }
+            CartStateContainer.OnChange += StateHasChanged;
+        }
+    }
+}

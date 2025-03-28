@@ -142,3 +142,25 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+.product-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.product-card img:hover {
+    transform: scale(1.1);
+}
+
+.product-card {
+    box-shadow: 0 2px 8px rgba(63, 69, 81, 0.16);
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.card-text {
+    font-size: 1.1rem;
+}
