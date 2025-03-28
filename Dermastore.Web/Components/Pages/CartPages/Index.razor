@@ -88,6 +88,8 @@
     private async Task ClearCart()
     {
         await CartStateContainer.DeleteCartAsync();
+        await ProtectedLocalStore.DeleteAsync("cartId");
+
     }
 
     private async Task ApplyPromotion()
