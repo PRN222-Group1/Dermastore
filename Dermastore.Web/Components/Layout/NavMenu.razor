@@ -129,30 +129,30 @@
 
 <script>
     $(document).ready(function () {
-    if ($(window).width() >= 980) {
-    var timeout;
+        if ($(window).width() >= 980) {
+        var timeout;
 
-    // Show the dropdown menu when hovering over the toggle
-    $(".navbar .dropdown-toggle").hover(function () {
-    clearTimeout(timeout);
-    $(this).parent().addClass("show");
-    $(this).parent().find(".dropdown-menu").addClass("show");
-    });
+        // Show the dropdown menu when hovering over the toggle
+        $(".navbar .dropdown-toggle").hover(function () {
+            clearTimeout(timeout);
+            $(this).parent().addClass("show");
+            $(this).parent().find(".dropdown-menu").addClass("show");
+        });
 
-    // Delay closing the dropdown menu when moving the cursor away
-    $(".navbar .dropdown-menu").mouseleave(function () {
-    var $this = $(this);
-    timeout = setTimeout(function () {
-    $this.removeClass("show");
-    $this.parent().removeClass("show");
-    }, 300);  // Adjust delay (in milliseconds) as needed
-    });
+        // Delay closing the dropdown menu when moving the cursor away
+        $(".navbar .dropdown-menu").mouseleave(function () {
+            var $this = $(this);
+            timeout = setTimeout(function () {
+            $this.removeClass("show");
+            $this.parent().removeClass("show");
+            }, 300);  // Adjust delay (in milliseconds) as needed
+        });
 
-    // Also keep the dropdown open when hovering over the menu
-    $(".navbar .dropdown-menu").mouseenter(function () {
-    clearTimeout(timeout);
-    });
-    }
+            // Also keep the dropdown open when hovering over the menu
+            $(".navbar .dropdown-menu").mouseenter(function () {
+                clearTimeout(timeout);
+            });
+        }
     });
 </script>
 
