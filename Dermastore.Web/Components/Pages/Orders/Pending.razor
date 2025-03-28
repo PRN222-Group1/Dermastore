@@ -1,6 +1,6 @@
 ﻿@page "/orders/pending"
 @using Dermastore.Domain.Entities.OrderAggregate
-@using Dermastore.Application.Queries.Orders
+@using Dermastore.Application.Queries.Orders.GetOrders
 @using Dermastore.Application.Commands.Vnpays
 @using Dermastore.Application.DTOs.Orders
 @using MediatR
@@ -26,6 +26,7 @@ else
         <table class="table table-striped">
             <thead>
                 <tr>
+                    <th>Order ID</th>
                     <th>Order Date</th>
                     <th>Shipping Address</th>
                     <th>SubTotal</th>
@@ -37,6 +38,7 @@ else
                 @foreach (var order in orders)
                 {
                     <tr>
+                        <td>@order.Id</td>
                         <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
                         <td>@order.ShippingAddress</td>
                         <td>@order.SubTotal.ToString("C")</td>
@@ -73,10 +75,7 @@ else
     }
     private async Task OnPay(int orderId)
     {
-        var command = new CreatePaymentUrlCommand(orderId);
-        // Gửi command CreatePaymentUrlByOrderCommand qua Mediator
-        var paymentUrl = await Mediator.Send(command);
-        // Điều hướng đến trang thanh toán của VNPAY
-        NavigationManager.NavigateTo(paymentUrl, true);
+        
+        NavigationManager.NavigateTo($"/orders/confirm?orderId={orderId}");
     }
 }

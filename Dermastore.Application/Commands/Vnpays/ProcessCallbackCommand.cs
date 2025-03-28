@@ -9,6 +9,13 @@ using System.Threading.Tasks;
 
 namespace Dermastore.Application.Commands.Vnpays
 {
-    public record ProcessCallbackCommand(IQueryCollection Query) : IRequest<PaymentResult>;
-    
+    public class ProcessCallbackCommand : IRequest<PaymentResult>
+    {
+        public IQueryCollection QueryCollection { get; }
+        public ProcessCallbackCommand(IQueryCollection queryCollection)
+        {
+            QueryCollection = queryCollection;
+        }
+    }
+
 }

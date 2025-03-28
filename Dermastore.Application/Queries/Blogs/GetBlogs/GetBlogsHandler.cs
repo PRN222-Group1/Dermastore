@@ -6,7 +6,7 @@ using Dermastore.Domain.Interfaces;
 using Dermastore.Domain.Specifications.Blogs;
 using MediatR;
 
-namespace Dermastore.Application.Queries.Blogs
+namespace Dermastore.Application.Queries.Blogs.GetBlogs
 {
     public class GetBlogsHandler : IRequestHandler<GetBlogsQuery, IReadOnlyList<BlogDto>>
     {

@@ -1,6 +1,5 @@
 ﻿[
 
-
   {
     "OrderDate": "2023-10-01T00:00:00",
     "ShippingAddress": "123 Main St, Anytown, USA",
@@ -54,6 +53,69 @@
           "ImageUrl": "https://example.com/images/product2.jpg"
         },
         "Price": 50.00,
+        "Quantity": 1,
+        "FeedbackId": 2,
+        "Feedback": {
+          "Content": "Good value for money.",
+          "UserId": 1,
+          "CreatedDate": "2023-10-01T00:00:00"
+        }
+      }
+    ]
+  },
+  {
+    "OrderDate": "2023-11-01T00:00:00",
+    "ShippingAddress": "1233 Main St, Anytown, USA",
+    "SubTotal": 1100.00,
+    "UserId": 1,
+    "PromotionId": 1,
+    "DeliveryMethodId": 1,
+    "User": {
+      "FirstName": "John",
+      "LastName": "Doe",
+      "Gender": 1,
+      "Address": "123 Main St, Anytown, USA",
+      "ImageUrl": "https://example.com/images/johndoe.jpg",
+      "MembershipId": 1,
+      "Status": 1
+    },
+    "Promotion": {
+      "Name": "Summer Sale",
+      "EffectiveDate": "2023-06-01",
+      "ExpiryDate": "2023-08-31",
+      "Discount": 0.10,
+      "Code": "SUMMER2023",
+      "Status": 1
+    },
+    "DeliveryMethod": {
+      "Name": "Standard Shipping",
+      "DeliveryTime": "3-5 business days",
+      "Description": "Standard shipping method",
+      "Price": 5.00
+    },
+    "OrderItems": [
+      {
+        "ItemOrdered": {
+          "ProductId": 1,
+          "ProductName": "Product 1",
+          "ImageUrl": "https://example.com/images/product1.jpg"
+        },
+        "Price": 150.00,
+        "Quantity": 1,
+        "FeedbackId": 1,
+        "Feedback": {
+          "Content": "Great product!",
+          "UserId": 1,
+          "CreatedDate": "2023-10-01T00:00:00"
+        }
+      },
+      {
+        "ItemOrdered": {
+          "ProductId": 2,
+          "ProductName": "Product 2",
+          "ImageUrl": "https://example.com/images/product2.jpg"
+        },
+        "Price": 150.00,
         "Quantity": 1,
         "FeedbackId": 2,
         "Feedback": {

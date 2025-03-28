@@ -1,7 +1,7 @@
 ﻿using Dermastore.Application.DTOs.Blogs;
 using MediatR;
 
-namespace Dermastore.Application.Queries.Blogs
+namespace Dermastore.Application.Queries.Blogs.GetBlogById
 {
     public class GetBlogQuery : IRequest<BlogDto>
     {

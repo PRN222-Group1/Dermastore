@@ -5,7 +5,7 @@ using Dermastore.Domain.Interfaces;
 using Dermastore.Domain.Specifications.Orders;
 using MediatR;
 
-namespace Dermastore.Application.Queries.Orders
+namespace Dermastore.Application.Queries.Orders.GetOrderById
 {
     public class GetOrderHandler : IRequestHandler<GetOrderQuery, OrderDto>
     {

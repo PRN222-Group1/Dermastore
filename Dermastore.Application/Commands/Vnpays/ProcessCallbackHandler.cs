@@ -15,25 +15,24 @@ namespace Dermastore.Application.Commands.Vnpays
         private readonly IVnpayService _vnpayService;
         private readonly IOrderService _orderService;
 
-        public ProcessCallbackHandler(IOrderService orderService, IVnpayService vnpayService)
+        public ProcessCallbackHandler(IVnpayService vnpayService,
+            IOrderService orderService)
         {
-            _orderService = orderService;
             _vnpayService = vnpayService;
+            _orderService = orderService;
         }
 
         public async Task<PaymentResult> Handle(ProcessCallbackCommand request, CancellationToken cancellationToken)
         {
-            var paymentResult = _vnpayService.GetPaymentResult(request.Query);
+            var paymentResult = _vnpayService.GetPaymentResult(request.QueryCollection);
 
             if (paymentResult.IsSuccess)
             {
-                if (!int.TryParse(paymentResult.Description, out int orderId) || orderId <= 0)
-                {
-                    throw new InvalidOperationException("Không xác định được OrderId từ dữ liệu thanh toán.");
-                }
-
-                await _orderService.ChangeOrderStatus(orderId, OrderStatus.Complete);
+                int orderId = int.Parse(paymentResult.Description);
+                if (orderId <= 0)
+                    throw new ArgumentException("Không xác định được OrderId từ dữ liệu thanh toán.");
             }
+
             return paymentResult;
         }
     }

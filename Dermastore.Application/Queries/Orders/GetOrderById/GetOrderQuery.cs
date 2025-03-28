@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dermastore.Application.Queries.Orders
+namespace Dermastore.Application.Queries.Orders.GetOrderById
 {
     public class GetOrderQuery : IRequest<OrderDto>
     {

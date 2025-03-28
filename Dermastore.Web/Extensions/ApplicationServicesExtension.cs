@@ -1,8 +1,12 @@
-﻿using Dermastore.Application.Extensions;
+﻿using Dermastore.Application.Commands.Vnpays;
+using Dermastore.Application.Extensions;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Infrastructure.Data;
 using Dermastore.Infrastructure.Services;
+using Dermastore.Web.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System.Configuration;
 
 namespace Dermastore.Web.Extensions
 {
@@ -35,7 +39,6 @@ namespace Dermastore.Web.Extensions
             services.AddScoped<IVnpayService, VnpayService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddHttpContextAccessor();
-
             return services;
         }
     }
