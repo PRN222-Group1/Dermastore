@@ -1,6 +1,36 @@
 ﻿@page "/callback"
-<h3>CallBack</h3>
+@using VNPAY.NET.Models;
+@using Dermastore.Application.Commands.Vnpays
+@using MediatR
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.WebUtilities
+
+<h3>Kết quả thanh toán</h3>
+
+@if (PaymentResult is null)
+{
+    <p>Đang xử lý...</p>
+}
+else if (PaymentResult.IsSuccess)
+{
+    <p>Thanh toán thành công!</p>
+}
+else
+{
+    <p>Thanh toán thất bại: @PaymentResult.PaymentResponse.Description</p>
+}
 
 @code {
+    private PaymentResult? PaymentResult;
 
+    protected override async Task OnInitializedAsync()
+    {
+        // Lấy query string từ URL
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+        var queryCollection = new QueryCollection(query);
+        var command = new ProcessCallbackCommand(queryCollection);
+        PaymentResult = await Mediator.Send(command);
+    }
 }

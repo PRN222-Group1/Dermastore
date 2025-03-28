@@ -2,20 +2,22 @@
 using Dermastore.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Dermastore.Domain.Helpers;
-using Dermastore.Domain.Models;
-using Dermastore.Domain.Enums;
+using VNPAY.NET;
+using VNPAY.NET.Utilities;
+using VNPAY.NET.Models;
+using VNPAY.NET.Enums;
+
 
 namespace Dermastore.Application.Commands.Vnpays
 {
     public class CreatePaymentUrlHandler : IRequestHandler<CreatePaymentUrlCommand, string>
     {
-        private readonly IVnpayService _vnpayService;
+        private readonly IVnpay _vnpayService;
         private readonly IOrderService _orderService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
 
-        public CreatePaymentUrlHandler(IOrderService orderService, IHttpContextAccessor httpContextAccessor, IVnpayService vnpayService, IConfiguration configuration)
+        public CreatePaymentUrlHandler(IOrderService orderService, IHttpContextAccessor httpContextAccessor, IVnpay vnpayService, IConfiguration configuration)
         {
 
             _orderService = orderService;

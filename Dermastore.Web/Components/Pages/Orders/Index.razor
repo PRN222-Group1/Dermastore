@@ -178,13 +178,7 @@
             Console.WriteLine("Invalid Order ID");
         }
     }
-    // Ví dụ data
-    public List<CartItemDto> CartItems { get; set; } = new List<CartItemDto>
-    {
-        new CartItemDto { ProductName = "Toner", Price = 145, Quantity = 1, ImageUrl="https://picsum.photos/80" },
-        new CartItemDto { ProductName = "Toner", Price = 180, Quantity = 2, ImageUrl="https://picsum.photos/80" },
-        new CartItemDto { ProductName = "Toner", Price = 240, Quantity = 1, ImageUrl="https://picsum.photos/80" },
-    };
+    
 
     // Shipping info
     public ShippingInfo1 ShippingInfo { get; set; } = new ShippingInfo1
@@ -201,7 +195,7 @@
     public PaymentMethod SelectedPaymentMethod { get; set; } = PaymentMethod.VnPay;
 
     // Tính toán Subtotal, discount, v.v.
-    private decimal SubTotal => CartItems.Sum(i => (decimal)(i.Price * i.Quantity));
+    private decimal SubTotal => order.OrderItems.Sum(i => (decimal)(i.Price * i.Quantity));
     private decimal Discount => SubTotal * 0.2m;
     private decimal DeliveryFee => 15m;
     private decimal Total => SubTotal - Discount + DeliveryFee;
@@ -236,13 +230,7 @@
     }
 
     // DTO mô phỏng item
-    public class CartItemDto
-    {
-        public string ProductName { get; set; }
-        public double Price { get; set; }
-        public int Quantity { get; set; }
-        public string ImageUrl { get; set; }
-    }
+    
 
     // Thông tin shipping
     public class ShippingInfo1

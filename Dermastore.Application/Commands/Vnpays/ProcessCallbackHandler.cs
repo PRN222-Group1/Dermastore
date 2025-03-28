@@ -1,21 +1,16 @@
-﻿using Dermastore.Domain.Enums;
-using Dermastore.Domain.Interfaces;
-using Dermastore.Domain.Models;
+﻿using Dermastore.Domain.Interfaces;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using VNPAY.NET;
+using VNPAY.NET.Models;
 
 namespace Dermastore.Application.Commands.Vnpays
 {
     public class ProcessCallbackHandler : IRequestHandler<ProcessCallbackCommand, PaymentResult>
     {
-        private readonly IVnpayService _vnpayService;
+        private readonly IVnpay _vnpayService;
         private readonly IOrderService _orderService;
 
-        public ProcessCallbackHandler(IVnpayService vnpayService,
+        public ProcessCallbackHandler(IVnpay vnpayService,
             IOrderService orderService)
         {
             _vnpayService = vnpayService;
