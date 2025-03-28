@@ -18,17 +18,16 @@ namespace Dermastore.Application.Queries.Orders.GetOrders
 {
     public class GetOrdersHandler : IRequestHandler<GetOrdersQuery, IReadOnlyList<OrderDto>>
     {
-        private readonly IGenericRepository<Order> _orderRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GetOrdersHandler(IGenericRepository<Order> orderRepository)
+        public GetOrdersHandler(IUnitOfWork unitOfWork)
         {
-            _orderRepository = orderRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IReadOnlyList<OrderDto>> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
         {
-            var spec = new OrderSpecification();
-            var orders = await _orderRepository.ListAsync(spec);
+            var orders = await _unitOfWork.Orders.GetOrders();
             var ordersToReturn = orders.Select(p => p.ToDto()).ToList();
             return ordersToReturn;
         }

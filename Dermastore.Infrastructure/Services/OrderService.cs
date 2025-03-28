@@ -1,58 +1,50 @@
 ﻿using Dermastore.Domain.Entities.OrderAggregate;
 using Dermastore.Domain.Enums;
 using Dermastore.Domain.Interfaces;
+using Dermastore.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dermastore.Infrastructure.Services
 {
     public class OrderService : IOrderService
     {
-        readonly IGenericRepository<Order> _orderRepository;
+        private readonly DermastoreContext _context;
 
-        public OrderService(IGenericRepository<Order> orderRepository)
+        public OrderService(DermastoreContext context)
         {
-            _orderRepository = orderRepository;
+            _context = context;
         }
 
-        public async Task<IReadOnlyList<Order>> GetOrders()
+        public async Task<IEnumerable<Order>> GetOrders()
         {
-            return await _orderRepository.ListAllAsync();
+            return await _context.Orders
+                        .Include(o => o.OrderItems)
+                        .AsNoTracking()
+                        .ToListAsync();
         }
 
-        public async Task<Order> GetOrderById(int orderId)
+        public async Task<Order?> GetOrderById(int orderId)
         {
-            return await _orderRepository.GetByIdAsync(orderId);
+            return await _context.Orders.Include(o => o.OrderItems)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(o => o.Id == orderId);
         }
 
-        public async Task<int> CreateOrder(Order order)
+        public void CreateOrder(Order order)
         {
-            _orderRepository.Add(order);
-            await _orderRepository.SaveAllAsync();
-            return order.Id;
+            _context.Orders.AddAsync(order);
         }
 
-        public async Task<bool> DeleteOrder(int orderId)
+        public void Update(Order order)
         {
-            var order = await _orderRepository.GetByIdAsync(orderId);
-            _orderRepository.Delete(order);
-            return await _orderRepository.SaveAllAsync();
+            _context.Orders.Update(order);
         }
 
-        public async Task<int> UpdateOrder(Order order)
+        public void Remove(Order order)
         {
-            _orderRepository.Update(order);
-            await _orderRepository.SaveAllAsync();
-            return order.Id;
+            _context.Orders.Remove(order);
         }
 
-        public async Task<int> ChangeOrderStatus(int orderId, OrderStatus status)
-        {
-            var order = await _orderRepository.GetByIdAsync(orderId);
-            order.Status = status;
-            _orderRepository.Update(order);
-            await _orderRepository.SaveAllAsync();
-            return order.Id;
 
-
-        }
     }
 }

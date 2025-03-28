@@ -7,20 +7,20 @@ namespace Dermastore.Application.Commands.Blogs
 {
     public class CreateBlogHandler : IRequestHandler<CreateBlogCommand, int>
     {
-        private readonly IGenericRepository<Blog> _blogRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateBlogHandler(IGenericRepository<Blog> blogRepository)
+        public CreateBlogHandler(IUnitOfWork unitOfWork)
         {
-            _blogRepository = blogRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<int> Handle(CreateBlogCommand request, CancellationToken cancellationToken)
         {
-            var product = request.BlogDto.ToEntity();
-            _blogRepository.Add(product);
-            await _blogRepository.SaveAllAsync();
+            var blog = request.BlogDto.ToEntity();
+            _unitOfWork.Blogs.CreateBlog(blog);
+            await _unitOfWork.Complete();
 
-            return product.Id;
+            return blog.Id;
         }
     }
 }

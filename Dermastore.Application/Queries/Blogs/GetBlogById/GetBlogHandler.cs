@@ -11,17 +11,16 @@ namespace Dermastore.Application.Queries.Blogs.GetBlogById
 {
     public class GetBlogHandler : IRequestHandler<GetBlogQuery, BlogDto>
     {
-        private readonly IGenericRepository<Blog> _blogRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GetBlogHandler(IGenericRepository<Blog> blogRepository)
+        public GetBlogHandler(IUnitOfWork unitOfWork)
         {
-            _blogRepository = blogRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<BlogDto> Handle(GetBlogQuery request, CancellationToken cancellationToken)
         {
-            var spec = new BlogSpecification(request.Id);
-            var blog = await _blogRepository.GetEntityWithSpec(spec);
+            var blog = await _unitOfWork.Blogs.GetBlogById(request.Id);
             return blog.ToDto();
         }
     }

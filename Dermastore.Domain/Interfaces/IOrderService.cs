@@ -10,13 +10,10 @@ namespace Dermastore.Domain.Interfaces
 {
     public interface IOrderService
     {
-        Task<IReadOnlyList<Order>> GetOrders();
-        Task<Order> GetOrderById(int orderId);
-        Task<int> CreateOrder(Order order);
-        Task<int> UpdateOrder(Order order);
-        Task<bool> DeleteOrder(int orderId);
-        Task<int> ChangeOrderStatus(int orderId, OrderStatus status);
-
-
+        Task<IEnumerable<Order>> GetOrders();
+        Task<Order?> GetOrderById(int orderId);
+        void CreateOrder(Order order);
+        void Update(Order order);
+        void Remove(Order order);
     }
 }

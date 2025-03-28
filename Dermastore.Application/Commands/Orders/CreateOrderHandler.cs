@@ -14,18 +14,18 @@ namespace Dermastore.Application.Commands.Orders
 {
     public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, int>
     {
-        private readonly IGenericRepository<Order> _orderRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateOrderHandler(IGenericRepository<Order> orderRepository)
+        public CreateOrderHandler(IUnitOfWork unitOfWork)
         {
-            _orderRepository = orderRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<int> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             var order = request.OrderDto.ToEntity();
-            _orderRepository.Add(order);
-            await _orderRepository.SaveAllAsync();
+            _unitOfWork.Orders.CreateOrder(order);
+            await _unitOfWork.Complete();
 
             return order.Id;
         }

@@ -10,17 +10,16 @@ namespace Dermastore.Application.Queries.Blogs.GetBlogs
 {
     public class GetBlogsHandler : IRequestHandler<GetBlogsQuery, IReadOnlyList<BlogDto>>
     {
-        private readonly IGenericRepository<Blog> _blogRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GetBlogsHandler(IGenericRepository<Blog> blogRepository)
+        public GetBlogsHandler(IUnitOfWork unitOfWork)
         {
-            _blogRepository = blogRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IReadOnlyList<BlogDto>> Handle(GetBlogsQuery request, CancellationToken cancellationToken)
         {
-            var spec = new BlogSpecification();
-            var blogs = await _blogRepository.ListAsync(spec);
+            var blogs = await _unitOfWork.Blogs.GetBlogs();
             var blogsToReturn = blogs.Select(p => p.ToDto()).ToList();
             return blogsToReturn;
         }

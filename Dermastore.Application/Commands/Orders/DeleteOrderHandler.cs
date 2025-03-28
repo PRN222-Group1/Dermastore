@@ -15,20 +15,19 @@ namespace Dermastore.Application.Commands.Orders
 {
     public class DeleteOrderHandler : IRequestHandler<DeleteOrderCommand, bool>
     {
-        private readonly IGenericRepository<Order> _orderRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteOrderHandler(IGenericRepository<Order> orderRepository)
+        public DeleteOrderHandler(IUnitOfWork unitOfWork)
         {
-            _orderRepository = orderRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> Handle(DeleteOrderCommand request, CancellationToken cancellationToken)
         {
-            var spec = new OrderSpecification(request.Id);
-            var order = await _orderRepository.GetEntityWithSpec(spec);
+            var order = await _unitOfWork.Orders.GetOrderById(request.Id);
 
-            _orderRepository.Delete(order);
-            var result = await _orderRepository.SaveAllAsync();
+            _unitOfWork.Orders.Remove(order);
+            var result = await _unitOfWork.Complete();
 
             return result;
         }

@@ -9,17 +9,16 @@ namespace Dermastore.Application.Queries.Orders.GetOrderById
 {
     public class GetOrderHandler : IRequestHandler<GetOrderQuery, OrderDto>
     {
-        private readonly IGenericRepository<Order> _orderRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GetOrderHandler(IGenericRepository<Order> orderRepository)
+        public GetOrderHandler(IUnitOfWork unitOfWork)
         {
-            _orderRepository = orderRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<OrderDto> Handle(GetOrderQuery request, CancellationToken cancellationToken)
         {
-            var spec = new OrderSpecification(request.Id);
-            var order = await _orderRepository.GetEntityWithSpec(spec);
+            var order = await _unitOfWork.Orders.GetOrderById(request.Id);
             return order.ToDto();
         }
     }

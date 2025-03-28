@@ -18,6 +18,7 @@ namespace Dermastore.Domain.Specifications.Orders
 
         public OrderSpecification(int id) : base(x => x.Id == id)
         {
+           
             AddInclude(p => p.OrderItems);
         }
 

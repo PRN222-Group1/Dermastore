@@ -3,7 +3,7 @@
   {
     "OrderDate": "2023-10-01T00:00:00",
     "ShippingAddress": "123 Main St, Anytown, USA",
-    "SubTotal": 100.00,
+    "SubTotal": 100000,
     "UserId": 1,
     "PromotionId": 1,
     "DeliveryMethodId": 1,
@@ -37,7 +37,7 @@
           "ProductName": "Product 1",
           "ImageUrl": "https://example.com/images/product1.jpg"
         },
-        "Price": 50.00,
+        "Price": 50000,
         "Quantity": 1,
         "FeedbackId": 1,
         "Feedback": {
@@ -52,7 +52,7 @@
           "ProductName": "Product 2",
           "ImageUrl": "https://example.com/images/product2.jpg"
         },
-        "Price": 50.00,
+        "Price": 50000,
         "Quantity": 1,
         "FeedbackId": 2,
         "Feedback": {
@@ -66,7 +66,7 @@
   {
     "OrderDate": "2023-11-01T00:00:00",
     "ShippingAddress": "1233 Main St, Anytown, USA",
-    "SubTotal": 1100.00,
+    "SubTotal": 110000,
     "UserId": 1,
     "PromotionId": 1,
     "DeliveryMethodId": 1,
@@ -100,7 +100,7 @@
           "ProductName": "Product 1",
           "ImageUrl": "https://example.com/images/product1.jpg"
         },
-        "Price": 150.00,
+        "Price": 50000,
         "Quantity": 1,
         "FeedbackId": 1,
         "Feedback": {
@@ -115,7 +115,7 @@
           "ProductName": "Product 2",
           "ImageUrl": "https://example.com/images/product2.jpg"
         },
-        "Price": 150.00,
+        "Price": 60000,
         "Quantity": 1,
         "FeedbackId": 2,
         "Feedback": {

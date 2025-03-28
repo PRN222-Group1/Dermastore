@@ -10,6 +10,8 @@ namespace Dermastore.Domain.Interfaces
     public interface IUnitOfWork : IDisposable
     {
         IGenericRepository<T> Repository<T>() where T : BaseEntity;
+        IOrderService Orders { get; }
+        IBlogService Blogs { get; }
         Task<bool> Complete();
     }
 }

@@ -22,16 +22,34 @@ else
     [SupplyParameterFromQuery]
     public int orderId { get; set; }
 
+    // Create link to VNpay
     protected override async Task OnInitializedAsync()
     {
+        if (orderId <= 0)
+        {
+            // Handle invalid order ID
+            NavigationManager.NavigateTo("/orders"); //or show an error page
+            return;
+        }
+
         try
         {
             PaymentUrl = await Mediator.Send(new CreatePaymentUrlCommand(orderId));
         }
         catch (Exception ex)
         {
-            // Xử lý lỗi và thông báo cho người dùng
-            Console.WriteLine(ex.Message);
+            // Log the error
+            Console.WriteLine($"Payment URL creation failed: {ex.Message}");
+            // Optionally redirect or show an error message
+            NavigationManager.NavigateTo("/orders/error");
         }
     }
+    
+    //   -- Direct to VNpay --
+    // protected override async Task OnInitializedAsync()
+    // {
+        
+    //         PaymentUrl = await Mediator.Send(new CreatePaymentUrlCommand(orderId));
+    //     NavigationManager.NavigateTo(PaymentUrl,forceLoad : true);
+    // }
 }

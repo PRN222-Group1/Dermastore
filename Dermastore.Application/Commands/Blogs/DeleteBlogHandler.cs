@@ -7,20 +7,20 @@ namespace Dermastore.Application.Commands.Blogs
 {
     public class DeleteBlogHandler : IRequestHandler<DeleteBlogCommand, bool>
     {
-        private readonly IGenericRepository<Blog> _blogRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteBlogHandler(IGenericRepository<Blog> blogRepository)
+        public DeleteBlogHandler(IUnitOfWork unitOfWork)
         {
-            _blogRepository = blogRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> Handle(DeleteBlogCommand request, CancellationToken cancellationToken)
         {
-            var spec = new BlogSpecification(request.Id);
-            var blog = await _blogRepository.GetEntityWithSpec(spec);
+            
+            var blog = await _unitOfWork.Blogs.GetBlogById(request.Id);
 
-            _blogRepository.Delete(blog);
-            var result = await _blogRepository.SaveAllAsync();
+            _unitOfWork.Blogs.Remove(blog);
+            var result = await _unitOfWork.Complete();
 
             return result;
         }

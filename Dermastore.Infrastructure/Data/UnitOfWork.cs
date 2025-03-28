@@ -10,16 +10,22 @@ namespace Dermastore.Infrastructure.Data
     public class UnitOfWork : IUnitOfWork
     {
         private readonly DermastoreContext _context;
+        public IOrderService Orders { get; }
+        public IBlogService Blogs { get; }
         private ConcurrentDictionary<string, object> _repositories = new ConcurrentDictionary<string, object>();
+
+        public UnitOfWork(DermastoreContext context, IOrderService orders, IBlogService blogs)
+        {
+            _context = context;
+            Orders = orders;
+            Blogs = blogs;
+        }
 
         /// <summary>
         /// Injects a DbContext instance to be used by all repositories.
         /// </summary>
         /// <param name="context"></param>
-        public UnitOfWork(DermastoreContext context)
-        {
-            _context = context;
-        }
+
 
         /// <summary>
         /// The asynchronous Complete method persists changes made to the database.
