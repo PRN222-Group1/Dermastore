@@ -1,11 +1,8 @@
-﻿using Dermastore.Application.DTOs;
-using Dermastore.Application.Extensions;
-using Dermastore.Domain.Entities;
+﻿using Dermastore.Domain.Entities;
 using Dermastore.Domain.Enums;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Domain.Specifications;
 using Dermastore.Domain.Specifications.Products;
-using Microsoft.EntityFrameworkCore;
 
 namespace Dermastore.Infrastructure.Services;
 
@@ -13,10 +10,9 @@ public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
 
-
     public ProductService(IUnitOfWork unitOfWork)
     {
-        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _unitOfWork = unitOfWork;
     }
 
 
@@ -109,5 +105,11 @@ public class ProductService : IProductService
         }
 
         return product;
+    }
+
+    public async Task<int> CountProduct(ISpecification<Product> spec)
+    {
+        var count = await _unitOfWork.Repository<Product>().CountAsync(spec);
+        return count;
     }
 }

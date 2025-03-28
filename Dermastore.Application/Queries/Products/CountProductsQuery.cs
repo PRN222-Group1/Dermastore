@@ -4,11 +4,11 @@ using MediatR;
 
 namespace Dermastore.Application.Queries.Products
 {
-    public class GetProductsQuery : IRequest<IReadOnlyList<ProductDto>>
+    public class CountProductsQuery : IRequest<int>
     {
         public ProductSpecParams ProductParams { get; set; }
 
-        public GetProductsQuery(ProductSpecParams productSpecParams)
+        public CountProductsQuery(ProductSpecParams productSpecParams)
         {
             ProductParams = productSpecParams;
         }
