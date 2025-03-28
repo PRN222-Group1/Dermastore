@@ -1,0 +1,42 @@
+[
+  {
+    "Name": "Foaming Cleansers",
+    "CategoryId": 1,
+    "Description": "Lightweight cleansers that create a foam to remove impurities without stripping the skin."
+  },
+  {
+    "Name": "Gel Cleansers",
+    "CategoryId": 1,
+    "Description": "Gel-based facial cleansers ideal for oily and combination skin."
+  },
+  {
+    "Name": "Day Creams",
+    "CategoryId": 2,
+    "Description": "Moisturizers designed for daytime use with added SPF."
+  },
+  {
+    "Name": "Night Creams",
+    "CategoryId": 2,
+    "Description": "Rich moisturizers formulated to repair and hydrate the skin overnight."
+  },
+  {
+    "Name": "Mineral Sunscreens",
+    "CategoryId": 3,
+    "Description": "Sunscreens that use mineral-based ingredients like zinc oxide to protect the skin from UV rays."
+  },
+  {
+    "Name": "Chemical Sunscreens",
+    "CategoryId": 3,
+    "Description": "Sunscreens formulated with chemical filters to absorb UV radiation."
+  },
+  {
+    "Name": "Hydration Boosters",
+    "CategoryId": 4,
+    "Description": "Concentrated serums that deeply hydrate and plump the skin."
+  },
+  {
+    "Name": "Brightening Serums",
+    "CategoryId": 4,
+    "Description": "Serums designed to reduce hyperpigmentation and brighten the skin tone."
+  }
+]

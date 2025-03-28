@@ -1,5 +1,5 @@
-﻿using Dermastore.Core.Entities.OrderAggregate;
-using Dermastore.Core.Enums;
+﻿using Dermastore.Domain.Entities.OrderAggregate;
+using Dermastore.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,7 +19,7 @@ namespace Dermastore.Infrastructure.Config
             );
 
             builder.HasOne(o => o.Promotion).WithMany().HasForeignKey(o => o.PromotionId);
-            builder.HasMany(o => o.OrderItems).WithOne().OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(o => o.OrderItems).WithOne().OnDelete(DeleteBehavior.Restrict);
             builder.HasOne(o => o.User).WithMany().HasForeignKey(o => o.UserId);
             builder.HasOne(o => o.DeliveryMethod).WithMany().HasForeignKey(o => o.DeliveryMethodId);
         }

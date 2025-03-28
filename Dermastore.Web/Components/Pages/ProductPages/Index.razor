@@ -1,0 +1,77 @@
+﻿@page "/products"
+@using Dermastore.Application.DTOs
+@using Dermastore.Application.Extensions
+@using Dermastore.Application.Queries.Products
+@using Dermastore.Domain.Specifications.Products
+@using Dermastore.Web.Components.Pages.Shared.product
+@using MediatR
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Dermastore.Domain.Entities
+@using Dermastore.Domain.Interfaces
+@using Dermastore.Infrastructure.Services
+@rendermode InteractiveServer
+@inject IMediator Mediator
+@inject IProductService _productService
+
+<div class="mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <ProductFilter 
+            ProductSpecParams="ProductSpecParams" 
+            OnFilterChanged="GetProducts" 
+            OnPageChanged="GetProducts"
+            TotalPages="TotalPages" />
+        </div>
+
+        <div class="col-md-9">
+            <p>
+                <a href="products/create" class="btn btn-primary">Add Product</a>
+            </p>
+
+            @if (products != null && products.Any())
+            {
+                <div class="row gx-1 gy-4">
+                    @foreach (var product in products)
+                    {
+                        <div class="col-md-3 mb-4">
+                            <ProductCard Product="@product" />
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>No products found.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int? SubCategory { get; set; }
+
+    private IReadOnlyList<ProductDto> products;
+    private ProductSpecParams ProductSpecParams { get; set; } = new();
+    private int TotalPages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProducts();
+    }
+
+    private async Task GetProducts() {
+        if (SubCategory.HasValue) {
+            ProductSpecParams.SubCategoryIds.Add(SubCategory.Value);
+            SubCategory = null;
+        }
+        var productQuery = new GetProductsQuery(ProductSpecParams);
+        products = await Mediator.Send(productQuery);
+
+        var countQuery = new CountProductsQuery(ProductSpecParams);
+        var count = await Mediator.Send(countQuery);
+
+        TotalPages = (int)Math.Ceiling(count / (decimal)ProductSpecParams.PageSize);
+    }
+}

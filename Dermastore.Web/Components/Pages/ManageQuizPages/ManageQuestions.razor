@@ -1,0 +1,252 @@
+﻿@using MediatR
+@using Dermastore.Application.Queries.Questions
+@using Dermastore.Application.DTOs.QuestionDTOs
+@using Dermastore.Application.Queries.Answers
+@using Dermastore.Application.DTOs.AnswerDTOs
+@using Dermastore.Application.Commands.Questions
+@inject IMediator Mediator
+
+<div>
+    <button class="btn btn-create mb-2" @onclick="ShowCreateQuestionModal">Create Question</button>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Question ID</th>
+                <th>Question Content</th>
+                <th>Answers</th> <!-- Keep original column -->
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var q in questions)
+            {
+                <tr>
+                    <td>@q.id</td>
+                    <td>@q.content</td>
+                    <td>
+                        <button class="btn btn-sm btn-info"
+                                @onclick="() => ShowViewAnswersModal(q)">
+                            View Detail
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-update btn-sm me-1"
+                                @onclick="() => ShowUpdateQuestionModal(q)">
+                            Update
+                        </button>
+                        <button class="btn btn-danger btn-sm"
+                                @onclick="() => DeleteQuestion(q.id)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                @if (ErrorMessages.ContainsKey(q.id) && !string.IsNullOrEmpty(ErrorMessages[q.id]))
+                {
+                    <tr>
+                        <td colspan="4">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                @ErrorMessages[q.id]
+                                <button type="button" class="btn-close" aria-label="Close"
+                                        @onclick="() => ClearErrorMessage(q.id)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal: Create/Update Question -->
+@if (ShowQuestionModal)
+{
+    <div class="modal show" style="display:block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@QuestionModalTitle</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            @onclick="CloseQuestionModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="questionContent" class="form-label">Question Content</label>
+                        <input id="questionContent" class="form-control"
+                               @bind="TempQuestion.content" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseQuestionModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="SaveQuestion">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+<!-- Modal: View Answers for a question -->
+@if (ShowViewAnswers)
+{
+    <div class="modal show" style="display:block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Answers for Question ID @ViewAnswersQuestionId</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            @onclick="CloseViewAnswersModal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Answer ID</th>
+                                <th>Answer Content</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewAnswersList != null)
+                            {
+                                @foreach (var ans in ViewAnswersList)
+                                {
+                                    <tr>
+                                        <td>@ans.id</td>
+                                        <td>@ans.content</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseViewAnswersModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    [Parameter]
+    public bool IsActive { get; set; }
+
+    private IReadOnlyList<QuestionDto> questions = new List<QuestionDto>();
+    private bool ShowQuestionModal = false;
+    private string QuestionModalTitle = "";
+    private QuestionDto TempQuestion = new();
+    private bool ShowViewAnswers = false;
+    private int ViewAnswersQuestionId = 0;
+    private List<AnswerDto> ViewAnswersList = new();
+    private Dictionary<int, string> ErrorMessages = new(); // Added for per-row error messages
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsActive)
+        {
+            await LoadData();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        var questionQuery = new GetQuestionsQuery();
+        questions = await Mediator.Send(questionQuery);
+    }
+
+    private void ShowCreateQuestionModal()
+    {
+        QuestionModalTitle = "Create Question";
+        TempQuestion = new QuestionDto();
+        ShowQuestionModal = true;
+    }
+
+    private void ShowUpdateQuestionModal(QuestionDto q)
+    {
+        QuestionModalTitle = "Update Question";
+        TempQuestion = new QuestionDto
+            {
+                id = q.id,
+                content = q.content
+            };
+        ShowQuestionModal = true;
+    }
+
+    private async Task SaveQuestion()
+    {
+        if (TempQuestion.id == 0)
+        {
+            var questionToCreate = new QuestionToAddDTO
+                {
+                    content = TempQuestion.content
+                };
+            var command = new CreateQuestionCommand(questionToCreate);
+            await Mediator.Send(command);
+        }
+        else
+        {
+            var questionToUpdate = new QuestionToUpdateDTO
+                {
+                    questionId = TempQuestion.id,
+                    content = TempQuestion.content
+                };
+            var command = new UpdateQuestionCommand(questionToUpdate);
+            await Mediator.Send(command);
+        }
+
+        await LoadData();
+        CloseQuestionModal();
+    }
+
+    private async Task DeleteQuestion(int id)
+    {
+        try
+        {
+            var question = questions.FirstOrDefault(q => q.id == id);
+            if (question != null)
+            {
+                // Check for associated answers
+                if (question.answers != null && question.answers.Any())
+                {
+                    ErrorMessages[id] = $"Delete failed: current question has connection with answerId(s): {string.Join(", ", question.answers.Select(a => a.id))}";
+                    return;
+                }
+            }
+
+            // Proceed with deletion if no answers are associated
+            var deleteQuestionCommand = new DeleteQuestionCommand(id);
+            await Mediator.Send(deleteQuestionCommand);
+            await LoadData();
+            ErrorMessages.Remove(id); // Clear any existing error message on success
+        }
+        catch (Exception ex)
+        {
+            ErrorMessages[id] = $"Delete failed: {ex.Message}";
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void CloseQuestionModal()
+    {
+        ShowQuestionModal = false;
+    }
+
+    private void ShowViewAnswersModal(QuestionDto question)
+    {
+        ViewAnswersQuestionId = question.id;
+        ViewAnswersList = question.answers ?? new List<AnswerDto>(); // Ensure not null
+        ShowViewAnswers = true;
+    }
+
+    private void CloseViewAnswersModal()
+    {
+        ShowViewAnswers = false;
+        ViewAnswersList = new();
+        ViewAnswersQuestionId = 0;
+    }
+
+    private void ClearErrorMessage(int questionId)
+    {
+        ErrorMessages.Remove(questionId);
+    }
+}

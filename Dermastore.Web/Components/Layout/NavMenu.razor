@@ -1,30 +1,183 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Dermastore.Web</a>
+﻿@using Dermastore.Application.DTOs
+@using Dermastore.Application.Queries.Products
+@using MediatR
+@using Dermastore.Web.Containers
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject CartStateContainer CartStateContainer
+@inject ProtectedLocalStorage ProtectedLocalStore
+@rendermode InteractiveServer
+@inject IMediator Mediator
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary py-0">
+    <div class="container-fluid ps-0">
+        <!-- Section 1: Logo -->
+        <div class="navbar-brand m-0 p-0">
+            <a class="navbar-brand py-0" href="#">
+                <img src="/assets/logo.png" height="100" alt="Dermastore Logo">
+            </a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <!-- Section 2: Navigation Links -->
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item dropdown p-3 d-flex align-items-center position-static">
+                    <a class="nav-link dropdown-toggle" href="/products" id="categoryDropdown" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fa-solid fa-bag-shopping me-2"></i> Dermastore
+                    </a>
+                    <div class="dropdown-menu w-100 bg-secondary p-4 position-absolute top-100 start-0" aria-labelledby="categoryDropdown">
+                        <div class="container">
+                            <div class="row">
+                                <!-- Categories Section -->
+                                @if (categories != null)
+                                {
+                                    @foreach (var category in categories)
+                                    {
+                                        <div class="col-md-3 mb-3">
+                                            <h6 class="text-uppercase font-weight-bold text-white border-bottom pb-2">@category.Name</h6>
+                                            <ul class="nav flex-column">
+                                                @foreach (var subcategory in category.SubCategories)
+                                                {
+                                                    <li class="nav-item">
+                                                        <a class="nav-link text-tertiary py-1 hover-highlight" href="/products?subCategory=@subcategory.Id">@subcategory.Name</a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                }
+
+                                <!-- Image Section -->
+                                <div class="col-md-3 text-center ms-auto">
+                                    <div class="promo-section">
+                                        <a target="_blank" href="#">
+                                            <img src="/assets/NavMenuPlaceholder.png"
+                                                 alt="Our Latest Products" class="img-fluid rounded mb-2" style="max-height: 300px; object-fit: cover;">
+                                        </a>
+                                        <p class="text-white mb-0">Our Latest Products</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <!-- Rest of the navigation items remain the same -->
+                <li class="nav-item p-3 d-flex align-items-center">
+                    <a class="nav-link" href="#" role="button">
+                        <i class="fa-solid fa-blog me-2"></i> Blogs
+                    </a>
+                </li>
+                <li class="nav-item p-3 d-flex align-items-center">
+                    <a class="nav-link" href="/beauty-match" role="button">
+                        <i class="fa fa-check me-2"></i> Skin Test
+                    </a>
+                </li>
+
+                <!-- Cart Dropdown Items List -->
+                <li class="nav-item dropdown p-3 d-flex align-items-center">
+                    <a class="nav-link dropdown-toggle" href="/cart" id="cartDropdown" role="button" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fa-solid fa-cart-shopping me-2"></i> Cart
+                    </a>
+                    <div class="dropdown-menu bg-secondary p-4 position-absolute top-100" aria-labelledby="cartDropdown" style="min-width: 350px;">
+                        @if (CartStateContainer.Cart != null && CartStateContainer.Cart.Items != null && CartStateContainer.Cart.Items.Any())
+                        {
+                            <ul class="list-unstyled bg-secondary">
+                                @foreach (var cartItem in CartStateContainer.Cart.Items)
+                                {
+                                    <li class="d-flex align-items-center mb-3 bg-secondary">
+                                        <img src="@cartItem.ImageUrl" alt="@cartItem.ProductName" class="img-fluid me-2"
+                                                style="width: 70px; height: 70px; object-fit: cover; border-radius: 4px;">
+                                        <div>
+                                            <h6 class="text-white m-0">@cartItem.ProductName</h6>
+                                            <small class="text-white">Price: @string.Format("{0}đ", cartItem.Price.ToString("N0"))</small>
+                                            <br />
+                                            <small class="text-white">Quantity: @cartItem.Quantity</small>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                            <a href="/cart" class="btn btn-primary btn-sm w-100">View Cart</a>
+                        }
+                        else
+                        {
+                            <p class="text-white m-0">Your cart is empty.</p>
+                        }
+                    </div>
+                </li>
+            </ul>
+
+            <!-- Section 3: Search Bar and Login Button -->
+            <div class="d-flex align-items-center">
+                <form class="d-flex me-3">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Search products..." aria-label="Search">
+                        <button class="btn btn-light" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+                <div class="nav-item">
+                    <a class="nav-link" href="/accounts/login" role="button">
+                        <i class="fa fa-sign-in me-2"></i> Login
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</nav>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<script>
+    $(document).ready(function () {
+        if ($(window).width() >= 980) {
+            var timeout;
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+            // Show the dropdown menu when hovering over the toggle
+            $(".navbar .dropdown-toggle").hover(function () {
+                clearTimeout(timeout);
+                $(this).parent().addClass("show");
+                $(this).parent().find(".dropdown-menu").addClass("show");
+            });
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
+            // Delay closing the dropdown menu when moving the cursor away
+            $(".navbar .dropdown-menu").mouseleave(function () {
+                var $this = $(this);
+                timeout = setTimeout(function () {
+                    $this.removeClass("show");
+                    $this.parent().removeClass("show");
+                }, 300);  // Adjust delay (in milliseconds) as needed
+            });
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
+            // Also keep the dropdown open when hovering over the menu
+            $(".navbar .dropdown-menu").mouseenter(function () {
+                clearTimeout(timeout);
+            });
+        }
+    });
+</script>
 
+
+@code {
+    private IReadOnlyList<CategoryDto> categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var categoryQuery = new GetCategoriesQuery();
+        categories = await Mediator.Send(categoryQuery);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await ProtectedLocalStore.GetAsync<string>("cartId");
+
+            if (result.Success && result.Value != null)
+            {
+                await CartStateContainer.LoadCartAsync(result.Value);
+            }
+
+            CartStateContainer.OnChange += StateHasChanged;
+        }
+    }
+}

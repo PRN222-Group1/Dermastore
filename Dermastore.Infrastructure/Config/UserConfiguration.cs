@@ -1,5 +1,5 @@
-﻿using Dermastore.Core.Entities;
-using Dermastore.Core.Enums;
+﻿using Dermastore.Domain.Entities;
+using Dermastore.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,6 +9,11 @@ namespace Dermastore.Infrastructure.Config
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
+            builder.ToTable("User");
+
+            builder.HasIndex(u => u.PhoneNumber).IsUnique();
+            builder.HasIndex(u => u.Email).IsUnique();
+
             builder.Property(u => u.FirstName).HasColumnType("nvarchar(100)");
             builder.Property(u => u.LastName).HasColumnType("nvarchar(100)");
             builder.Property(u => u.LastName).HasColumnType("nvarchar(100)");

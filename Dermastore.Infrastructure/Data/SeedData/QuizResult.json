@@ -1,0 +1,32 @@
+﻿[
+  {
+    "SkinType": "Oily",
+    "Description": "Oily skin is characterized by an overproduction of sebum, which can lead to a shiny or greasy appearance throughout the day. It is more prone to acne, blackheads, and enlarged pores, especially in the T-zone (forehead, nose, and chin).",
+    "Characteristic": "Enlarged pores, excessive shine, frequent breakouts, blackheads, and a greasy feel, particularly in the T-zone area.",
+    "CareTips": "Use a gentle foaming or gel-based cleanser twice daily to remove excess oil and prevent clogged pores. Opt for oil-free and non-comedogenic skincare products to avoid breakouts. Exfoliate 2-3 times a week with salicylic acid to keep pores clear. Apply an oil-free, lightweight moisturizer to maintain hydration without clogging pores. Always wear sunscreen, as excessive sebum production can make skin more prone to sun damage."
+  },
+  {
+    "SkinType": "Normal",
+    "Description": "Normal skin is well-balanced, meaning it is neither too oily nor too dry. It has good circulation, a smooth texture, and minimal imperfections. This skin type is typically less prone to breakouts or sensitivity.",
+    "Characteristic": "Small, barely visible pores, smooth and even skin tone, soft texture, and a healthy, radiant glow with minimal breakouts or dryness.",
+    "CareTips": "Maintain hydration by using a lightweight, non-greasy moisturizer. Cleanse your face twice daily with a gentle, pH-balanced cleanser to remove dirt and impurities. Use a mild exfoliant once or twice a week to keep skin fresh and promote cell renewal. Always apply a broad-spectrum SPF 30+ sunscreen to protect against premature aging and sun damage."
+  },
+  {
+    "SkinType": "Dry",
+    "Description": "Dry skin lacks sufficient moisture and natural oils, leading to a rough or flaky texture. It often feels tight, especially after cleansing, and can be more prone to irritation, redness, and premature fine lines or wrinkles.",
+    "Characteristic": "Tight and rough feeling, fine lines or wrinkles more visible, dry patches, flaky or peeling skin, and a dull, uneven complexion.",
+    "CareTips": "Use a hydrating, creamy cleanser that does not strip the skin of natural oils. Apply a rich moisturizer containing ingredients like ceramides, glycerin, and hyaluronic acid to lock in moisture. Avoid alcohol-based or harsh exfoliating products that can worsen dryness. Consider using a humidifier in dry environments to maintain skin hydration. Always apply sunscreen, as dry skin is more prone to damage and premature aging."
+  },
+  {
+    "SkinType": "Sensitive",
+    "Description": "Sensitive skin tends to react easily to skincare products, environmental factors, and stress. It is more prone to redness, irritation, and inflammation.",
+    "Characteristic": "Redness, irritation, burning or stinging sensations, dryness, and a tendency to react negatively to new skincare products or environmental changes.",
+    "CareTips": "Use fragrance-free and hypoallergenic skincare products to reduce the risk of irritation. Choose a gentle, hydrating cleanser and avoid harsh exfoliants. Look for soothing ingredients such as aloe vera, chamomile, and colloidal oatmeal. Moisturize with barrier-strengthening ingredients like ceramides and niacinamide. Always use a mineral-based sunscreen with zinc oxide or titanium dioxide for UV protection without irritation."
+  },
+  {
+    "SkinType": "Combination",
+    "Description": "Combination skin is a mix of both oily and dry areas, with an oily T-zone (forehead, nose, and chin) and drier or normal cheeks. It can be challenging to manage because different areas of the face require different care.",
+    "Characteristic": "Oily and shiny forehead, nose, and chin (T-zone); dry or normal cheeks; visible pores in the T-zone; occasional breakouts or blackheads.",
+    "CareTips": "Use a gentle, balanced cleanser that removes excess oil without drying out the skin. Apply a lightweight, oil-free moisturizer in oily areas and a richer moisturizer on dry patches. Use blotting papers or a mattifying product to reduce shine in the T-zone. Avoid using overly harsh cleansers, as they can strip natural oils and cause further imbalance. Sunscreen is essential to protect both oily and dry areas from sun damage."
+  }
+]

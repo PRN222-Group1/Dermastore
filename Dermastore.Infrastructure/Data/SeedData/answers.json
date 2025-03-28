@@ -1,0 +1,202 @@
+[
+  {
+    "Content": "Use a gentle cleanser that doesn’t strip the skin of its natural oils. Look for ingredients like salicylic acid or tea tree oil.",
+    "QuestionId": 1,
+    "QuizResultId": 1
+  },
+  {
+    "Content": "Opt for a gel-based or foaming cleanser that helps control excess oil without causing dryness.",
+    "QuestionId": 1,
+    "QuizResultId": 2
+  },
+  {
+    "Content": "A non-comedogenic cleanser is ideal. Products containing witch hazel can help balance oil production.",
+    "QuestionId": 1,
+    "QuizResultId": 3
+  },
+  {
+    "Content": "A mild cream-based cleanser with natural extracts like chamomile is also a good option for oily skin.",
+    "QuestionId": 1,
+    "QuizResultId": 4
+  },
+  {
+    "Content": "Use a retinoid or serum containing peptides, which can stimulate collagen production and reduce wrinkles.",
+    "QuestionId": 2,
+    "QuizResultId": 1
+  },
+  {
+    "Content": "Moisturizing creams with hyaluronic acid can plump the skin, making fine lines less visible.",
+    "QuestionId": 2,
+    "QuizResultId": 2
+  },
+  {
+    "Content": "Look for anti-aging products that contain antioxidants like vitamin C to reduce the appearance of wrinkles.",
+    "QuestionId": 2,
+    "QuizResultId": 3
+  },
+  {
+    "Content": "Regular use of sunscreen and collagen-boosting serums can significantly help reduce fine lines over time.",
+    "QuestionId": 2,
+    "QuizResultId": 4
+  },
+  {
+    "Content": "For dry skin, choose a moisturizer with ceramides, glycerin, and hyaluronic acid to lock in moisture.",
+    "QuestionId": 3,
+    "QuizResultId": 1
+  },
+  {
+    "Content": "Look for rich, nourishing creams with shea butter or squalane to help restore dry skin’s hydration.",
+    "QuestionId": 3,
+    "QuizResultId": 2
+  },
+  {
+    "Content": "A thicker, more emollient moisturizer with oils like argan or jojoba oil works wonders for dry skin.",
+    "QuestionId": 3,
+    "QuizResultId": 3
+  },
+  {
+    "Content": "A fragrance-free moisturizer with niacinamide can calm and hydrate dry, irritated skin.",
+    "QuestionId": 3,
+    "QuizResultId": 4
+  },
+  {
+    "Content": "For acne-prone skin, use a serum that contains salicylic acid or benzoyl peroxide to help clear breakouts.",
+    "QuestionId": 4,
+    "QuizResultId": 1
+  },
+  {
+    "Content": "Serums with tea tree oil or witch hazel can calm inflammation and reduce acne lesions.",
+    "QuestionId": 4,
+    "QuizResultId": 2
+  },
+  {
+    "Content": "Hyaluronic acid serums can provide hydration while acne treatment ingredients keep the skin clear.",
+    "QuestionId": 4,
+    "QuizResultId": 3
+  },
+  {
+    "Content": "Retinol serums are effective for both acne and signs of aging, helping to clear acne while improving skin texture.",
+    "QuestionId": 4,
+    "QuizResultId": 4
+  },
+  {
+    "Content": "Physical sunscreens (like zinc oxide or titanium dioxide) sit on top of the skin and provide immediate protection from the sun.",
+    "QuestionId": 5,
+    "QuizResultId": 1
+  },
+  {
+    "Content": "Chemical sunscreens absorb UV rays and tend to be lighter on the skin, making them ideal for daily wear.",
+    "QuestionId": 5,
+    "QuizResultId": 2
+  },
+  {
+    "Content": "Hybrid sunscreens combine both physical and chemical properties for broad-spectrum protection.",
+    "QuestionId": 5,
+    "QuizResultId": 3
+  },
+  {
+    "Content": "For sensitive skin, opt for mineral sunscreens with fewer chemical ingredients to avoid irritation.",
+    "QuestionId": 5,
+    "QuizResultId": 4
+  },
+  {
+    "Content": "Vitamin C can help brighten skin tone and reduce dark spots or hyperpigmentation, which contributes to a more even complexion.",
+    "QuestionId": 6,
+    "QuizResultId": 1
+  },
+  {
+    "Content": "Vitamin C also stimulates collagen production, which helps skin look firmer and more youthful.",
+    "QuestionId": 6,
+    "QuizResultId": 2
+  },
+  {
+    "Content": "Serums with vitamin C and ferulic acid offer stronger protection from UV damage and free radicals.",
+    "QuestionId": 6,
+    "QuizResultId": 3
+  },
+  {
+    "Content": "Regular application of vitamin C can visibly reduce discoloration and improve overall skin radiance.",
+    "QuestionId": 6,
+    "QuizResultId": 4
+  },
+  {
+    "Content": "Look for a sunscreen with broad-spectrum SPF protection and a formula that suits your skin type (e.g., non-comedogenic for acne-prone skin).",
+    "QuestionId": 7,
+    "QuizResultId": 1
+  },
+  {
+    "Content": "Choose a sunscreen with soothing ingredients like aloe vera for sensitive skin types.",
+    "QuestionId": 7,
+    "QuizResultId": 2
+  },
+  {
+    "Content": "Mineral sunscreens are often the best choice for sensitive skin, as they are less likely to cause irritation.",
+    "QuestionId": 7,
+    "QuizResultId": 3
+  },
+  {
+    "Content": "For dry skin, opt for sunscreens with added moisture, like those containing glycerin or hyaluronic acid.",
+    "QuestionId": 7,
+    "QuizResultId": 4
+  },
+  {
+    "Content": "Using a rich moisturizer that contains ceramides, glycerin, and hyaluronic acid can help trap moisture in the skin.",
+    "QuestionId": 8,
+    "QuizResultId": 1
+  },
+  {
+    "Content": "A thick, nourishing cream combined with a hydrating serum will help retain skin hydration during winter.",
+    "QuestionId": 8,
+    "QuizResultId": 2
+  },
+  {
+    "Content": "Consider using a humidifier indoors to prevent the air from drying out your skin.",
+    "QuestionId": 8,
+    "QuizResultId": 3
+  },
+  {
+    "Content": "For intense hydration, look for products with squalane or oils like jojoba that replenish the skin’s lipid barrier.",
+    "QuestionId": 8,
+    "QuizResultId": 4
+  },
+  {
+    "Content": "Eye creams with peptides and hyaluronic acid can target fine lines around the eyes while offering extra moisture.",
+    "QuestionId": 9,
+    "QuizResultId": 1
+  },
+  {
+    "Content": "Products with retinol or caffeine can reduce puffiness and dark circles around the eyes.",
+    "QuestionId": 9,
+    "QuizResultId": 2
+  },
+  {
+    "Content": "A rich eye cream with antioxidants like vitamin C or green tea extract can help protect the delicate skin around the eyes.",
+    "QuestionId": 9,
+    "QuizResultId": 3
+  },
+  {
+    "Content": "If you’re concerned about wrinkles, an eye cream with retinoids can help with collagen production.",
+    "QuestionId": 9,
+    "QuizResultId": 4
+  },
+  {
+    "Content": "Start with a skincare routine that addresses your specific concerns. For example, oily skin might benefit from oil-free moisturizers.",
+    "QuestionId": 10,
+    "QuizResultId": 1
+  },
+  {
+    "Content": "Do a patch test if you’re unsure about a product’s compatibility with your skin. Look for products tailored to your skin type (e.g., acne-prone or sensitive).",
+    "QuestionId": 10,
+    "QuizResultId": 2
+  },
+  {
+    "Content": "Consult with a dermatologist to help identify your skin type and recommend the best products for your concerns.",
+    "QuestionId": 10,
+    "QuizResultId": 3
+  },
+  {
+    "Content": "Always start slow when introducing new products. A basic skincare routine with cleanser, moisturizer, and sunscreen is a great start.",
+    "QuestionId": 10,
+    "QuizResultId": 4
+  }
+]

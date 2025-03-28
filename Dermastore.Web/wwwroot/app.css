@@ -8,8 +8,101 @@ a, .btn-link {
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
+    background-color: #3A5A40 !important;
     border-color: #1861ac;
+}
+
+.bg-primary {
+    background-color: #3A5A40 !important;
+}
+
+.text-primary {
+    color: #3A5A40 !important;
+}
+
+.btn-secondary {
+    color: #000000;
+    background-color: #588157 !important;
+    border-color: #1861ac;
+}
+
+.bg-secondary {
+    background-color: #588157 !important;
+}
+
+.text-secondary {
+    color: #588157 !important;
+}
+
+.btn-tertiary {
+    color: #000000;
+    background-color: #F0EEED !important;
+    border-color: #1861ac;
+}
+
+.bg-tertiary {
+    background-color: #F0EEED !important;
+}
+
+.text-tertiary {
+    color: #F0EEED !important;
+}
+
+
+ adds some margin below the link sets  
+.navbar .dropdown-menu div[class*="col"] {
+   margin-bottom:1rem;
+}
+
+.navbar .dropdown-menu {
+  border:none;
+}
+
+ breakpoint and up - mega dropdown styles 
+@media screen and (min-width: 992px) {
+
+     remove the padding from the navbar so the dropdown hover state is not broken 
+    .navbar {
+        padding-top: 0px;
+        padding-bottom: 0px;
+    }
+
+         remove the padding from the nav-item and add some margin to give some breathing room on hovers 
+        .navbar .nav-item {
+            font-size: 30px;
+            padding: .5rem .5rem;
+            margin: 0 .25rem;
+        }
+
+         makes the dropdown full width  
+        .navbar .dropdown {
+            position: static;
+        }
+
+        .navbar .dropdown-menu {
+            width: 100%;
+            left: 0;
+            right: 0;
+              height of nav-item  
+            top: 45px;
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s linear;
+        }
+
+         shows the dropdown menu on hover 
+        .navbar .dropdown:hover .dropdown-menu, .navbar .dropdown .dropdown-menu:hover {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+            transition: visibility 0s, opacity 0.3s linear;
+        }
+
+        .navbar .dropdown-menu {
+            border: 1px solid rgba(0,0,0,.15);
+            background-color: #fff;
+        }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
@@ -17,7 +110,7 @@ a, .btn-link {
 }
 
 .content {
-    padding-top: 1.1rem;
+    
 }
 
 h1:focus {
@@ -42,10 +135,32 @@ h1:focus {
     color: white;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
+.blazor-error-boundary::after {
+    content: "An error has occurred."
+}
 
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
+}
+
+.product-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.product-card img:hover {
+    transform: scale(1.1);
+}
+
+.product-card {
+    box-shadow: 0 2px 8px rgba(63, 69, 81, 0.16);
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.card-text {
+    font-size: 1.1rem;
 }
