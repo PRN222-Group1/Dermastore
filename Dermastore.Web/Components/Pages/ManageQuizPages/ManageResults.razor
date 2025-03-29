@@ -1,0 +1,271 @@
+﻿@using MediatR
+@using Dermastore.Application.Queries.QuizResults
+@using Dermastore.Application.DTOs.QuizResultDTOs
+@using Dermastore.Application.Commands.QuizResults
+@inject IMediator Mediator
+
+<div>
+    <button class="btn btn-create mb-2" @onclick="ShowCreateResultModal">Create Result</button>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Result ID</th>
+                <th>Skin Type</th>
+                <th>Detail</th> <!-- Combined column -->
+                <th>Answer IDs</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in results)
+            {
+                <tr>
+                    <td>@r.quizId</td>
+                    <td>@r.skinType</td>
+                    <td>
+                        <button class="btn btn-sm btn-info"
+                                @onclick="() => ShowViewDetailsModal(r)">
+                            View Detail
+                        </button>
+                    </td>
+                    <td>
+                        @(r.answerDTOs != null && r.answerDTOs.Any()
+                            ? string.Join(", ", r.answerDTOs.Select(a => a.id))
+                            : "None")
+                    </td>
+                    <td>
+                        <button class="btn btn-update btn-sm me-1"
+                                @onclick="() => ShowUpdateResultModal(r)">
+                            Update
+                        </button>
+                        <button class="btn btn-danger btn-sm"
+                                @onclick="() => DeleteResult(r.quizId)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                @if (ErrorMessages.ContainsKey(r.quizId) && !string.IsNullOrEmpty(ErrorMessages[r.quizId]))
+                {
+                    <tr>
+                        <td colspan="5">
+                            <!-- Adjusted colspan for 5 columns -->
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                @ErrorMessages[r.quizId]
+                                <button type="button" class="btn-close" aria-label="Close"
+                                        @onclick="() => ClearErrorMessage(r.quizId)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal: Create/Update Result -->
+@if (ShowResultModal)
+{
+    <div class="modal show" style="display:block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@ResultModalTitle</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            @onclick="CloseResultModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Skin Type</label>
+                        <input class="form-control" @bind="TempResult.skinType" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Skin Description</label>
+                        <input class="form-control" @bind="TempResult.description" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Characteristic</label>
+                        <input class="form-control" @bind="TempResult.characteristic" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Care Tips</label>
+                        <input class="form-control" @bind="TempResult.careTips" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseResultModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="SaveResult">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+<!-- Modal: View Details -->
+@if (ShowViewDetails)
+{
+    <div class="modal show" style="display:block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Details for Result ID @SelectedResult.quizId</h5>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            @onclick="CloseViewDetailsModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Skin Description:</label>
+                        <p>@SelectedResult.description</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Characteristic:</label>
+                        <p>@SelectedResult.characteristic</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Care Tips:</label>
+                        <p>@SelectedResult.careTips</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseViewDetailsModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    [Parameter]
+    public bool IsActive { get; set; }
+
+    private IReadOnlyList<QuizResultResponseDto> results = new List<QuizResultResponseDto>();
+    private bool ShowResultModal = false;
+    private string ResultModalTitle = "";
+    private QuizResultResponseDto TempResult = new();
+    private Dictionary<int, string> ErrorMessages = new();
+    private bool ShowViewDetails = false; // For the new details modal
+    private QuizResultResponseDto SelectedResult = new(); // Store the selected result for viewing
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsActive)
+        {
+            await LoadData();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        var quizQuery = new GetAllQuizResultQueury();
+        results = await Mediator.Send(quizQuery);
+    }
+
+    private void ShowCreateResultModal()
+    {
+        ResultModalTitle = "Create Result";
+        TempResult = new QuizResultResponseDto();
+        ShowResultModal = true;
+    }
+
+    private void ShowUpdateResultModal(QuizResultResponseDto r)
+    {
+        ResultModalTitle = "Update Result";
+        TempResult = new QuizResultResponseDto
+            {
+                quizId = r.quizId,
+                skinType = r.skinType,
+                description = r.description,
+                characteristic = r.characteristic,
+                careTips = r.careTips
+            };
+        ShowResultModal = true;
+    }
+
+    private async Task SaveResult()
+    {
+        if (TempResult.quizId == 0)
+        {
+            var quizResult = new QuizResultDto
+                {
+                    careTips = TempResult.careTips,
+                    characteristic = TempResult.characteristic,
+                    description = TempResult.description,
+                    skinType = TempResult.skinType
+                };
+            var resultCommand = new CreateQuizResultCommand(quizResult);
+            await Mediator.Send(resultCommand);
+        }
+        else
+        {
+            var updateEntity = new UpdateQuizResultDto
+                {
+                    quizId = TempResult.quizId,
+                    careTips = TempResult.careTips,
+                    characteristic = TempResult.characteristic,
+                    description = TempResult.description,
+                    skinType = TempResult.skinType
+                };
+            var updateResultCommand = new UpdateQuizResultCommand(updateEntity);
+            await Mediator.Send(updateResultCommand);
+        }
+
+        await LoadData();
+        CloseResultModal();
+    }
+
+    private async Task DeleteResult(int id)
+    {
+        try
+        {
+            var result = results.FirstOrDefault(r => r.quizId == id);
+            if (result != null)
+            {
+                if (result.quizId <= 5)
+                {
+                    ErrorMessages[id] = $"Delete failed: Quiz results with ID <= 5 cannot be deleted (Result ID: {result.quizId})";
+                    return;
+                }
+
+                if (result.answerDTOs != null && result.answerDTOs.Any())
+                {
+                    ErrorMessages[id] = $"Delete failed: current result has connection with answerId(s): {string.Join(", ", result.answerDTOs.Select(a => a.id))}";
+                    return;
+                }
+            }
+
+            var deleteResultCommand = new DeleteQuizResultCommand(id);
+            await Mediator.Send(deleteResultCommand);
+            await LoadData();
+            ErrorMessages.Remove(id);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessages[id] = $"Delete failed: {ex.Message}";
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void CloseResultModal()
+    {
+        ShowResultModal = false;
+    }
+
+    private void ClearErrorMessage(int quizId)
+    {
+        ErrorMessages.Remove(quizId);
+    }
+
+    private void ShowViewDetailsModal(QuizResultResponseDto r)
+    {
+        SelectedResult = r;
+        ShowViewDetails = true;
+    }
+
+    private void CloseViewDetailsModal()
+    {
+        ShowViewDetails = false;
+        SelectedResult = new QuizResultResponseDto(); // Reset the selected result
+    }
+}

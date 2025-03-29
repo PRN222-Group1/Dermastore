@@ -1,0 +1,93 @@
+﻿@page "/manage-quiz"
+@using MediatR
+@using Dermastore.Application.Queries.Questions
+@using Dermastore.Application.DTOs.QuestionDTOs
+@using Dermastore.Application.Queries.Answers
+@using Dermastore.Application.DTOs.AnswerDTOs
+@using Dermastore.Application.Queries.QuizResults
+@using Dermastore.Application.DTOs.QuizResultDTOs
+@using Dermastore.Application.Commands.Answers
+@using Dermastore.Application.Commands.QuizResults
+@using Dermastore.Application.Commands.Questions
+@rendermode InteractiveServer
+@inject IMediator Mediator
+
+<!-- Styles -->
+<style>
+    .modal-backdrop {
+        opacity: 0.5;
+    }
+
+    .tab-content > .table {
+        margin-top: 1rem;
+    }
+
+    .btn-update {
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+    }
+
+        .btn-update:hover {
+            background-color: #0b5ed7;
+        }
+
+    .btn-create {
+        background-color: #588157;
+        color: white;
+        border: none;
+    }
+
+        .btn-create:hover {
+            background-color: #4a6b48;
+        }
+</style>
+
+<h2>Manage Quiz</h2>
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == 1 ? "active" : "")"
+           @onclick="() => SetActiveTab(1)">
+            Manage Questions
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == 2 ? "active" : "")"
+           @onclick="() => SetActiveTab(2)">
+            Manage Answers
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ActiveTab == 3 ? "active" : "")"
+           @onclick="() => SetActiveTab(3)">
+            Manage Results
+        </a>
+    </li>
+</ul>
+
+<!-- Tab content -->
+<div class="tab-content p-3">
+    @if (ActiveTab == 1)
+    {
+        <ManageQuestions IsActive="ActiveTab == 1" />
+    }
+    else if (ActiveTab == 2)
+    {
+        <ManageAnswers IsActive="ActiveTab == 2" />
+    }
+    else if (ActiveTab == 3)
+    {
+        <ManageResults IsActive="ActiveTab == 3" />
+    }
+</div>
+
+@code {
+    private int ActiveTab { get; set; } = 1;
+
+    private void SetActiveTab(int tabIndex)
+    {
+        ActiveTab = tabIndex;
+    }
+}

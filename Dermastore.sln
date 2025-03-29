@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dermastore.Web", "Dermastore.Web\Dermastore.Web.csproj", "{65D50330-D5A8-41E5-BC80-C14ABF8ACCE4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dermastore.Infrastructure", "Dermastore.Infrastructure\Dermastore.Infrastructure.csproj", "{2442FAEB-F584-48E8-990A-367230FE408B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dermastore.Application", "Dermastore.Application\Dermastore.Application.csproj", "{3D39CECC-FC48-490A-9059-8C3FF84597E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dermastore.Domain", "Dermastore.Domain\Dermastore.Domain.csproj", "{9EDC1184-D802-4A08-94D2-FF33CA550EB1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{65D50330-D5A8-41E5-BC80-C14ABF8ACCE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65D50330-D5A8-41E5-BC80-C14ABF8ACCE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65D50330-D5A8-41E5-BC80-C14ABF8ACCE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65D50330-D5A8-41E5-BC80-C14ABF8ACCE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2442FAEB-F584-48E8-990A-367230FE408B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2442FAEB-F584-48E8-990A-367230FE408B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2442FAEB-F584-48E8-990A-367230FE408B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2442FAEB-F584-48E8-990A-367230FE408B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D39CECC-FC48-490A-9059-8C3FF84597E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D39CECC-FC48-490A-9059-8C3FF84597E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D39CECC-FC48-490A-9059-8C3FF84597E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D39CECC-FC48-490A-9059-8C3FF84597E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EDC1184-D802-4A08-94D2-FF33CA550EB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EDC1184-D802-4A08-94D2-FF33CA550EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EDC1184-D802-4A08-94D2-FF33CA550EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EDC1184-D802-4A08-94D2-FF33CA550EB1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6FABFDEF-5EA9-4AFB-9F18-ABB579C9107F}
+	EndGlobalSection
+EndGlobal

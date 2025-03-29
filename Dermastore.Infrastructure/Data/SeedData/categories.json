@@ -1,0 +1,18 @@
+[
+  {
+    "Name": "Facial Cleansers",
+    "Description": "Products designed to remove dirt, oil, and impurities from the skin."
+  },
+  {
+    "Name": "Moisturizers",
+    "Description": "Products formulated to hydrate and nourish the skin."
+  },
+  {
+    "Name": "Sunscreens",
+    "Description": "Products that protect the skin from harmful UV rays and prevent sun damage."
+  },
+  {
+    "Name": "Serums",
+    "Description": "Concentrated treatments designed to target specific skin concerns like hydration, brightening, and anti-aging."
+  }
+]

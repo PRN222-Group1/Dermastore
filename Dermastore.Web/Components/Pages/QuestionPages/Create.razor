@@ -1,0 +1,47 @@
+﻿@page "/questions/add"
+@using MediatR
+@using Dermastore.Application.DTOs.QuestionDTOs
+@using Dermastore.Application.DTOs.AnswerDTOs
+@using Dermastore.Application.Commands.Questions
+@inject NavigationManager NavigationManager
+@inject IMediator Mediator
+
+<h3>Add Question</h3>
+
+<EditForm Model="questionDto" OnValidSubmit="AddQuestion">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Question Content:</label>
+        <InputText @bind-Value="questionDto.content" />
+    </div>
+
+    <div>
+        <label>Answers:</label>
+        @foreach (var answer in questionDto.answers)
+        {
+            <div>
+                <InputText @bind-Value="answer.content" />
+            </div>
+        }
+        <button type="button" @onclick="AddAnswer">Add Answer</button>
+    </div>
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code {
+    private QuestionToAddDTO questionDto = new();
+
+    private void AddAnswer()
+    {
+        questionDto.answers.Add(new AnswerToAddDto());
+    }
+
+    private async Task AddQuestion()
+    {
+        var command = new CreateQuestionCommand(questionDto);
+        var questionId = await Mediator.Send(command);
+    }
+}
