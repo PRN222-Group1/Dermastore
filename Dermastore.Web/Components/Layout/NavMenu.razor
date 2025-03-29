@@ -1,11 +1,13 @@
 ﻿@using Dermastore.Application.DTOs
 @using Dermastore.Application.Queries.Products
+@using Dermastore.Web.Providers
 @using MediatR
 @using Dermastore.Web.Containers
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using System.Security.Claims
 @inject CartStateContainer CartStateContainer
 @inject ProtectedLocalStorage ProtectedLocalStore
-@inject AuthStateContainer AuthStateContainer
+@inject AuthStateProvider AuthStateProvider
 @rendermode InteractiveServer
 @inject IMediator Mediator
 
@@ -124,7 +126,7 @@
                         </button>
                     </div>
                 </form>
-                @if (AuthStateContainer.Auth != null && AuthStateContainer.Auth.IsAuthenticated)
+                @if (user != null && user.Identity != null && user.Identity.IsAuthenticated)
                 {
                     <div class="nav-item">
                         <a class="nav-link" href="/accounts/logout" role="button">
@@ -177,11 +179,28 @@
 
 @code {
     private IReadOnlyList<CategoryDto> categories;
+    private ClaimsPrincipal? user;
 
     protected override async Task OnInitializedAsync()
     {
         var categoryQuery = new GetCategoriesQuery();
         categories = await Mediator.Send(categoryQuery);
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+
+        // Subscribe to AuthenticationStateChanged event to trigger re-render on login/logout
+        AuthStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        // Re-render the component when the auth state changes
+        InvokeAsync(async () =>
+        {
+            user = (await task).User;
+            StateHasChanged(); // Trigger UI re-render
+        });
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

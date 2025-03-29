@@ -3,8 +3,11 @@ using Dermastore.Domain.Interfaces;
 using Dermastore.Infrastructure.Data;
 using Dermastore.Infrastructure.Services;
 using Dermastore.Web.Containers;
+using Dermastore.Web.Providers;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using VNPAY.NET;
 
 namespace Dermastore.Web.Extensions
 {
@@ -36,9 +39,10 @@ namespace Dermastore.Web.Extensions
             services.AddScoped<IProductService, ProductService>();
             services.AddSingleton<ICartService, CartService>();
             services.AddSingleton<CartStateContainer>();
+            services.AddSingleton<IVnpay, Vnpay>();
             services.AddScoped<IVnpayService, VnpayService>();
             services.AddScoped<IOrderService, OrderService>();
-            services.AddSingleton<AuthStateContainer>();
+            services.AddSingleton<AuthStateProvider>();
 
             services.AddSingleton<IConnectionMultiplexer>(redisConfig =>
             {

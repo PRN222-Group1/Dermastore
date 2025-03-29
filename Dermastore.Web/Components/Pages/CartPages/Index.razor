@@ -11,12 +11,14 @@
 @using Dermastore.Application.Queries.Promotions
 @using Dermastore.Application.Queries.Users
 @using Dermastore.Web.Containers
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Providers
 @using MediatR
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @rendermode InteractiveServer
 @inject CartStateContainer CartStateContainer
 @inject ProtectedLocalStorage ProtectedLocalStore
-@inject AuthStateContainer AuthStateContainer
+@inject AuthStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
 
@@ -311,7 +313,9 @@
     // Get current user
     private async Task LoadCurrentUser()
     {
-        var query = new GetUserQuery(AuthStateContainer.Auth.Id);
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        var query = new GetUserQuery(authUser.GetCurrentUserId());
         var user = await Mediator.Send(query);
         currentUser = user.ToDto();
     }
