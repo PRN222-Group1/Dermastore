@@ -2,6 +2,7 @@
 
 @using Dermastore.Domain.Entities
 @using Dermastore.Web.Containers
+@using Dermastore.Web.Providers
 @using MediatR
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Authentication
@@ -9,8 +10,8 @@
 
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
-@inject AuthStateContainer AuthStateContainer
 @inject IConfiguration configuration
+@inject AuthStateProvider AuthStateProvider
 @inject SignInManager<User> SignInManager
 @inject NavigationManager NavigationManager
 
@@ -26,7 +27,7 @@
     {
         await SignInManager.SignOutAsync();
         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-        AuthStateContainer.UnauthorizeUserAsync();
+        AuthStateProvider.Logout();
         NavigationManager.NavigateTo("/accounts/login");
     }
 }

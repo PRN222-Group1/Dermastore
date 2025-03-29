@@ -20,7 +20,7 @@ namespace Dermastore.Application.Commands.Customers
                 return false;
             }
 
-            customer.UpdateFromDto(request.Customer);
+            customer.UpdateShippingFromDto(request.Customer);
 
             var result = await _userService.UpdateUserAsync(customer);
             return result.Succeeded ? true : false;

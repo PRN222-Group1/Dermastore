@@ -1,8 +1,11 @@
-﻿using Dermastore.Application.Extensions;
+﻿using Blazored.Toast;
+using Dermastore.Application.Extensions;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Infrastructure.Data;
 using Dermastore.Infrastructure.Services;
 using Dermastore.Web.Containers;
+using Dermastore.Web.Providers;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 using VNPAY.NET;
@@ -40,7 +43,8 @@ namespace Dermastore.Web.Extensions
             services.AddSingleton<IVnpay, Vnpay>();
             services.AddScoped<IVnpayService, VnpayService>();
             services.AddScoped<IOrderService, OrderService>();
-            services.AddSingleton<AuthStateContainer>();
+            services.AddSingleton<AuthStateProvider>();
+            services.AddBlazoredToast();
 
             services.AddSingleton<IConnectionMultiplexer>(redisConfig =>
             {

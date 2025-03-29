@@ -1,4 +1,5 @@
 ﻿@page "/products/details/{Id:int}"
+@using Blazored.Toast.Configuration
 @using Dermastore.Application.DTOs
 @using Dermastore.Application.DTOs.CartDTOs
 @using Dermastore.Application.Queries.Products
@@ -8,13 +9,27 @@
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using Microsoft.EntityFrameworkCore
 @using Dermastore.Domain.Entities
+
 @rendermode InteractiveServer
+@inject IToastService ToastService
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
 @inject CartStateContainer CartStateContainer
 @inject ProtectedLocalStorage ProtectedLocalStore
 
-<PageTitle>Chi tiết sản phẩm</PageTitle>
+<PageTitle>Product Details</PageTitle>
+
+<BlazoredToasts Position="ToastPosition.TopRight"
+                Timeout="5"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast"
+                SuccessIcon="fa fa-check-circle"
+                ErrorClass="error-toast"
+                ErrorIcon="fa fa-times-circle"
+                InfoClass="info-toast"
+                InfoIcon="fa fa-info-circle"
+                WarningClass="warning-toast"
+                WarningIcon="fa fa-exclamation-circle" />
 
 @if (productDto is null)
 {
@@ -140,6 +155,8 @@ else
 
             // Update the cart and save cart id to local storage
             await CartStateContainer.UpdateCartAsync(cart);
+
+            ToastService.ShowSuccess("Added product to cart");
         }
     }
 
