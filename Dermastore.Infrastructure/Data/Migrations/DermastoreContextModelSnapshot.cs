@@ -205,10 +205,13 @@ namespace Dermastore.Infrastructure.Data.Migrations
                     b.Property<int>("DeliveryMethodId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("MembershipId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("PromotionId")
+                    b.Property<int?>("PromotionId")
                         .HasColumnType("int");
 
                     b.Property<string>("ShippingAddress")
@@ -229,6 +232,8 @@ namespace Dermastore.Infrastructure.Data.Migrations
 
                     b.HasIndex("DeliveryMethodId");
 
+                    b.HasIndex("MembershipId");
+
                     b.HasIndex("PromotionId");
 
                     b.HasIndex("UserId");
@@ -244,7 +249,7 @@ namespace Dermastore.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("FeedbackId")
+                    b.Property<int?>("FeedbackId")
                         .HasColumnType("int");
 
                     b.Property<int?>("OrderId")
@@ -259,7 +264,8 @@ namespace Dermastore.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FeedbackId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[FeedbackId] IS NOT NULL");
 
                     b.HasIndex("OrderId");
 
@@ -488,6 +494,9 @@ namespace Dermastore.Infrastructure.Data.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<int>("Point")
+                        .HasColumnType("int");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -744,22 +753,28 @@ namespace Dermastore.Infrastructure.Data.Migrations
                     b.HasOne("Dermastore.Domain.Entities.DeliveryMethod", "DeliveryMethod")
                         .WithMany()
                         .HasForeignKey("DeliveryMethodId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Dermastore.Domain.Entities.Membership", "Membership")
+                        .WithMany()
+                        .HasForeignKey("MembershipId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Dermastore.Domain.Entities.Promotion", "Promotion")
                         .WithMany()
                         .HasForeignKey("PromotionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Dermastore.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("DeliveryMethod");
+
+                    b.Navigation("Membership");
 
                     b.Navigation("Promotion");
 
@@ -770,9 +785,7 @@ namespace Dermastore.Infrastructure.Data.Migrations
                 {
                     b.HasOne("Dermastore.Domain.Entities.Feedback", "Feedback")
                         .WithOne()
-                        .HasForeignKey("Dermastore.Domain.Entities.OrderAggregate.OrderItem", "FeedbackId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Dermastore.Domain.Entities.OrderAggregate.OrderItem", "FeedbackId");
 
                     b.HasOne("Dermastore.Domain.Entities.OrderAggregate.Order", null)
                         .WithMany("OrderItems")
@@ -786,7 +799,7 @@ namespace Dermastore.Infrastructure.Data.Migrations
 
                             b1.Property<string>("ImageUrl")
                                 .IsRequired()
-                                .HasColumnType("varchar(200)");
+                                .HasColumnType("varchar(600)");
 
                             b1.Property<int>("ProductId")
                                 .HasColumnType("int");

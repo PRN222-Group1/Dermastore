@@ -1,0 +1,20 @@
+[
+  {
+    "Name": "Standard Shipping",
+    "DeliveryTime": "3-5 Business Days",
+    "Description": "Economical delivery option for non-urgent orders.",
+    "Price": 20000
+  },
+  {
+    "Name": "Express Shipping",
+    "DeliveryTime": "1-2 Business Days",
+    "Description": "Faster shipping for urgent orders.",
+    "Price": 50000
+  },
+  {
+    "Name": "Overnight Shipping",
+    "DeliveryTime": "Next Day",
+    "Description": "Fastest delivery option for the most urgent orders.",
+    "Price": 120000
+  }
+]

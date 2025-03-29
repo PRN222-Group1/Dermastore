@@ -1,0 +1,47 @@
+﻿@page "/blogs"
+@using Dermastore.Application.DTOs.Blogs
+@using Dermastore.Application.Queries.Blogs.GetBlogs
+@using Dermastore.Domain.Specifications.Blogs
+@using MediatR
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Dermastore.Domain.Entities
+@inject IMediator Mediator
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="blogs/create">Create New</a>
+</p>
+
+@if (blogs != null && blogs.Any())
+{
+    <QuickGrid Class="table" Items="blogs.AsQueryable()" TGridItem="BlogDto">
+        <PropertyColumn Property="blog => blog.Title" />
+        <PropertyColumn Property="blog => blog.Content" />
+        <PropertyColumn Property="blog => blog.UserId" />
+        <PropertyColumn Property="blog => blog.DatePublished" />
+
+        <TemplateColumn Context="blog">
+            <a href="@($"blogs/edit?id={blog.Id}")">Edit</a> |
+            <a href="@($"blogs/details?id={blog.Id}")">Details</a> |
+            <a href="@($"blogs/delete?id={blog.Id}")">Delete</a>
+        </TemplateColumn>
+    </QuickGrid>
+}
+else
+{
+    <p>Loading products...</p>
+}
+@code {
+    private IReadOnlyList<BlogDto> blogs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var query = new GetBlogsQuery();
+        blogs = await Mediator.Send(query);
+        var jv = 1;
+    }
+}

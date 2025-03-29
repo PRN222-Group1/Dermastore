@@ -1,0 +1,42 @@
+﻿@page "/blogs/delete"
+@using Dermastore.Application.Commands.Blogs
+@using Microsoft.EntityFrameworkCore
+@using Dermastore.Domain.Entities
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IMediator Mediator
+@using MediatR
+
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>Blog</h2>
+    <hr />
+
+
+    <button class="btn btn-danger" @onclick="DeleteProduct">Delete</button> |
+    <a href="/blogs">Back to List</a>
+
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    private async Task DeleteProduct()
+    {
+        var command = new DeleteBlogCommand(Id);
+        var result = await Mediator.Send(command);
+
+        if (!result)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+
+        NavigationManager.NavigateTo("/blogs");
+    }
+}

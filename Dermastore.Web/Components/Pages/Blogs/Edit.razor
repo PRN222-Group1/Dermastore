@@ -1,0 +1,85 @@
+﻿@page "/blogs/edit"
+@using Dermastore.Application.Commands.Blogs
+@using Dermastore.Application.DTOs.Blogs
+@using Dermastore.Application.Queries.Blogs.GetBlogById
+@using MediatR
+@using Microsoft.EntityFrameworkCore
+@using Dermastore.Domain.Entities
+@inject NavigationManager NavigationManager
+@inject IMediator Mediator
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Blog</h2>
+
+<hr />
+@if (blogDto is null  )
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="blogDto" OnValidSubmit="UpdateBlog" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert" />
+                <input type="hidden" name="blogDto.Id" value="@blogDto.Id" />
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title:</label>
+                    <InputText id="title" @bind-Value="blogDto.Title" class="form-control" />
+                    <ValidationMessage For="() => blogDto.Title" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="content" class="form-label">Content:</label>
+                    <InputText id="content" @bind-Value="blogDto.Content" class="form-control" />
+                    <ValidationMessage For="() => blogDto.Content" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="userid" class="form-label">User Id:</label>
+                    <InputNumber id="userid" @bind-Value="blogDto.UserId" class="form-control" />
+                    <ValidationMessage For="() => blogDto.UserId" class="text-danger" />
+                </div>
+                <input type="hidden" name="blogDto.DatePublished" value="@blogDto.DatePublished" />
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/blogs">Back to List</a>
+</div>
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private BlogToUpdateDto blogDto { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var blogQuery = new GetBlogQuery(Id);
+        var blog = await Mediator.Send(blogQuery);
+
+        blogDto.Id = blog.Id;
+        blogDto.Title = blog.Title;
+        blogDto.Content = blog.Content;
+        blogDto.UserId = blog.UserId;
+        blogDto.DatePublished = blog.DatePublished;
+
+    }
+
+    private async Task UpdateBlog()
+    {
+        // Create the command using the DTO
+        var command = new UpdateBlogCommand(blogDto);
+
+        // Send the command to MediatR to handle it
+        var blogId = await Mediator.Send(command);
+
+        // Route to detail page
+        NavigationManager.NavigateTo($"/blogs/details?id={blogId}");
+    }
+}

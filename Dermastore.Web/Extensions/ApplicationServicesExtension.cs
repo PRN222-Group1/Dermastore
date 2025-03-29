@@ -36,6 +36,9 @@ namespace Dermastore.Web.Extensions
             services.AddScoped<IProductService, ProductService>();
             services.AddSingleton<ICartService, CartService>();
             services.AddSingleton<CartStateContainer>();
+            services.AddScoped<IVnpayService, VnpayService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddSingleton<AuthStateContainer>();
 
             services.AddSingleton<IConnectionMultiplexer>(redisConfig =>
             {

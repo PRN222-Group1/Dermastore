@@ -30,6 +30,7 @@ namespace Dermastore.Infrastructure.Config
 
             builder.Property(u => u.Address).HasColumnType("nvarchar(1000)");
             builder.Property(u => u.ImageUrl).HasColumnType("nvarchar(200)");
+            builder.Property(u => u.Point).HasColumnType("int");
             builder.HasOne(u => u.Membership).WithMany().HasForeignKey(u => u.MembershipId);
         }
     }
