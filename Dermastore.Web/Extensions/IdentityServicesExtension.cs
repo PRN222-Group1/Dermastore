@@ -31,7 +31,7 @@ namespace Dermastore.Web.Extensions
                 //Set you account options here (e.g., Password, Email)
                 opt.SignIn.RequireConfirmedAccount = false;
                 opt.Password.RequireDigit = false;
-                opt.Password.RequiredLength = 8;
+                opt.Password.RequiredLength = 4;
                 opt.Password.RequireLowercase = true;
                 opt.Password.RequireNonAlphanumeric = false;
                 opt.Password.RequireUppercase = false;

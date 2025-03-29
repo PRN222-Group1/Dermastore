@@ -1,4 +1,4 @@
-﻿namespace Dermastore.Application.DTOs
+﻿namespace Dermastore.Application.DTOs.AccountDTOs
 {
     public class LoginDto
     {

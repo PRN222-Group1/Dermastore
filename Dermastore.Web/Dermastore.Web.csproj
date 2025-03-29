@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\Pages\Vnpays\**" />
+    <Content Remove="Components\Pages\Vnpays\**" />
+    <EmbeddedResource Remove="Components\Pages\Vnpays\**" />
+    <None Remove="Components\Pages\Vnpays\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.11" />
@@ -25,10 +32,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Dermastore.Application\Dermastore.Application.csproj" />
     <ProjectReference Include="..\Dermastore.Infrastructure\Dermastore.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\Pages\Vnpays\" />
   </ItemGroup>
 
 </Project>

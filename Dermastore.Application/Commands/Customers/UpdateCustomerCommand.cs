@@ -1,4 +1,4 @@
-﻿using Dermastore.Application.DTOs;
+﻿using Dermastore.Application.DTOs.AccountDTOs;
 using MediatR;
 
 namespace Dermastore.Application.Commands.Customers

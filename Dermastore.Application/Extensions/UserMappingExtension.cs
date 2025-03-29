@@ -1,5 +1,6 @@
-﻿using Dermastore.Application.DTOs;
+﻿using Dermastore.Application.DTOs.AccountDTOs;
 using Dermastore.Domain.Entities;
+using Dermastore.Domain.Enums;
 
 namespace Dermastore.Application.Extensions
 {
@@ -20,6 +21,24 @@ namespace Dermastore.Application.Extensions
                 ImageUrl = user.ImageUrl ?? string.Empty,
                 Membership = user.Membership != null 
                     ? user.Membership.ToDto() : null,
+            };
+        }
+
+        public static User? ToEntity(this RegisterDto? user)
+        {
+            if (user == null) return null;
+            return new User
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Address = user.Address,
+                Email = user.Email ?? string.Empty,
+                UserName = user.Email,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
+                Gender = (Gender) user.Gender,
+                ImageUrl = string.Empty,
+                MembershipId = 1,
+                Status = UserStatus.Active,
             };
         }
 

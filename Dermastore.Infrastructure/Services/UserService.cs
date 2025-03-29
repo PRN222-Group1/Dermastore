@@ -24,9 +24,9 @@ namespace Dermastore.Infrastructure.Services
             return await _userManager.AddToRoleAsync(user, role);
         }
 
-        public async Task<IdentityResult> CreateUserAsync(User user)
+        public async Task<IdentityResult> CreateUserAsync(User user, string password)
         {
-            return await _userManager.CreateAsync(user);
+            return await _userManager.CreateAsync(user, password);
         }
 
         public async Task<string> GetUserRoleAsync(User user)
