@@ -1,4 +1,6 @@
-﻿namespace Dermastore.Domain.Entities
+﻿using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
+namespace Dermastore.Domain.Entities
 {
     public class Blog : BaseEntity
     {
@@ -7,5 +9,6 @@
         public int UserId { get; set; }
         public User User { get; set; }
         public required DateOnly DatePublished { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+        public string? ImageUrl { get; set; }
     }
 }

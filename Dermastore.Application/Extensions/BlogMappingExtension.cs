@@ -23,6 +23,7 @@ namespace Dermastore.Application.Extensions
                 Content = blog.Content,
                 UserId = blog.UserId,
                 DatePublished = blog.DatePublished,
+                ImageUrl = blog.ImageUrl
             };
         }
 
@@ -36,6 +37,7 @@ namespace Dermastore.Application.Extensions
                 Content = blogDto.Content,
                 UserId = blogDto.UserId,
                 DatePublished = DateOnly.FromDateTime(DateTime.Now),
+                ImageUrl = blogDto.ImageUrl
             };
         }
 
@@ -47,6 +49,8 @@ namespace Dermastore.Application.Extensions
             blog.Title = blogDto.Title;
             blog.Content = blogDto.Content;
             blog.UserId = blogDto.UserId;
+            blog.DatePublished = blogDto.DatePublished;
+            blog.ImageUrl = blogDto.ImageUrl;
         }
 
     }

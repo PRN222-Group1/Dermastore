@@ -2,7 +2,7 @@
 @using Dermastore.Application.DTOs.Blogs
 @using Dermastore.Application.Queries.Blogs.GetBlogs
 @using Dermastore.Domain.Entities
-@using MediatR  
+@using MediatR
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
 <PageTitle>Blog</PageTitle>
@@ -12,15 +12,18 @@
         cursor: pointer;
         transition: transform 0.2s, box-shadow 0.2s;
     }
-
-        .clickable-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
+    .clickable-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
     /* Đảm bảo liên kết không bị gạch chân hay thay đổi màu */
     .card-link {
         text-decoration: none;
         color: inherit;
+    }
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
     }
 </style>
 
@@ -37,6 +40,8 @@
                 <div class="col-md-6 col-lg-4 mb-4">
                     <a href="@($"blogs/details?id={blog.Id}")" class="card-link">
                         <div class="card h-100 shadow-sm clickable-card">
+                            @* Thêm hình ảnh cho blog card *@
+                            <img class="card-img-top" src="@blog.ImageUrl" alt="@blog.Title" />
                             <div class="card-body">
                                 <h5 class="card-title">@blog.Title</h5>
                                 <p class="card-text">

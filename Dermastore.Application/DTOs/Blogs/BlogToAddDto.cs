@@ -13,5 +13,6 @@ namespace Dermastore.Application.DTOs.Blogs
         public string Content { get; set; }
         public int UserId { get; set; }
         public DateOnly DatePublished { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+        public string? ImageUrl { get; set; }
     }
 }
