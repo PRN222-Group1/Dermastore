@@ -10,6 +10,7 @@ namespace Dermastore.Infrastructure.Config
         {
             builder.Property(p => p.Name).HasColumnType("nvarchar(200)");
             builder.Property(p => p.Description).HasColumnType("nvarchar(1000)");
+            builder.Property(p => p.Price).HasColumnType("decimal(18,2)");
             builder.Property(p => p.Status).HasColumnType("varchar(50)");
             builder.Property(p => p.ImageUrl).HasColumnType("varchar(600)");
             builder.HasOne(p => p.SubCategory).WithMany().HasForeignKey(p => p.SubCategoryId);

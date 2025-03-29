@@ -1,6 +1,4 @@
-﻿using Dermastore.Application.DTOs;
-using Dermastore.Application.Extensions;
-using Dermastore.Domain.Entities;
+﻿using Dermastore.Domain.Entities;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Domain.Specifications.Users;
 using MediatR;
@@ -18,7 +16,17 @@ namespace Dermastore.Application.Queries.Users
 
         public async Task<User> Handle(GetUserQuery request, CancellationToken cancellationToken)
         {
-            var spec = new UserSpecification(request.Email);
+            var spec = new UserSpecification(0);
+
+            if (request.Id.HasValue)
+            {
+                spec = new UserSpecification(request.Id.Value);
+            }
+            else if (!string.IsNullOrEmpty(request.Email))
+            {
+                spec = new UserSpecification(request.Email);
+            }
+
             var user = await _userService.GetUserWithSpec(spec);
             return user;
         }

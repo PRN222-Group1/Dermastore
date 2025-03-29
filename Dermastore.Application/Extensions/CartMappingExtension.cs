@@ -1,5 +1,4 @@
-﻿using Dermastore.Application.DTOs.AnswerDTOs;
-using Dermastore.Application.DTOs.CartDTOs;
+﻿using Dermastore.Application.DTOs.CartDTOs;
 using Dermastore.Domain.Entities;
 
 namespace Dermastore.Application.Extensions
@@ -30,11 +29,10 @@ namespace Dermastore.Application.Extensions
             }
             return new CartDto
             {
-                ClientSecret = cart.ClientSecret,
                 Id = cart.Id,
                 Items = cart.Items.Select(i => i.ToDto()).ToList(),
-                PaymentIntentId = cart.PaymentIntentId,
-                Promotion = cart.Promotion.ToDto(),
+                Promotion = cart.Promotion != null ? cart.Promotion.ToDto() : null,
+                DeliveryMethod = cart.DeliveryMethod != null ? cart.DeliveryMethod.ToDto() : null,
             };
         }
 
@@ -64,10 +62,9 @@ namespace Dermastore.Application.Extensions
             return new ShoppingCart
             {
                 Id = cart.Id,
-                ClientSecret = cart.ClientSecret,
                 Items = cart.Items.Select(i => i.UpdateFromDto()).ToList(),
-                PaymentIntentId = cart.PaymentIntentId,
-                Promotion = cart.Promotion.ToEntity()
+                Promotion = cart.Promotion != null ? cart.Promotion.ToEntity() : null,
+                DeliveryMethod = cart.DeliveryMethod != null ? cart.DeliveryMethod.ToEntity() : null,
             };
         }
     }

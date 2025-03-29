@@ -1,0 +1,59 @@
+﻿@page "/blogs/create"
+@using Dermastore.Application.Commands.Blogs
+@using Dermastore.Application.DTOs.Blogs
+@using MediatR
+@inject NavigationManager NavigationManager
+@inject IMediator Mediator
+<PageTitle>Create</PageTitle>
+<h1>Create</h1>
+
+<h2>Blogs</h2>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="blogDto" OnValidSubmit="AddBlog" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="mb-3">
+                <label for="title" class="form-label">Title:</label>
+                <InputText id="title" @bind-Value="blogDto.Title" class="form-control" />
+                <ValidationMessage For="() => blogDto.Title" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="content" class="form-label">Content:</label>
+                <InputText id="content" @bind-Value="blogDto.Content" class="form-control" />
+                <ValidationMessage For="() => blogDto.Content" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="userid" class="form-label">User Id:</label>
+                <InputNumber id="userid" @bind-Value="blogDto.UserId" class="form-control" />
+                <ValidationMessage For="() => blogDto.UserId" class="text-danger" />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+
+
+<div>
+    <a href="/blogs">Back to List</a>
+</div>
+@code {
+    [SupplyParameterFromForm]
+    private BlogToAddDto blogDto { get; set; } = new();
+
+    private async Task AddBlog()
+    {
+        // Create the command using the DTO
+        var command = new CreateBlogCommand(blogDto);
+
+        // Send the command to MediatR to handle it
+        var blogId = await Mediator.Send(command);
+
+        // Route to detail page
+        NavigationManager.NavigateTo($"/blogs/details?id={blogId}");
+    }
+}

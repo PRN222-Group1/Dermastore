@@ -1,0 +1,66 @@
+﻿@page "/callback"
+@using Dermastore.Application.Commands.Vnpays
+@using MediatR
+
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<div class="d-flex flex-column justify-content-center align-items-center vh-100">
+    @if (isProcessing)
+    {
+        <h2 class="text-success mb-4">Processing Payment...</h2>
+
+        <div class="spinner-border text-success mb-4" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    }
+    else if (paymentResult != null)
+    {
+        <div class="alert @GetAlertClass(paymentResult.Value) p-4" style="max-width: 500px;">
+            <h4 class="alert-heading">@GetMessage(paymentResult.Value)</h4>
+            @if (paymentResult.Value != -1)
+            {
+                <p>Your order has been paid successfully. Thank you for your purchase!</p>
+                <a class="btn btn-secondary" href="">Go to Details</a>
+            }
+            else
+            {
+                <p>There was an issue with your payment. Please try again.</p>
+                <a class="btn btn-secondary" href="">Return Home</a>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private int? paymentResult;
+    private bool isProcessing = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Get the query parameters from the current URL
+            var queryCollection = Navigation.ToAbsoluteUri(Navigation.Uri).Query;
+
+            // Create a query collection from the URL query string
+            var query = new QueryCollection(Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(queryCollection));
+
+            // Send the command to process the callback
+            paymentResult = await Mediator.Send(new ProcessCallbackCommand(query));
+        }
+        catch (Exception ex)
+        {
+            // Handle any exceptions during payment processing
+            paymentResult = -1;
+        }
+        finally
+        {
+            // Mark as processing completed
+            isProcessing = false;
+        }
+    }
+
+    private string GetAlertClass(int result) => result != -1 ? "alert-success" : "alert-danger";
+    private string GetMessage(int result) => result != -1 ? "Success!" : "Payment Failed!";
+}

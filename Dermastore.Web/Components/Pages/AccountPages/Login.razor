@@ -4,6 +4,7 @@
 @using Dermastore.Application.Queries.Users
 @using Dermastore.Domain.Entities
 @using Dermastore.Domain.Interfaces
+@using Dermastore.Web.Containers
 @using Dermastore.Web.Extensions
 @using MediatR
 @using System.Security.Claims
@@ -13,6 +14,7 @@
 @inject IUserService UserService
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
+@inject AuthStateContainer AuthStateContainer
 @inject IConfiguration configuration
 @inject SignInManager<User> SignInManager
 
@@ -83,8 +85,11 @@
         var signInResult = await SignInManager.PasswordSignInAsync(user, 
             loginDto.Password, loginDto.RememberMe, lockoutOnFailure: false);
 
+
         if (signInResult.Succeeded) {
             // Redirect to home page or return URL
+            AuthStateContainer.AuthorizeCurrentUser(HttpContext.User.GetCurrentUserId().Value, HttpContext.User.GetUserRole());
+            StateHasChanged();
             NavigationManager.NavigateTo(loginDto.ReturnUrl ?? "/");
         }
     }

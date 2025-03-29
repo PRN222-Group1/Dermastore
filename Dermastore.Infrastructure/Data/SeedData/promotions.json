@@ -1,0 +1,34 @@
+[
+  {
+    "Name": "Summer Glow Sale",
+    "EffectiveDate": "2025-06-01",
+    "ExpiryDate": "2025-06-30",
+    "Discount": 0.10,
+    "Code": "SUMMERGLOW10",
+    "Status": "Active"
+  },
+  {
+    "Name": "New Year Refresh",
+    "EffectiveDate": "2025-01-01",
+    "ExpiryDate": "2025-01-15",
+    "Discount": 0.15,
+    "Code": "NYREFRESH15",
+    "Status": "Expired"
+  },
+  {
+    "Name": "Skincare Week Special",
+    "EffectiveDate": "2025-04-20",
+    "ExpiryDate": "2025-04-27",
+    "Discount": 0.20,
+    "Code": "SKINWEEK20",
+    "Status": "Active"
+  },
+  {
+    "Name": "Loyalty Reward",
+    "EffectiveDate": "2025-03-01",
+    "ExpiryDate": "2025-12-31",
+    "Discount": 0.05,
+    "Code": "LOYALTY5",
+    "Status": "Active"
+  }
+]

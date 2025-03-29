@@ -22,5 +22,17 @@ namespace Dermastore.Application.Extensions
                     ? user.Membership.ToDto() : null,
             };
         }
+
+        public static void UpdateFromDto(this User? user, UserDto userDto)
+        {
+            if (userDto == null) throw new ArgumentNullException(nameof(userDto));
+            if (user == null) throw new ArgumentNullException(nameof(user));
+
+            user.FirstName = userDto.FirstName;
+            user.LastName = userDto.LastName;
+            user.Address = userDto.Address;
+            user.Email = userDto.Email;
+            user.PhoneNumber = userDto.PhoneNumber;
+        }
     }
 }

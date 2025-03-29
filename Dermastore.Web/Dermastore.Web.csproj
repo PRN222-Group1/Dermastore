@@ -19,11 +19,16 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+    <PackageReference Include="VNPAY.NET" Version="8.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Dermastore.Application\Dermastore.Application.csproj" />
     <ProjectReference Include="..\Dermastore.Infrastructure\Dermastore.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Pages\Vnpays\" />
   </ItemGroup>
 
 </Project>

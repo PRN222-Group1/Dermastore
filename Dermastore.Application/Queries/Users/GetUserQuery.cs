@@ -5,9 +5,16 @@ namespace Dermastore.Application.Queries.Users
 {
     public class GetUserQuery : IRequest<User>
     {
-        public string Email { get; }
+        public int? Id { get; }
 
-        public GetUserQuery(string email)
+        public string? Email { get; }
+
+        public GetUserQuery(int? id)
+        {
+            Id = id;
+        }
+
+        public GetUserQuery(string? email)
         {
             Email = email;
         }
