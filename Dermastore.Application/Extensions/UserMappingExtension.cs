@@ -19,6 +19,7 @@ namespace Dermastore.Application.Extensions
                 PhoneNumber = user.PhoneNumber ?? string.Empty,
                 Gender = user.Gender.ToString(),
                 ImageUrl = user.ImageUrl ?? string.Empty,
+                Point = user.Point,
                 Membership = user.Membership != null 
                     ? user.Membership.ToDto() : null,
             };
@@ -42,7 +43,7 @@ namespace Dermastore.Application.Extensions
             };
         }
 
-        public static void UpdateFromDto(this User? user, UserDto userDto)
+        public static void UpdateShippingFromDto(this User? user, UserDto userDto)
         {
             if (userDto == null) throw new ArgumentNullException(nameof(userDto));
             if (user == null) throw new ArgumentNullException(nameof(user));
@@ -52,6 +53,19 @@ namespace Dermastore.Application.Extensions
             user.Address = userDto.Address;
             user.Email = userDto.Email;
             user.PhoneNumber = userDto.PhoneNumber;
+        }
+
+        public static void UpdateProfileFromDto(this User? user, ProfileToUpdateDto profileDto)
+        {
+            if (profileDto == null) throw new ArgumentNullException(nameof(profileDto));
+            if (user == null) throw new ArgumentNullException(nameof(user));
+
+            user.FirstName = profileDto.FirstName;
+            user.LastName = profileDto.LastName;
+            user.Address = profileDto.Address;
+            user.Email = profileDto.Email;
+            user.PhoneNumber = profileDto.PhoneNumber;
+            user.Gender =  (Gender) profileDto.Gender;
         }
     }
 }

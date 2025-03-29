@@ -1,4 +1,5 @@
-﻿using Dermastore.Application.Extensions;
+﻿using Blazored.Toast;
+using Dermastore.Application.Extensions;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Infrastructure.Data;
 using Dermastore.Infrastructure.Services;
@@ -43,6 +44,7 @@ namespace Dermastore.Web.Extensions
             services.AddScoped<IVnpayService, VnpayService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddSingleton<AuthStateProvider>();
+            services.AddBlazoredToast();
 
             services.AddSingleton<IConnectionMultiplexer>(redisConfig =>
             {

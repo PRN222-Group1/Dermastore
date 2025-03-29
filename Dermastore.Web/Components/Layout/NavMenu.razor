@@ -114,6 +114,15 @@
                         }
                     </div>
                 </li>
+
+                @if (user != null && user.Identity != null && user.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/profile" role="button">
+                            <i class="fa-solid fa-circle-user me-2"></i> Profile
+                        </a>
+                    </li>
+                }
             </ul>
 
             <!-- Section 3: Search Bar and Login Button -->
