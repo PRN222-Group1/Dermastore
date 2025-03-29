@@ -11,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationServices(builder.Configuration);
     
 builder.Services.AddRazorPages();
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<DermastoreContext>()
+    .AddDefaultTokenProviders();
+
 
 
 var app = builder.Build();

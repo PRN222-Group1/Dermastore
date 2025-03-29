@@ -27,8 +27,4 @@
     <ProjectReference Include="..\Dermastore.Infrastructure\Dermastore.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Components\Pages\Feedback\" />
-  </ItemGroup>
-
 </Project>

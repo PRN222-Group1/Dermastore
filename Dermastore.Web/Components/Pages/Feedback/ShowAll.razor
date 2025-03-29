@@ -1,0 +1,46 @@
+﻿@using Dermastore.Domain.Entities
+@using Dermastore.Domain.Interfaces
+@page "/feedback"
+
+<h3>All Feedback</h3>
+
+<button @onclick="NavigateToCreate">Create New Feedback</button>
+
+@if (feedbackList != null && feedbackList.Any())
+{
+    <ul>
+        @foreach (var item in feedbackList)
+        {
+            <li>
+                @item.Content (@item.CreatedDate)
+                <button @onclick="() => NavigateToEdit(item.Id)">Edit</button>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No feedback available.</p>
+}
+
+@code {
+    private List<Feedback> feedbackList = new();
+
+    [Inject] private IFeedbackService FeedbackService { get; set; }
+    [Inject] private NavigationManager Navigation { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        feedbackList = (await FeedbackService.GetFeedback()).ToList();
+    }
+
+    private void NavigateToCreate()
+    {
+        Navigation.NavigateTo("/create-feedback");
+    }
+
+    private void NavigateToEdit(int id)
+    {
+        Navigation.NavigateTo($"/edit-feedback/{id}");
+    }
+}

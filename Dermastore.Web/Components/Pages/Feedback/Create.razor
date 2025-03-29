@@ -1,0 +1,49 @@
+﻿@using Dermastore.Domain.Entities
+@using Dermastore.Domain.Interfaces
+@page "/create-feedback"
+
+
+<h3>Create Feedback</h3>
+
+<EditForm Model="feedback" OnValidSubmit="HandleSubmit">
+    <div>
+        <label for="content">Content:</label>
+        <InputTextArea id="content" @bind-Value="feedback.Content" required/>
+    </div>
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+@if (successMessage != null)
+{
+    <p>@successMessage</p>
+}
+
+@code {
+
+    private Feedback feedback = new Feedback
+    {
+        Content = string.Empty,
+        UserId = 1,
+        CreatedDate = DateTime.Now
+    };
+
+    [Inject] private IFeedbackService FeedbackService { get; set; }
+
+    private string? successMessage;
+
+    private async Task HandleSubmit()
+    {
+        var result = await FeedbackService.CreateFeedback(feedback);
+        if (result)
+        {
+            successMessage = "Feedback created successfully!";
+            feedback = new Feedback { Content = string.Empty, UserId = 1, CreatedDate = DateTime.Now };
+        }
+        else
+        {
+            successMessage = "Failed to create feedback.";
+        }
+    }
+
+}

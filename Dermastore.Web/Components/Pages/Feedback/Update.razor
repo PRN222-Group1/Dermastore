@@ -1,0 +1,54 @@
+﻿@using Dermastore.Domain.Entities
+@using Dermastore.Domain.Interfaces
+@page "/edit-feedback"
+
+
+<h3>Edit Feedback</h3>
+
+@if (feedback != null)
+{
+    <EditForm Model="feedback" OnValidSubmit="HandleSubmit">
+        <div>
+            <label for="content">Content:</label>
+            <InputTextArea id="content" @bind-Value="feedback.Content" required />
+        </div>
+
+        <button type="submit">Update</button>
+    </EditForm>
+
+    @if (successMessage != null)
+    {
+        <p>@successMessage</p>
+    }
+}
+else
+{
+    <p>Loading feedback...</p>
+}
+
+@code {
+    [Parameter] public int FeedbackId { get; set; }
+
+    private Feedback? feedback;
+    private string? successMessage;
+
+    [Inject] private IFeedbackService FeedbackService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        feedback = await FeedbackService.GetFeedback(FeedbackId);
+        if (feedback == null)
+        {
+            successMessage = $"Feedback with ID {FeedbackId} not found.";
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (feedback != null)
+        {
+            var result = await FeedbackService.EditFeedback(FeedbackId, feedback);
+            successMessage = result ? "Feedback updated successfully!" : "Failed to update feedback.";
+        }
+    }
+}
