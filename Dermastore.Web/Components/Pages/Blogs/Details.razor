@@ -6,7 +6,6 @@
 @using MediatR
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
-
 <PageTitle>Blog Detail</PageTitle>
 
 <style>
@@ -18,16 +17,21 @@
     .card-header {
         background-color: #588157;
         color: white;
-        /* Sử dụng flex để xếp dọc (hoặc ngang) các phần tử */
         display: flex;
         flex-direction: column;
-        align-items: flex-start; /* canh về bên trái */
+        align-items: flex-start;
         padding: 1rem;
     }
 
         .card-header .btn {
-            margin-bottom: 0.5rem; /* khoảng cách dưới nút */
+            margin-bottom: 0.5rem;
         }
+
+    .card-img-top {
+        height: 300px;
+        width: 100%;
+        object-fit: cover;
+    }
 </style>
 
 <div class="container my-5">
@@ -46,6 +50,8 @@
                     </a>
                     <h2 class="mb-0">@blogDto.Title</h2>
                 </div>
+                @* Thêm hình ảnh nếu có *@
+                <img class="card-img-top" src="@(string.IsNullOrEmpty(blogDto.ImageUrl) ? "/images/default.png" : blogDto.ImageUrl)" alt="@blogDto.Title" />
                 <div class="card-body">
                     <p class="card-text">@blogDto.Content</p>
                     <hr />
