@@ -4,14 +4,13 @@ using Dermastore.Web.Components;
 using Dermastore.Web.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Dermastore.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddApplicationServices(builder.Configuration);
     
-
+builder.Services.AddRazorPages();
 
 
 var app = builder.Build();

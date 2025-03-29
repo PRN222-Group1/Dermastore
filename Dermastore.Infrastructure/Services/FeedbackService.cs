@@ -71,6 +71,12 @@ public class FeedbackService : IFeedbackService
         return feeback ?? new List<Feedback>();
     }
 
+    public async Task<IReadOnlyList<Feedback>> GetFeedback()
+    {
+        var feedbacks = await _unitOfWork.Repository<Feedback>().ListAllAsync();
+        return feedbacks ?? new List<Feedback>();
+    }
+
     public async Task<Feedback> GetFeedback(int id)
     {
         var feeback = await _unitOfWork.Repository<Feedback>().GetByIdAsync(id);

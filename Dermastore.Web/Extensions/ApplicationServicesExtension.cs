@@ -20,6 +20,8 @@ namespace Dermastore.Web.Extensions
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
+            services.AddRazorPages();
+
             // Add MediatR
             services.AddMediatR();
 
@@ -34,6 +36,7 @@ namespace Dermastore.Web.Extensions
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IFeedbackService, FeedbackService>();
             services.AddSingleton<ICartService, CartService>();
             services.AddSingleton<CartStateContainer>();
 
