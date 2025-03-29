@@ -1,47 +1,68 @@
 ﻿@page "/blogs"
 @using Dermastore.Application.DTOs.Blogs
 @using Dermastore.Application.Queries.Blogs.GetBlogs
-@using Dermastore.Domain.Specifications.Blogs
-@using MediatR
-@using Microsoft.EntityFrameworkCore
-@using Microsoft.AspNetCore.Components.QuickGrid
 @using Dermastore.Domain.Entities
+@using MediatR  
 @inject IMediator Mediator
+@inject NavigationManager NavigationManager
+<PageTitle>Blog</PageTitle>
 
-<PageTitle>Index</PageTitle>
+<style>
+    .clickable-card {
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
 
-<h1>Index</h1>
+        .clickable-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+    /* Đảm bảo liên kết không bị gạch chân hay thay đổi màu */
+    .card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+</style>
 
-<p>
-    <a href="blogs/create">Create New</a>
-</p>
+<div class="container my-5">
+    <h1 class="mb-4">BLOG</h1>
+    <div class="d-flex justify-content-end mb-3">
+        <a href="blogs/create" class="btn btn-primary">Create Blog</a>
+    </div>
+    @if (blogs != null && blogs.Any())
+    {
+        <div class="row">
+            @foreach (var blog in blogs)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <a href="@($"blogs/details?id={blog.Id}")" class="card-link">
+                        <div class="card h-100 shadow-sm clickable-card">
+                            <div class="card-body">
+                                <h5 class="card-title">@blog.Title</h5>
+                                <p class="card-text">
+                                    @((blog.Content?.Length > 150 ? blog.Content.Substring(0, 150) + "..." : blog.Content))
+                                </p>
+                            </div>
+                            <div class="card-footer bg-white border-0">
+                                <small class="text-muted">Date Published: @blog.DatePublished.ToString("dd/MM/yyyy")</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>Đang tải dữ liệu blog...</p>
+    }
+</div>
 
-@if (blogs != null && blogs.Any())
-{
-    <QuickGrid Class="table" Items="blogs.AsQueryable()" TGridItem="BlogDto">
-        <PropertyColumn Property="blog => blog.Title" />
-        <PropertyColumn Property="blog => blog.Content" />
-        <PropertyColumn Property="blog => blog.UserId" />
-        <PropertyColumn Property="blog => blog.DatePublished" />
-
-        <TemplateColumn Context="blog">
-            <a href="@($"blogs/edit?id={blog.Id}")">Edit</a> |
-            <a href="@($"blogs/details?id={blog.Id}")">Details</a> |
-            <a href="@($"blogs/delete?id={blog.Id}")">Delete</a>
-        </TemplateColumn>
-    </QuickGrid>
-}
-else
-{
-    <p>Loading products...</p>
-}
 @code {
     private IReadOnlyList<BlogDto> blogs;
-
     protected override async Task OnInitializedAsync()
     {
         var query = new GetBlogsQuery();
         blogs = await Mediator.Send(query);
-        var jv = 1;
     }
 }

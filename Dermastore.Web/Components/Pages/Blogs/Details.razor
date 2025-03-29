@@ -3,39 +3,67 @@
 @using Dermastore.Application.Queries.Blogs.GetBlogById
 @using Microsoft.EntityFrameworkCore
 @using Dermastore.Domain.Entities
-@inject NavigationManager NavigationManager
 @using MediatR
+@inject NavigationManager NavigationManager
 @inject IMediator Mediator
 
-<PageTitle>Details</PageTitle>
+<PageTitle>Blog Detail</PageTitle>
 
-<h1>Details</h1>
+<style>
+    .detail-card {
+        max-width: 800px;
+        margin: auto;
+    }
 
-<div>
-    <h2>Blog</h2>
-    <hr />
-    @if (blogDto is null)
-    {
-        <p><em>Loading...</em></p>
+    .card-header {
+        background-color: #588157;
+        color: white;
+        /* Sử dụng flex để xếp dọc (hoặc ngang) các phần tử */
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* canh về bên trái */
+        padding: 1rem;
     }
-    else
-    {
-        <dl class="row">
-            <dt class="col-sm-2">Title</dt>
-            <dd class="col-sm-10">@blogDto.Title</dd>
-            <dt class="col-sm-2">Description</dt>
-            <dd class="col-sm-10">@blogDto.Content</dd>
-            <dt class="col-sm-2">Status</dt>
-            <dd class="col-sm-10">@blogDto.UserId</dd>
-            <dt class="col-sm-2">Quantity</dt>
-            <dd class="col-sm-10">@blogDto.DatePublished</dd>
-        </dl>
-        <div>
-            <a href="@($"/blogs/edit?id={blogDto.Id}")">Edit</a> |
-            <a href="@($"/blogs")">Back to List</a>
-        </div>
-    }
+
+        .card-header .btn {
+            margin-bottom: 0.5rem; /* khoảng cách dưới nút */
+        }
+</style>
+
+<div class="container my-5">
+    <div class="detail-card">
+        @if (blogDto is null)
+        {
+            <p class="text-center"><em>Loading...</em></p>
+        }
+        else
+        {
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <!-- Nút Back to List nằm trên Title -->
+                    <a href="/blogs" class="btn btn-light text-primary">
+                        Back to List
+                    </a>
+                    <h2 class="mb-0">@blogDto.Title</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">@blogDto.Content</p>
+                    <hr />
+                    <div class="row justify-content-end">
+                        <div class="col-auto text-end">
+                            <strong>Date Published:</strong> @blogDto.DatePublished.ToString("dd/MM/yyyy")
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-end">
+                    <a href="@($"/blogs/edit?id={blogDto.Id}")" class="btn btn-outline-secondary me-2">Edit</a>
+                    <a href="@($"/blogs/delete?id={blogDto.Id}")" class="btn btn-outline-secondary me-2">Delete</a>
+                </div>
+            </div>
+        }
+    </div>
 </div>
+
 @code {
     private BlogDto? blogDto;
 

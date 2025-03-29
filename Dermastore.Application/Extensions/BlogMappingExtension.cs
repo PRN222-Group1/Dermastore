@@ -35,7 +35,7 @@ namespace Dermastore.Application.Extensions
                 Title = blogDto.Title,
                 Content = blogDto.Content,
                 UserId = blogDto.UserId,
-                DatePublished = blogDto.DatePublished,
+                DatePublished = DateOnly.FromDateTime(DateTime.Now),
             };
         }
 

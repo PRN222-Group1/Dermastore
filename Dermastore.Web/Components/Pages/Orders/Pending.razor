@@ -3,80 +3,161 @@
 @using Dermastore.Application.Queries.Orders.GetOrders
 @using Dermastore.Application.Commands.Vnpays
 @using Dermastore.Application.DTOs.Orders
+@using Dermastore.Domain.Enums
 @using MediatR
 @using Microsoft.EntityFrameworkCore.Metadata.Internal
+@using Dermastore.Application.Commands.Vnpays
 @rendermode InteractiveServer
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
 
-<PageTitle>Pending Orders</PageTitle>
+<PageTitle>Orders</PageTitle>
 
-<h1>Pending Orders</h1>
+<style>
+    .orders-container {
+        max-width: 1200px;
+        margin: auto;
+    }
 
-@if (orders == null)
-{
-    <p><em>Loading...</em></p>
-}
-else if (!orders.Any())
-{
-    <p>No pending orders found.</p>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Order Date</th>
-                    <th>Shipping Address</th>
-                    <th>SubTotal</th>
-                    <th>Order Items</th>
-                    <th>Payment</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var order in orders)
-                {
-                    <tr>
-                        <td>@order.Id</td>
-                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
-                        <td>@order.ShippingAddress</td>
-                        <td>@order.SubTotal.ToString("C")</td>
-                        <td>
-                            <ul>
-                                @foreach (var item in order.OrderItems)
-                                {
-                                    <li>
-                                        <strong>@item.ItemOrdered.ProductName</strong> -
-                                        Price: @item.Price.ToString("C"),
-                                        Quantity: @item.Quantity
-                                    </li>
-                                }
-                            </ul>
-                        </td>
-                        <td>
-                            <!-- Button gọi CreatePaymentUrlByOrderCommand -->
-                            <button class="btn btn-primary" @onclick="() => OnPay(order.Id)">Pay Now</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+    .nav-tabs .nav-link {
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .order-card {
+        margin-bottom: 1.5rem;
+    }
+
+        .order-card .card-header {
+            background-color: #588157;
+            color: #fff;
+            padding: 0.75rem 1.25rem;
+        }
+
+        .order-card .card-body {
+            padding: 1.25rem;
+        }
+
+        .order-card .order-items li {
+            margin-bottom: 0.5rem;
+        }
+
+        .order-card .card-footer {
+            background-color: #f8f9fa;
+            padding: 0.75rem 1.25rem;
+            text-align: right;
+        }
+
+    .btn-custom {
+        background-color: #588157;
+        color: #fff;
+    }
+</style>
+
+<div class="container orders-container my-5">
+    <a href="/#" class="btn btn-custom">
+        Back to Menu
+    </a>
+    <h1 class="mb-4">Orders</h1>
+    <!-- Thanh Tab với 3 trạng thái: Pending, Completed, Cancelled -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link @(activeStatus == OrderStatus.Pending ? "active" : "")" href="javascript:void(0)" @onclick="() => SelectTab(OrderStatus.Pending)">
+                Pending
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activeStatus == OrderStatus.Completed ? "active" : "")" href="javascript:void(0)" @onclick="() => SelectTab(OrderStatus.Completed)">
+                Completed
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activeStatus == OrderStatus.Cancelled ? "active" : "")" href="javascript:void(0)" @onclick="() => SelectTab(OrderStatus.Cancelled)">
+                Cancelled
+            </a>
+        </li>
+    </ul>
+
+    @if (orders == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (!filteredOrders.Any())
+    {
+        <p class="text-center">No orders found for @activeStatus.ToString() status.</p>
+    }
+    else
+    {
+        @foreach (var order in filteredOrders)
+        {
+            <div class="card order-card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><strong>Order ID:</strong> @order.Id</span>
+                    <span><strong>Date:</strong> @order.OrderDate.ToString("yyyy-MM-dd")</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Shipping Address:</strong> @order.ShippingAddress</p>
+                    <p class="mb-2"><strong>SubTotal:</strong> @order.SubTotal.ToString("C")</p>
+                    <div>
+                        <strong>Order Items:</strong>
+                        <ul class="list-unstyled order-items mb-0">
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <li>
+                                    <span class="fw-bold">@item.ItemOrdered.ProductName</span> -
+                                    Price: @item.Price.ToString("C"), Quantity: @item.Quantity
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    @if (order.Status == OrderStatus.Pending)
+                    {
+                        <button class="btn btn-primary" @onclick="async () => await OnPay(order.Id)">Pay Now</button>
+                    }
+                    else
+                    {
+                        <span class="fw-bold text-secondary">@order.Status.ToString()</span>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
 
 @code {
-    private IReadOnlyList<OrderDto> orders;
+    private IReadOnlyList<OrderDto>? orders;
+    private OrderStatus activeStatus = OrderStatus.Pending;
+
+    // Lọc đơn hàng theo trạng thái activeStatus
+    private IEnumerable<OrderDto> filteredOrders => orders?.Where(o => o.Status == activeStatus) ?? Enumerable.Empty<OrderDto>();
 
     protected override async Task OnInitializedAsync()
+    {
+        await LoadOrdersAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadOrdersAsync();
+    }
+
+    private async Task LoadOrdersAsync()
     {
         var query = new GetOrdersQuery();
         orders = await Mediator.Send(query);
     }
+
+    private void SelectTab(OrderStatus status)
+    {
+        activeStatus = status;
+        StateHasChanged();
+    }
+
     private async Task OnPay(int orderId)
     {
-        
-        NavigationManager.NavigateTo($"/orders/confirm?orderId={orderId}");
+        string paymentUrl = await Mediator.Send(new CreatePaymentUrlCommand(orderId));
+        NavigationManager.NavigateTo(paymentUrl);
     }
 }

@@ -4,56 +4,77 @@
 @using MediatR
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
-<PageTitle>Create</PageTitle>
-<h1>Create</h1>
+<PageTitle>Create Blog</PageTitle>
 
-<h2>Blogs</h2>
+<style>
+    .create-card {
+        max-width: 600px;
+        margin: auto;
+    }
 
-<hr />
+    .card-header {
+        background-color: #588157;
+        color: white;
+        padding: 1rem;
+    }
 
-<div class="row">
-    <div class="col-md-4">
-        <EditForm method="post" Model="blogDto" OnValidSubmit="AddBlog" FormName="create" Enhance>
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="mb-3">
-                <label for="title" class="form-label">Title:</label>
-                <InputText id="title" @bind-Value="blogDto.Title" class="form-control" />
-                <ValidationMessage For="() => blogDto.Title" class="text-danger" />
+    .back-button {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+</style>
+
+<div class="container my-5 position-relative">
+
+    <div class="create-card">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <a href="/blogs" class="btn btn-light text-primary">
+                    Back to List
+                </a>
+                <h2 class="mb-0">Create Blog</h2>
             </div>
-            <div class="mb-3">
-                <label for="content" class="form-label">Content:</label>
-                <InputText id="content" @bind-Value="blogDto.Content" class="form-control" />
-                <ValidationMessage For="() => blogDto.Content" class="text-danger" />
+            <div class="card-body">
+                <EditForm method="post" Model="blogDto" OnValidSubmit="AddBlog" FormName="create" Enhance>
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" role="alert" />
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title:</label>
+                        <InputText id="title" @bind-Value="blogDto.Title" class="form-control" />
+                        <ValidationMessage For="() => blogDto.Title" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Content:</label>
+                        <!-- Sử dụng InputTextArea cho nội dung dài -->
+                        <InputTextArea id="content" @bind-Value="blogDto.Content" class="form-control" Rows="8" />
+                        <ValidationMessage For="() => blogDto.Content" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="userid" class="form-label">User Id:</label>
+                        <InputNumber id="userid" @bind-Value="blogDto.UserId" class="form-control" />
+                        <ValidationMessage For="() => blogDto.UserId" class="text-danger" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </EditForm>
             </div>
-            <div class="mb-3">
-                <label for="userid" class="form-label">User Id:</label>
-                <InputNumber id="userid" @bind-Value="blogDto.UserId" class="form-control" />
-                <ValidationMessage For="() => blogDto.UserId" class="text-danger" />
-            </div>
-            <button type="submit" class="btn btn-primary">Create</button>
-        </EditForm>
+        </div>
     </div>
 </div>
 
-
-
-<div>
-    <a href="/blogs">Back to List</a>
-</div>
 @code {
     [SupplyParameterFromForm]
     private BlogToAddDto blogDto { get; set; } = new();
 
     private async Task AddBlog()
     {
-        // Create the command using the DTO
+        // Tạo command sử dụng DTO
         var command = new CreateBlogCommand(blogDto);
 
-        // Send the command to MediatR to handle it
+        // Gửi command qua MediatR và nhận Id của blog vừa tạo
         var blogId = await Mediator.Send(command);
 
-        // Route to detail page
+        // Chuyển hướng tới trang chi tiết của blog
         NavigationManager.NavigateTo($"/blogs/details?id={blogId}");
     }
 }
