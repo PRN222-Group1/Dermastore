@@ -1,0 +1,115 @@
+﻿@page "/accounts/create"
+
+@using System.Security.Claims
+@using Dermastore.Application.Commands.Users
+@using Dermastore.Application.DTOs.AccountDTOs
+@using Dermastore.Application.Queries.Users
+@using Dermastore.Domain.Entities
+@using Dermastore.Domain.Interfaces
+@using MediatR
+
+@inject IUserService UserService
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+@inject IConfiguration configuration
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-12 col-lg-12">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="font-weight-light my-2">Add New Staff</h3>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <EditForm method="post" Model="userDto" OnValidSubmit="AddUser" FormName="create" Enhance>
+                        <DataAnnotationsValidator />
+
+                        <div class="row mb-3">
+                            <div class="form-floating col-sm-6">
+                                <div class="form-label">First Name:</div>
+                                <InputText id="firstname" @bind-Value="userDto.FirstName" class="form-control p-3" />
+                                <ValidationMessage For="() => userDto.FirstName" class="text-danger" />
+                            </div>
+                            <div class="form-floating col-sm-6">
+                                <div class="form-label">Last Name:</div>
+                                <InputText id="lastname" @bind-Value="userDto.LastName" class="form-control p-3" />
+                                <ValidationMessage For="() => userDto.LastName" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="form-floating col-sm-6">
+                                <div class="form-label">Email:</div>
+                                <InputText id="email" @bind-Value="userDto.Email" class="form-control p-3" />
+                                <ValidationMessage For="() => userDto.Email" class="text-danger" />
+                            </div>
+                            <div class="form-floating col-sm-6">
+                                <div class="form-label">Phone Number:</div>
+                                <InputText id="phonenumber" @bind-Value="userDto.PhoneNumber" class="form-control p-3" />
+                                <ValidationMessage For="() => userDto.PhoneNumber" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="form-floating col-sm-6">
+                                <div class="form-label">Gender:</div>
+                                <select id="gender" @bind="userDto.Gender" class="form-select p-3">
+                                    <option value="0">Male</option>
+                                    <option value="1">Female</option>
+                                </select>
+                                <ValidationMessage For="() => userDto.Gender" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="form-floating col-sm-12">
+                                <div class="form-label">Address:</div>
+                                <InputText id="address" @bind-Value="userDto.Address" class="form-control p-3" />
+                                <ValidationMessage For="() => userDto.Address" class="text-danger" />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="form-floating col-sm-6">
+                                <div class="form-label">Password:</div>
+                                <InputText id="password" @bind-Value="userDto.Password" class="form-control p-3" type="password" />
+                                <ValidationMessage For="() => userDto.Password" class="text-danger" />
+                            </div>
+                            <div class="form-floating col-sm-6">
+                                <div class="form-label">Confirm Password:</div>
+                                <InputText id="confirmpassword" @bind-Value="userDto.ConfirmPassword" class="form-control p-3" type="password" />
+                                <ValidationMessage For="() => userDto.ConfirmPassword" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-secondary btn-lg text-white">Add Staff</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private UserToAddDto userDto { get; set; } = new();
+
+
+    private async Task AddUser()
+    {
+        // Create staff command
+        var command = new CreateStaffCommand(userDto);
+        var result = await Mediator.Send(command);
+
+        if (!result)
+        {
+            // Route to detail page
+            NavigationManager.NavigateTo($"/accounts/create");
+            return;
+        }
+
+        // If register success then navigate to login
+        if (result)
+        {
+            NavigationManager.NavigateTo("/accounts");
+        }
+    }
+}

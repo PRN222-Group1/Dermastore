@@ -1,5 +1,6 @@
 ﻿@using Dermastore.Application.DTOs
 @using Dermastore.Application.Queries.Products
+@using Dermastore.Web.Extensions
 @using Dermastore.Web.Providers
 @using MediatR
 @using Dermastore.Web.Containers
@@ -64,13 +65,7 @@
                         </div>
                     </div>
                 </li>
-                <!-- Rest of the navigation items remain the same -->
-                <li class="nav-item p-3 d-flex align-items-center">
-                    <a class="nav-link" href="/orders/pending" role="button">
-                        <i class="fa-solid fa-receipt me-2"></i> Orders
-                    </a>
-                </li>
-                @* test function *@
+                
                 <li class="nav-item p-3 d-flex align-items-center">
                     <a class="nav-link" href="/blogs" role="button">
                         <i class="fa-solid fa-blog me-2"></i> Blogs
@@ -115,11 +110,26 @@
                     </div>
                 </li>
 
-                @if (user != null && user.Identity != null && user.Identity.IsAuthenticated)
+                @if (!string.IsNullOrEmpty(role) && role.Equals("Customer"))
                 {
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/orders/pending" role="button">
+                            <i class="fa-solid fa-receipt me-2"></i> My Orders
+                        </a>
+                    </li>
+
                     <li class="nav-item p-3 d-flex align-items-center">
                         <a class="nav-link" href="/profile" role="button">
                             <i class="fa-solid fa-circle-user me-2"></i> Profile
+                        </a>
+                    </li>
+                }
+
+                @if (!string.IsNullOrEmpty(role) && role.Equals("Manager"))
+                {
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/accounts" role="button">
+                            <i class="fa-solid fa-circle-user me-2"></i> Accounts
                         </a>
                     </li>
                 }
@@ -189,6 +199,7 @@
 @code {
     private IReadOnlyList<CategoryDto> categories;
     private ClaimsPrincipal? user;
+    private string role;
 
     protected override async Task OnInitializedAsync()
     {
@@ -208,6 +219,7 @@
         InvokeAsync(async () =>
         {
             user = (await task).User;
+            role = user.GetUserRole();
             StateHasChanged(); // Trigger UI re-render
         });
     }

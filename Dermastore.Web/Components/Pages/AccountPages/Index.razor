@@ -1,5 +1,192 @@
-﻿<h3>Index</h3>
+﻿@page "/accounts"
+@using Blazored.Toast.Configuration
+@using Dermastore.Application.Commands.Users
+@using Dermastore.Application.DTOs.AccountDTOs
+@using Dermastore.Application.Queries.Users
+@using Dermastore.Domain.Specifications.Users
+@using Dermastore.Web.Components.Pages.Shared.user
+@using MediatR
+@rendermode InteractiveServer
+@inject IToastService ToastService
+@inject IMediator Mediator
+
+<PageTitle>Users List</PageTitle>
+
+<BlazoredToasts Position="ToastPosition.TopRight"
+Timeout="5"
+IconType="IconType.FontAwesome"
+SuccessClass="success-toast"
+SuccessIcon="fa fa-check-circle"
+ErrorClass="error-toast"
+ErrorIcon="fa fa-times-circle"
+InfoClass="info-toast"
+InfoIcon="fa fa-info-circle"
+WarningClass="warning-toast"
+WarningIcon="fa fa-exclamation-circle" />
+
+<div class="container-fluid mt-5">
+    <div class="d-flex justify-content-between">
+        <h2 class="mb-4"><i class="fas fa-users"></i> Account Management</h2>
+        <div>
+            <a href="/accounts/create" class="btn btn-primary"><i class="fa fa-plus me-2"></i>Create Staff Account</a>
+        </div>
+    </div>
+
+    @if (Users is null)
+    {
+        <div class="d-flex justify-content-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-3">
+                <UserFilter UserSpecParams="UserSpecParams" OnFilterChanged="GetUsers" OnPageChanged="GetUsers" TotalPages="TotalPages" />
+            </div>
+            <div class="card col-md-9">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Gender</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Points</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Users)
+                                {
+                                    <tr>
+                                        <td>@user.Id</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-light text-secondary me-2">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <div>
+                                                    <div>@user.FirstName @user.LastName</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@user.Gender</td>
+                                        <td><i class="fas fa-envelope me-1 text-muted"></i> @user.Email</td>
+                                        <td><i class="fas fa-phone me-1 text-muted"></i> @user.PhoneNumber</td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-star me-1"></i> @user.Point
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (user.Status == "Active")
+                                            {
+                                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Active</span>
+                                            }
+                                            else if (user.Status == "Suspended")
+                                            {
+                                                <span class="badge bg-warning"><i class="fas fa-exclamation-circle me-1"></i> Suspended</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">@user.Status</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                @if (user.Status == "Suspended")
+                                                {
+                                                    <button class="btn btn-sm btn-outline-success" title="Unban User" @onclick="() => UnbanUser(user.Id)">
+                                                        <i class="fas fa-user-check"></i> Unban
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-sm btn-outline-danger" title="Ban User" @onclick="() => BanUser(user.Id)">
+                                                        <i class="fas fa-ban"></i> Ban
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+</div>
+
+<style>
+    .avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+</style>
 
 @code {
+    private IReadOnlyList<UserDto> Users;
+    private UserSpecParams UserSpecParams { get; set; } = new();
+    private int TotalPages;
 
+    protected override async Task OnInitializedAsync()
+    {
+        UserSpecParams.PageSize = 6;
+        await GetUsers();
+    }
+
+    private async Task GetUsers()
+    {
+        var usersQuery = new GetUsersQuery(UserSpecParams);
+        Users = await Mediator.Send(usersQuery);
+
+        var countQuery = new CountUsersQuery(UserSpecParams);
+        var count = await Mediator.Send(countQuery);
+
+        TotalPages = (int)Math.Ceiling(count / (decimal)UserSpecParams.PageSize);
+    }
+
+    private async Task BanUser(int userId)
+    {
+        var command = new UpdateUserStatusCommand(userId, 1);
+        var result = await Mediator.Send(command);
+        if (result)
+        {
+            ToastService.ShowSuccess("Banned user successfully");
+            await GetUsers();
+        }
+        else
+        {
+            ToastService.ShowError("Failed to ban user");
+        }
+    }
+
+    private async Task UnbanUser(int userId)
+    {
+        var command = new UpdateUserStatusCommand(userId, 0);
+        var result = await Mediator.Send(command);
+        if (result)
+        {
+            ToastService.ShowSuccess("Unban user successfully");
+            await GetUsers();
+        }
+        else
+        {
+            ToastService.ShowError("Failed to unban user");
+        }
+    }
 }
