@@ -1,5 +1,7 @@
 ﻿@page "/orders/{Id:int}"
 
+@using Blazored.Toast.Configuration
+@using Dermastore.Application.Commands.Orders
 @using Dermastore.Application.Commands.Vnpays
 @using Dermastore.Application.DTOs.Orders
 @using Dermastore.Application.Queries.Orders.GetOrderById
@@ -13,9 +15,22 @@
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
 @inject AuthStateProvider AuthStateProvider
+@inject IToastService ToastService
 @attribute [Authorize(Roles = "Customer,Staff")]
 
 <PageTitle>Order Details</PageTitle>
+
+<BlazoredToasts Position="ToastPosition.TopRight"
+                Timeout="5"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast"
+                SuccessIcon="fa fa-check-circle"
+                ErrorClass="error-toast"
+                ErrorIcon="fa fa-times-circle"
+                InfoClass="info-toast"
+                InfoIcon="fa fa-info-circle"
+                WarningClass="warning-toast"
+                WarningIcon="fa fa-exclamation-circle" />
 
 <div class="container my-5">
     @if (order == null)
@@ -45,15 +60,15 @@
 
                     @if (order.Status == "Pending" && Role == "Customer")
                     {
-                        <button class="btn btn-success" @onclick="async () => await OnPay(order.Id)">
+                        <button class="btn btn-success" @onclick="OnPay">
                             <i class="bi bi-credit-card me-1"></i> Pay Now
                         </button>
                     }
 
-                    @if (order.Status == "Pending" && Role == "Customer")
+                    @if (order.Status == "Pending" && (Role == "Customer" || Role == "Staff"))
                     {
                         <div class="btn-group">
-                            <button class="btn btn-danger">
+                            <button class="btn btn-danger" @onclick="CancelOrder">
                                 <i class="bi bi-x-circle me-1"></i> Cancel Order
                             </button>
                         </div>
@@ -187,8 +202,8 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <img src="@item.ItemOrdered.ImageUrl" alt="@item.ItemOrdered.ProductName"
-                                                         class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"
-                                                         onerror="this.src='/assets/NavMenuPlaceHolder.png';" />
+                                                    class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"
+                                                    onerror="this.src='/assets/NavMenuPlaceHolder.png';" />
                                                     <div>
                                                         <h6 class="mb-0">@item.ItemOrdered.ProductName</h6>
                                                         <a href="/products/details/@item.ItemOrdered.ProductId" class="text-decoration-none small">
@@ -355,16 +370,25 @@
         }
     }
 
-    private async Task OnPay(int orderId)
+    private async Task OnPay()
     {
-        string paymentUrl = await Mediator.Send(new CreatePaymentUrlCommand(orderId));
+        string paymentUrl = await Mediator.Send(new CreatePaymentUrlCommand(Id));
         NavigationManager.NavigateTo(paymentUrl);
     }
 
-    private async Task UpdateOrderStatus(int orderId, string newStatus)
+    private async Task CancelOrder()
     {
-        // Replace with your actual command
-        // await Mediator.Send(new UpdateOrderStatusCommand(orderId, newStatus));
+        var command = new CancelOrderCommand(Id);
+        var result = await Mediator.Send(command);
+
+        if (result)
+        {
+            ToastService.ShowSuccess("Cancelled order successfully");
+        }
+        else
+        {
+            ToastService.ShowError("Cancelled order failed");
+        }
 
         await LoadOrderAsync();
     }

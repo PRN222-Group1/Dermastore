@@ -63,25 +63,9 @@
         </a>
 
         <div>
-            @if (Order.Status == "Pending")
-            {
-                @if (Role == "Customer")
-                {
-                    <button class="btn btn-sm btn-success" @onclick="async () => await OnPay(Order.Id)">
-                        <i class="bi bi-credit-card me-1"></i> Pay Now
-                    </button>
-                }
-                @if (Role == "Staff")
-                {
-
-                }
-            }
-            else
-            {
-                <span class="fw-medium @GetStatusTextClass()">
-                    <i class="@GetStatusIcon() me-1"></i> @Order.Status
-                </span>
-            }
+            <span class="fw-medium @GetStatusTextClass()">
+                <i class="@GetStatusIcon() me-1"></i> @Order.Status
+            </span>
         </div>
     </div>
 </div>
@@ -93,10 +77,30 @@
         overflow: hidden;
     }
 
-        .order-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-        }
+    .order-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+    }
+
+    .order-card .card-header {
+        background-color: #588157;
+        color: #fff;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .order-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .order-card .order-items li {
+        margin-bottom: 0.5rem;
+    }
+
+    .order-card .card-footer {
+        background-color: #f8f9fa;
+        padding: 0.75rem 1.25rem;
+        text-align: right;
+    }
 
     .status-pending {
         background-color: #fff8e6;
@@ -128,15 +132,6 @@
     {
         string paymentUrl = await Mediator.Send(new CreatePaymentUrlCommand(orderId));
         NavigationManager.NavigateTo(paymentUrl);
-    }
-
-    private async Task OnStatusChange(int orderId, string newStatus)
-    {
-        // You would need to implement this command
-        // await Mediator.Send(new UpdateOrderStatusCommand(orderId, newStatus));
-
-        // Notify parent component
-        await OnStatusChanged.InvokeAsync((orderId, newStatus));
     }
 
     private string GetStatusBackgroundColor()
