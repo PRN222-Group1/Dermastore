@@ -223,7 +223,7 @@
                 await CartStateContainer.LoadCartAsync(result.Value);
             }
 
-            CartStateContainer.OnChange += StateHasChanged;
+            CartStateContainer.OnChange += () => InvokeAsync(StateHasChanged);
 
             StateHasChanged();
         }

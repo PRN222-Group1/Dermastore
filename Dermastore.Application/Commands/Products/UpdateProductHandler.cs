@@ -16,42 +16,44 @@ namespace Dermastore.Application.Commands.Products
             _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         }
 
-            public async Task<int> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+        public async Task<int> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+        {
+            if (request.ProductDto == null)
             {
-                if (request.ProductDto == null)
-                {
-                    throw new ArgumentNullException(nameof(request.ProductDto), "ProductDto is null");
-                }
-
-                var spec = new ProductSpecification(request.ProductDto.Id);
-
-
-            if (_productService == null)
-                {
-                    throw new InvalidOperationException("ProductService is not initialized.");
-                }
-
-                Product product = await _productService.GetProduct(request.ProductDto.Id);
-
-                // Gán dữ liệu từ DTO vào Product
-                product.Name = request.ProductDto.Name;
-                product.Description = request.ProductDto.Description;
-                product.Status = request.ProductDto.Status;
-                product.Quantity = request.ProductDto.Quantity;
-                product.ImageUrl = request.ProductDto.ImageUrl;
-                product.SubCategoryId = request.ProductDto.CategoryId;
-
-                // Gọi hàm EditProduct
-                bool updateResult = await _productService.EditProduct(request.ProductDto.Id, product);
-
-
-                if (!updateResult)
-                {
-                    throw new Exception("Failed to update product.");
-                }
-
-                return product.Id;
+                throw new ArgumentNullException(nameof(request.ProductDto), "ProductDto is null");
             }
+
+            var product = await _productService.GetProduct(request.ProductDto.Id);
+            if (product == null)
+            {
+                throw new Exception($"Product with ID {request.ProductDto.Id} not found.");
+            }
+
+            // Update product properties
+            product.Name = request.ProductDto.Name;
+            product.Description = request.ProductDto.Description;
+            product.Quantity = request.ProductDto.Quantity;
+            product.ImageUrl = request.ProductDto.ImageUrl;
+            product.SubCategoryId = request.ProductDto.SubCategoryId;
+            product.BrandId = request.ProductDto.BrandId;
+            product.Quantity = request.ProductDto.Quantity;
+            product.Price = request.ProductDto.Price;
+
+            // Handle image upload if provided
+            if (request.ImageStream != null && !string.IsNullOrEmpty(request.FileExtension))
+            {
+                var oldFileName = Path.GetFileName(new Uri(product.ImageUrl).LocalPath);
+                product.ImageUrl = await _productService.UploadProductImage(request.ImageStream, oldFileName, false);
+            }
+
+            bool updateResult = await _productService.EditProduct(request.ProductDto.Id, product);
+            if (!updateResult)
+            {
+                throw new Exception("Failed to update product.");
+            }
+
+            return product.Id;
+        }
 
     }
 }

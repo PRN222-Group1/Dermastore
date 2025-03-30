@@ -1,0 +1,648 @@
+﻿@page "/manage-product"
+@using MediatR
+@using Dermastore.Application.Queries.Products
+@using Dermastore.Application.Queries.Answers
+@using Dermastore.Application.Queries.SubCategories
+@using Dermastore.Application.DTOs
+@using Dermastore.Application.DTOs.AnswerDTOs
+@using Dermastore.Application.Commands.Products
+@using Dermastore.Domain.Specifications.Products
+@rendermode InteractiveServer
+@inject IMediator Mediator
+
+<div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <button class="btn btn-primary" @onclick="ShowCreateProductModal">Create Product</button>
+        <div class="input-group" style="max-width: 300px;">
+            <input type="text" class="form-control" placeholder="Search by product name" @bind="SearchTerm" @oninput="OnSearchTermChanged" />
+            <button class="btn btn-outline-secondary" type="button" @onclick="SearchProducts">Search</button>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Answer</th>
+                <th>Subcategory</th>
+                <th>Brand</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in products)
+            {
+                <tr>
+                    <td>@p.Id</td>
+                    <td>@p.Name</td>
+                    <td>
+                        @if (ShowDescriptionDetails.Contains(p.Id))
+                        {
+                            <div>@p.Description</div>
+                            <button class="btn btn-info btn-sm mt-1" @onclick="() => ToggleDescriptionDetails(p.Id)">
+                                Hide Description
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-info btn-sm" @onclick="() => ToggleDescriptionDetails(p.Id)">
+                                View Description
+                            </button>
+                        }
+                    </td>
+                    <td>@p.Price</td>
+                    <td>@p.Quantity</td>
+                    <td>
+                        @if (ShowAnswerDetails.Contains(p.Id))
+                        {
+                            <div>
+                                @(p.AnswerDTO?.id != 0 ? answers.FirstOrDefault(a => a.id == p.AnswerDTO?.id)?.content : "No answer selected")
+                            </div>
+                            <button class="btn btn-info btn-sm mt-1" @onclick="() => ToggleAnswerDetails(p.Id)">
+                                Hide Details
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-info btn-sm" @onclick="() => ToggleAnswerDetails(p.Id)">
+                                View Details
+                            </button>
+                        }
+                    </td>
+                    <td>@(subCategories.FirstOrDefault(sc => sc.Id == p.SubCategoryId)?.Name ?? "No subcategory")</td>
+                    <td>@(brands.FirstOrDefault(b => b.Id == p.BrandId)?.Name ?? "No brand")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(p.ImageUrl))
+                        {
+                            <img src="@p.ImageUrl" alt="@p.Name" style="max-width: 100px; max-height: 100px;" />
+                        }
+                    </td>
+                    <td>
+                        <div>
+                            <button class="btn btn-primary btn-sm me-1" @onclick="() => ShowUpdateProductModal(p)">
+                                Update
+                            </button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteProduct(p.Id)">
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                @if (ErrorMessages.ContainsKey(p.Id) && !string.IsNullOrEmpty(ErrorMessages[p.Id]))
+                {
+                    <tr>
+                        <td colspan="10">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                @ErrorMessages[p.Id]
+                                <button type="button" class="btn-close" aria-label="Close"
+                                        @onclick="() => ClearErrorMessage(p.Id)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+            <p>Showing @((PageIndex - 1) * PageSize + 1) to @(Math.Min(PageIndex * PageSize, TotalItems)) of @TotalItems products</p>
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item @(PageIndex == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick="PreviousPage" disabled="@(PageIndex == 1)">Previous</button>
+                </li>
+                @for (int i = 1; i <= TotalPages; i++)
+                {
+                    var pageNum = i;
+                    <li class="page-item @(PageIndex == pageNum ? "active" : "")">
+                        <button class="page-link" @onclick="() => GoToPage(pageNum)">@pageNum</button>
+                    </li>
+                }
+                <li class="page-item @(PageIndex == TotalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick="NextPage" disabled="@(PageIndex == TotalPages)">Next</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Modal: Create/Update Product -->
+@if (ShowProductModal)
+{
+    <div class="modal show" style="display:block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@ProductModalTitle</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseProductModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="productName" class="form-label">Product Name</label>
+                        <input id="productName" class="form-control" @bind="TempProduct.Name" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="productDescription" class="form-label">Description</label>
+                        <textarea id="productDescription" class="form-control" @bind="TempProduct.Description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productPrice" class="form-label">Price</label>
+                        <input id="productPrice" type="number" class="form-control" @bind="TempProduct.Price" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="productQuantity" class="form-label">Quantity</label>
+                        <input id="productQuantity" type="number" class="form-control" @bind="TempProduct.Quantity" min="0" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Answer</label>
+                        <div>
+                            <button class="btn btn-outline-primary" @onclick="ShowAnswerSelectionModal">
+                                @(TempProduct.AnswerDTO?.id != 0 ? answers.FirstOrDefault(a => a.id == TempProduct.AnswerDTO?.id)?.content : "-- Select Answer --")
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subCategorySelect" class="form-label">Subcategory</label>
+                        <select id="subCategorySelect" class="form-control" @bind="TempProduct.SubCategoryId">
+                            <option value="0">-- Select Subcategory --</option>
+                            @foreach (var subCategory in subCategories)
+                            {
+                                <option value="@subCategory.Id">@subCategory.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="brandSelect" class="form-label">Brand</label>
+                        <select id="brandSelect" class="form-control" @bind="TempProduct.BrandId">
+                            <option value="0">-- Select Brand --</option>
+                            @foreach (var brand in brands)
+                            {
+                                <option value="@brand.Id">@brand.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productImage" class="form-label">Product Image</label>
+                        @if (PreviewImageBytes != null)
+                        {
+                            <img src="@($"data:image/jpeg;base64,{Convert.ToBase64String(PreviewImageBytes)}")" alt="Preview" style="max-width: 200px; max-height: 200px; margin-bottom: 10px;" />
+                        }
+                        <InputFile class="form-control" OnChange="@HandleFileChange" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseProductModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="SaveProduct">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+<!-- Modal: Answer Selection -->
+@if (ShowAnswerModal)
+{
+    <div class="modal show" style="display:block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Answer</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAnswerSelectionModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <select id="answerSelect" class="custom-select" @bind="TempAnswerId" size="10">
+                            <option value="0">-- Select Answer --</option>
+                            @foreach (var answer in answers)
+                            {
+                                <option value="@answer.id">@answer.content</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseAnswerSelectionModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="SelectAnswer">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+<!-- Custom CSS -->
+<style>
+    .custom-select {
+        appearance: none;
+        background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'><path fill='%23333' d='M0 0h10L5 5z'/></svg>") no-repeat right 10px center;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        padding: 10px 35px 10px 15px;
+        font-size: 16px;
+        color: #333;
+        width: 100%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: border-color 0.3s, box-shadow 0.3s;
+        height: 300px;
+        overflow-y: auto;
+    }
+
+        .custom-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            outline: none;
+        }
+
+        .custom-select:hover {
+            border-color: #86b7fe;
+        }
+
+        .custom-select option {
+            padding: 10px;
+            background: #fff;
+            color: #333;
+        }
+
+            .custom-select option:hover {
+                background: #f8f9fa;
+            }
+
+    .modal-content {
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-control, .form-control:focus {
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    select.form-control {
+        appearance: none;
+        background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='5' viewBox='0 0 10 5'><path fill='%23333' d='M0 0h10L5 5z'/></svg>") no-repeat right 10px center;
+        padding-right: 35px;
+    }
+
+    .pagination {
+        margin-bottom: 0;
+    }
+
+    .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .page-link {
+        cursor: pointer;
+    }
+</style>
+
+@code {
+    private IReadOnlyList<ProductDto> products = new List<ProductDto>();
+    private IReadOnlyList<AnswerDto> answers = new List<AnswerDto>();
+    private IReadOnlyList<BrandDto> brands = new List<BrandDto>();
+    private IReadOnlyList<SubCategoryDto> subCategories = new List<SubCategoryDto>();
+    private bool ShowProductModal = false;
+    private bool ShowAnswerModal = false;
+    private string ProductModalTitle = "";
+    private ProductDto TempProduct = new();
+    private int TempAnswerId = 0;
+    private Dictionary<int, string> ErrorMessages = new();
+    private HashSet<int> ShowAnswerDetails = new();
+    private HashSet<int> ShowDescriptionDetails = new();
+    private byte[] PreviewImageBytes;
+    private Stream ImageStream;
+    private string FileExtension;
+
+    // Pagination properties
+    private int PageIndex = 1;
+    private int PageSize = 10;
+    private int TotalItems = 0;
+    private int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize);
+
+    // Search property
+    private string SearchTerm { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        await LoadAnswers();
+        await LoadBrand();
+        await LoadSubCat();
+    }
+
+    private async Task LoadBrand()
+    {
+        var query = new GetBrandsQuery();
+        brands = await Mediator.Send(query);
+    }
+
+    private async Task LoadSubCat()
+    {
+        var query = new GetSubCategoriesQuery();
+        subCategories = await Mediator.Send(query);
+    }
+
+    private async Task LoadAnswers()
+    {
+        var answerQuery = new GetAllAnswersQuery();
+        answers = await Mediator.Send(answerQuery);
+    }
+
+    private async Task LoadData()
+    {
+        var spec = new ProductSpecParams
+            {
+                PageIndex = PageIndex,
+                PageSize = PageSize,
+                Search = SearchTerm // Include search term
+            };
+        var query = new GetProductsQuery(spec);
+        products = await Mediator.Send(query);
+
+        TotalItems = await GetTotalProductCount();
+    }
+
+    private async Task<int> GetTotalProductCount()
+    {
+        var spec = new ProductSpecParams
+            {
+                Search = SearchTerm // Include search term for count
+            };
+        var query = new CountProductsQuery(spec);
+        var numOfProduct = await Mediator.Send(query);
+        return numOfProduct;
+    }
+
+    private void ShowCreateProductModal()
+    {
+        ProductModalTitle = "Create Product";
+        TempProduct = new ProductDto
+            {
+                AnswerDTO = new AnswerDto { id = 0 },
+                Quantity = 0
+            };
+        PreviewImageBytes = null;
+        FileExtension = null;
+        ShowProductModal = true;
+    }
+
+    private void ShowUpdateProductModal(ProductDto product)
+    {
+        ProductModalTitle = "Update Product";
+        TempProduct = new ProductDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                AnswerDTO = product.AnswerDTO ?? new AnswerDto { id = 0 },
+                ImageUrl = product.ImageUrl,
+                SubCategoryId = product.SubCategoryId,
+                BrandId = product.BrandId,
+                Quantity = product.Quantity
+            };
+        PreviewImageBytes = null;
+        FileExtension = null;
+        ShowProductModal = true;
+    }
+
+    private void ShowAnswerSelectionModal()
+    {
+        TempAnswerId = TempProduct.AnswerDTO?.id ?? 0;
+        ShowAnswerModal = true;
+    }
+
+    private void CloseAnswerSelectionModal()
+    {
+        ShowAnswerModal = false;
+    }
+
+    private void SelectAnswer()
+    {
+        TempProduct.AnswerDTO = new AnswerDto { id = TempAnswerId };
+        ShowAnswerModal = false;
+    }
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            PreviewImageBytes = null;
+            if (ImageStream != null)
+            {
+                await ImageStream.DisposeAsync();
+                ImageStream = null;
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                ImageStream = file.OpenReadStream(maxAllowedSize: 1024 * 1024 * 10);
+                await ImageStream.CopyToAsync(memoryStream);
+                PreviewImageBytes = memoryStream.ToArray();
+            }
+
+            FileExtension = Path.GetExtension(file.Name);
+            await ImageStream.DisposeAsync();
+            ImageStream = null;
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveProduct()
+    {
+        try
+        {
+            if (TempProduct.Id != 0) // Update validation
+            {
+                if (string.IsNullOrEmpty(TempProduct.Name) ||
+                    string.IsNullOrEmpty(TempProduct.Description) ||
+                    TempProduct.Price <= 0 ||
+                    TempProduct.Quantity < 0 ||
+                    TempProduct.AnswerDTO?.id == 0 ||
+                    TempProduct.SubCategoryId == 0 ||
+                    TempProduct.BrandId == 0)
+                {
+                    ErrorMessages[TempProduct.Id] = "All fields are required for updating a product, and quantity must be non-negative.";
+                    return;
+                }
+            }
+            else // Create validation
+            {
+                if (string.IsNullOrEmpty(TempProduct.Name) ||
+                    string.IsNullOrEmpty(TempProduct.Description) ||
+                    TempProduct.Price <= 0 ||
+                    TempProduct.Quantity < 0)
+                {
+                    ErrorMessages[0] = "Name, Description, Price, and Quantity (non-negative) are required for creating a product.";
+                    return;
+                }
+            }
+
+            Stream imageStream = null;
+            if (PreviewImageBytes != null)
+            {
+                imageStream = new MemoryStream(PreviewImageBytes);
+            }
+
+            if (TempProduct.Id == 0) // Create
+            {
+                var command = new CreateProductCommand(
+                    new ProductToAddDto
+                        {
+                            Name = TempProduct.Name,
+                            Description = TempProduct.Description,
+                            Price = TempProduct.Price,
+                            AnswerId = TempProduct.AnswerDTO?.id ?? 0,
+                            ImageUrl = TempProduct.ImageUrl,
+                            SubCategoryId = TempProduct.SubCategoryId,
+                            BrandId = TempProduct.BrandId,
+                            Quantity = TempProduct.Quantity
+                        },
+                    imageStream,
+                    FileExtension
+                );
+                await Mediator.Send(command);
+            }
+            else // Update
+            {
+                var command = new UpdateProductCommand(
+                    new ProductToUpdateDto
+                        {
+                            Id = TempProduct.Id,
+                            Name = TempProduct.Name,
+                            Description = TempProduct.Description,
+                            Price = TempProduct.Price,
+                            AnswerId = TempProduct.AnswerDTO?.id ?? 0,
+                            ImageUrl = TempProduct.ImageUrl,
+                            SubCategoryId = TempProduct.SubCategoryId,
+                            BrandId = TempProduct.BrandId,
+                            Quantity = TempProduct.Quantity
+                        },
+                    imageStream,
+                    FileExtension
+                );
+                await Mediator.Send(command);
+            }
+
+            await LoadData();
+            CloseProductModal();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessages[TempProduct.Id] = $"Save failed: {ex.Message}";
+        }
+        finally
+        {
+            if (ImageStream != null)
+            {
+                await ImageStream.DisposeAsync();
+                ImageStream = null;
+            }
+            PreviewImageBytes = null;
+            FileExtension = null;
+        }
+    }
+
+    private async Task DeleteProduct(int productId)
+    {
+        try
+        {
+            var command = new DeleteProductCommand(productId);
+            await Mediator.Send(command);
+            await LoadData();
+            ErrorMessages.Remove(productId);
+            ShowAnswerDetails.Remove(productId);
+            ShowDescriptionDetails.Remove(productId);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessages[productId] = $"Delete failed: {ex.Message}";
+        }
+    }
+
+    private void CloseProductModal()
+    {
+        ShowProductModal = false;
+        PreviewImageBytes = null;
+        FileExtension = null;
+    }
+
+    private void ClearErrorMessage(int productId)
+    {
+        ErrorMessages.Remove(productId);
+    }
+
+    private void ToggleAnswerDetails(int productId)
+    {
+        if (ShowAnswerDetails.Contains(productId))
+        {
+            ShowAnswerDetails.Remove(productId);
+        }
+        else
+        {
+            ShowAnswerDetails.Add(productId);
+        }
+    }
+
+    private void ToggleDescriptionDetails(int productId)
+    {
+        if (ShowDescriptionDetails.Contains(productId))
+        {
+            ShowDescriptionDetails.Remove(productId);
+        }
+        else
+        {
+            ShowDescriptionDetails.Add(productId);
+        }
+    }
+
+    // Pagination methods
+    private async Task PreviousPage()
+    {
+        if (PageIndex > 1)
+        {
+            PageIndex--;
+            await LoadData();
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (PageIndex < TotalPages)
+        {
+            PageIndex++;
+            await LoadData();
+        }
+    }
+
+    private async Task GoToPage(int page)
+    {
+        PageIndex = page;
+        await LoadData();
+    }
+
+    // Search methods
+    private async Task SearchProducts()
+    {
+        PageIndex = 1; // Reset to first page on new search
+        await LoadData();
+    }
+
+    private async Task OnSearchTermChanged(ChangeEventArgs e)
+    {
+        SearchTerm = e.Value?.ToString() ?? "";
+        await SearchProducts(); // Trigger search on input change
+    }
+}

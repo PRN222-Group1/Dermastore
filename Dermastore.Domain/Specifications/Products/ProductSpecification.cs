@@ -27,7 +27,7 @@ namespace Dermastore.Domain.Specifications.Products
         {
             AddInclude(p => p.SubCategory);
             AddInclude(p => p.Brand);
-
+            AddInclude(p => p.Answer);
             ApplyPaging(productParams.PageSize * (productParams.PageIndex - 1),
                 productParams.PageSize);
 

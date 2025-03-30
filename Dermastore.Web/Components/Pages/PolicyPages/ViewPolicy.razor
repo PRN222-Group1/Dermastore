@@ -1,0 +1,68 @@
+﻿@* @page "/policy" *@
+@* @inject             IFirebaseService FirebaseService *@
+@* @rendermode InteractiveServer *@
+@* @inject IJSRuntime JS *@
+
+@* <h3>View Policy</h3> *@
+@* <h2>Our Policy</h2> *@
+
+@* <canvas id="pdfCanvas" style="border:1px solid #ccc;"></canvas> *@
+
+@* @if (string.IsNullOrEmpty(policyUrl)) *@
+@* { *@
+@*     <p>Loading policy...</p> *@
+@* } *@
+
+@* @code { *@
+@*     private string policyUrl; *@
+
+@*     protected override async Task OnInitializedAsync() *@
+@*     { *@
+@*         policyUrl = await FirebaseService.GetPolicyUrlAsync("policy.pdf"); *@
+@*         Console.WriteLine($"Policy URL: {policyUrl}"); *@
+@*     } *@
+
+@*     protected override async Task OnAfterRenderAsync(bool firstRender) *@
+@*     { *@
+@*         if (firstRender && !string.IsNullOrEmpty(policyUrl)) *@
+@*         { *@
+@*             Console.WriteLine("Rendering PDF with URL: " + policyUrl); *@
+@*             await JS.InvokeVoidAsync("renderPDF", policyUrl); *@
+@*         } *@
+@*     } *@
+@* } *@
+
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script> *@
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"></script> *@
+@* <script> *@
+@*     window.renderPDF = function (url) { *@
+@*         if (!window['pdfjs-dist/build/pdf']) { *@
+@*             console.error("PDF.js not loaded!"); *@
+@*             return; *@
+@*         } *@
+@*         const pdfjsLib = window['pdfjs-dist/build/pdf']; *@
+@*         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js'; *@
+
+@*         pdfjsLib.getDocument(url).promise.then(function(pdf) { *@
+@*             pdf.getPage(1).then(function(page) { *@
+@*                 const scale = 1.5; *@
+@*                 const viewport = page.getViewport({ scale: scale }); *@
+@*                 const canvas = document.getElementById('pdfCanvas'); *@
+@*                 if (!canvas) { *@
+@*                     console.error("Canvas not found!"); *@
+@*                     return; *@
+@*                 } *@
+@*                 const context = canvas.getContext('2d'); *@
+@*                 canvas.height = viewport.height; *@
+@*                 canvas.width = viewport.width; *@
+@*                 const renderContext = { *@
+@*                     canvasContext: context, *@
+@*                     viewport: viewport *@
+@*                 }; *@
+@*                 page.render(renderContext); *@
+@*             }); *@
+@*         }).catch(function(error) { *@
+@*             console.error("Error rendering PDF: ", error.message, error.stack); *@
+@*         }); *@
+@*     } *@
+@* </script> *@

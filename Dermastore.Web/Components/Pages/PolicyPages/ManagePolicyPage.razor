@@ -1,0 +1,56 @@
+﻿@* @page "/manage-policy" *@
+@* @inject  FirebaseService *@
+@* @rendermode InteractiveServer *@
+@* @    using Microsoft.AspNetCore.Components.Forms *@
+@* <h3>ManagePolicyPage</h3> *@
+@* <h2>Upload Policy File</h2> *@
+
+@* <InputFile OnChange="OnFileSelected" accept=".pdf, .html" /> *@
+@* <button @onclick="UploadPolicy" disabled="@(!IsFileSelected)"> *@
+@*     Upload Policy *@
+@* </button> *@
+
+@* @if (!string.IsNullOrEmpty(statusMessage)) *@
+@* { *@
+@*     <p>@statusMessage</p> *@
+@* } *@
+
+@* @code { *@
+@*     private IBrowserFile selectedFile; *@
+@*     private string statusMessage = string.Empty; *@
+
+@*     // Indicates whether a file has been selected. *@
+@*     private bool IsFileSelected => selectedFile != null; *@
+
+@*     // Called when a file is selected. *@
+@*     private void OnFileSelected(InputFileChangeEventArgs e) *@
+@*     { *@
+@*         selectedFile = e.File; *@
+@*     } *@
+
+@*     // Called when the "Upload Policy" button is clicked. *@
+@*     private async Task UploadPolicy() *@
+@*     { *@
+@*         if (selectedFile == null) *@
+@*         { *@
+@*             statusMessage = "Please select a file."; *@
+@*             return; *@
+@*         } *@
+
+@*         // Open a read stream from the selected file. *@
+@*         // Adjust maxAllowedSize as needed. *@
+@*         using var stream = selectedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); *@
+
+@*         statusMessage = "Uploading..."; *@
+@*         var fileName = "policy.pdf"; *@
+@*         var fileUrl = await FirebaseService.UploadFile(stream,fileName, false); *@
+@*         if (!string.IsNullOrEmpty(fileUrl)) *@
+@*         { *@
+@*             statusMessage = $"Policy updated successfully! File URL: {fileUrl}"; *@
+@*         } *@
+@*         else *@
+@*         { *@
+@*             statusMessage = "Error uploading file."; *@
+@*         } *@
+@*     } *@
+@* } *@

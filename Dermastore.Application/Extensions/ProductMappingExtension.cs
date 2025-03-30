@@ -20,7 +20,10 @@ namespace Dermastore.Application.Extensions
                 Price = product.Price,
                 ImageUrl = product.ImageUrl,
                 SubCategory = product.SubCategory?.Name,
-                Brand = product.Brand.Name,
+                Brand = product.Brand?.Name,
+                BrandId = product.BrandId,
+                SubCategoryId = product.SubCategoryId,
+                AnswerDTO = product.Answer?.ToDto(),
             };
         }
 
@@ -35,8 +38,10 @@ namespace Dermastore.Application.Extensions
                 Status = productDto.Status,
                 Quantity = productDto.Quantity,
                 ImageUrl = productDto.ImageUrl,
-                SubCategoryId = productDto.CategoryId,
+                SubCategoryId = productDto.SubCategoryId,
                 AnswerId = productDto.AnswerId,
+                BrandId = productDto.BrandId,
+                Price = productDto.Price
             };
         }
 

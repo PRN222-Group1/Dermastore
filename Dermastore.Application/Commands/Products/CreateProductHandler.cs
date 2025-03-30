@@ -22,7 +22,11 @@ namespace Dermastore.Application.Commands.Products
             Console.WriteLine("-------------------------");
             Console.WriteLine(product.Quantity);
             Console.WriteLine("-------------------------");
-
+            if (request.ImageStream != null && !string.IsNullOrEmpty(request.FileExtension))
+            {
+                var fileName = $"{Guid.NewGuid()}{request.FileExtension}";
+                product.ImageUrl = await _productService.UploadProductImage(request.ImageStream, fileName, true);
+            }
             var rs = await _productService.CreateProduct(product);
 
             return product.Id;
