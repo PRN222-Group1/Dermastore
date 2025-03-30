@@ -9,8 +9,10 @@
 @using Dermastore.Application.Commands.Answers
 @using Dermastore.Application.Commands.QuizResults
 @using Dermastore.Application.Commands.Questions
+@using Microsoft.AspNetCore.Authorization
 @rendermode InteractiveServer
 @inject IMediator Mediator
+@attribute [Authorize(Roles = "Staff")]
 
 <!-- Styles -->
 <style>

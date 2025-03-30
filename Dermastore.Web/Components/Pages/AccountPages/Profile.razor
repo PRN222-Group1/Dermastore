@@ -12,6 +12,7 @@
 @using Dermastore.Web.Providers
 @using Dermastore.Application.Extensions
 @using MediatR
+@using Microsoft.AspNetCore.Authorization
 
 @rendermode InteractiveServer
 @inject IToastService ToastService
@@ -20,6 +21,7 @@
 @inject NavigationManager NavigationManager
 @inject AuthStateProvider AuthStateProvider
 @inject IConfiguration configuration
+@attribute [Authorize(Roles = "Customer")]
 
 <BlazoredToasts Position="ToastPosition.TopRight"
                 Timeout="5"

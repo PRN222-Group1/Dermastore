@@ -6,9 +6,11 @@
 @using Dermastore.Domain.Specifications.Users
 @using Dermastore.Web.Components.Pages.Shared.user
 @using MediatR
+@using Microsoft.AspNetCore.Authorization
 @rendermode InteractiveServer
 @inject IToastService ToastService
 @inject IMediator Mediator
+@attribute [Authorize(Roles = "Manager")]
 
 <PageTitle>Users List</PageTitle>
 

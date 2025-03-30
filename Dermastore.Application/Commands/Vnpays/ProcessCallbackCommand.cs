@@ -1,5 +1,4 @@
-﻿using Dermastore.Domain.Models;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 
 namespace Dermastore.Application.Commands.Vnpays

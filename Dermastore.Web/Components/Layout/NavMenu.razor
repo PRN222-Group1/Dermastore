@@ -65,15 +65,10 @@
                         </div>
                     </div>
                 </li>
-                
+
                 <li class="nav-item p-3 d-flex align-items-center">
                     <a class="nav-link" href="/blogs" role="button">
                         <i class="fa-solid fa-blog me-2"></i> Blogs
-                    </a>
-                </li>
-                <li class="nav-item p-3 d-flex align-items-center">
-                    <a class="nav-link" href="/beauty-match" role="button">
-                        <i class="fa fa-check me-2"></i> Skin Test
                     </a>
                 </li>
 
@@ -110,13 +105,23 @@
                     </div>
                 </li>
 
+                @if (!string.IsNullOrEmpty(role) && (role.Equals("Customer") || role.Equals("Staff")))
+                {
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/orders" role="button">
+                            <i class="fa-solid fa-receipt me-2"></i> Orders
+                        </a>
+                    </li>
+                }
+
                 @if (!string.IsNullOrEmpty(role) && role.Equals("Customer"))
                 {
                     <li class="nav-item p-3 d-flex align-items-center">
-                        <a class="nav-link" href="/orders/pending" role="button">
-                            <i class="fa-solid fa-receipt me-2"></i> My Orders
+                        <a class="nav-link" href="/beauty-match" role="button">
+                            <i class="fa fa-check me-2"></i> Skin Test
                         </a>
                     </li>
+
 
                     <li class="nav-item p-3 d-flex align-items-center">
                         <a class="nav-link" href="/profile" role="button">

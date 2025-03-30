@@ -2,9 +2,11 @@
 @using Dermastore.Application.Commands.Blogs
 @using Dermastore.Domain.Entities
 @using MediatR
+@using Microsoft.AspNetCore.Authorization
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
+@attribute [Authorize(Roles = "Staff")]
 
 <PageTitle>Delete Blog</PageTitle>
 

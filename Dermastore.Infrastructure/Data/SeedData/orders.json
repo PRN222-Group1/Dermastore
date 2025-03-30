@@ -13,7 +13,7 @@
         "ItemOrdered": {
           "ProductId": 1,
           "ProductName": "Product 1",
-          "ImageUrl": "https://example.com/images/product1.jpg"
+          "ImageUrl": "https://th.bing.com/th?id=OIF.zgJ%2bKitYf%2fs%2fCxZ7oWWK1A&rs=1&pid=ImgDetMain"
         },
         "Price": 250000.00,
         "Quantity": 1,
@@ -28,7 +28,7 @@
         "ItemOrdered": {
           "ProductId": 2,
           "ProductName": "Product 2",
-          "ImageUrl": "https://example.com/images/product2.jpg"
+          "ImageUrl": "https://th.bing.com/th?id=OIF.zgJ%2bKitYf%2fs%2fCxZ7oWWK1A&rs=1&pid=ImgDetMain"
         },
         "Price": 250000.00,
         "Quantity": 1,
@@ -54,7 +54,7 @@
         "ItemOrdered": {
           "ProductId": 1,
           "ProductName": "Product 1",
-          "ImageUrl": "https://example.com/images/product1.jpg"
+          "ImageUrl": "https://th.bing.com/th?id=OIF.zgJ%2bKitYf%2fs%2fCxZ7oWWK1A&rs=1&pid=ImgDetMain"
         },
         "Price": 150.00,
         "Quantity": 1,
@@ -69,7 +69,7 @@
         "ItemOrdered": {
           "ProductId": 2,
           "ProductName": "Product 2",
-          "ImageUrl": "https://example.com/images/product2.jpg"
+          "ImageUrl": "https://th.bing.com/th?id=OIF.zgJ%2bKitYf%2fs%2fCxZ7oWWK1A&rs=1&pid=ImgDetMain"
         },
         "Price": 150.00,
         "Quantity": 1,

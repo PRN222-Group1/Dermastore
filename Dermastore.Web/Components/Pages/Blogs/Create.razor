@@ -4,9 +4,12 @@
 @using Dermastore.Web.Extensions
 @using Dermastore.Web.Providers
 @using MediatR
+@using Microsoft.AspNetCore.Authorization
 @inject NavigationManager NavigationManager
 @inject AuthStateProvider AuthStateProvider
 @inject IMediator Mediator
+@attribute [Authorize(Roles = "Staff")]
+
 <PageTitle>Create Blog</PageTitle>
 
 <style>

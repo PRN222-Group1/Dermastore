@@ -25,16 +25,16 @@
 @inject IMediator Mediator
 
 <BlazoredToasts Position="ToastPosition.TopRight"
-                Timeout="5"
-                IconType="IconType.FontAwesome"
-                SuccessClass="success-toast"
-                SuccessIcon="fa fa-check-circle"
-                ErrorClass="error-toast"
-                ErrorIcon="fa fa-times-circle"
-                InfoClass="info-toast"
-                InfoIcon="fa fa-info-circle"
-                WarningClass="warning-toast"
-                WarningIcon="fa fa-exclamation-circle" />
+Timeout="5"
+IconType="IconType.FontAwesome"
+SuccessClass="success-toast"
+SuccessIcon="fa fa-check-circle"
+ErrorClass="error-toast"
+ErrorIcon="fa fa-times-circle"
+InfoClass="info-toast"
+InfoIcon="fa fa-info-circle"
+WarningClass="warning-toast"
+WarningIcon="fa fa-exclamation-circle" />
 
 <div class="p-4 my-5 card shadow-lg col-md-11 mx-auto min-vh-100">
     <h2 class="text-primary mb-4">Shopping Cart</h2>
@@ -167,7 +167,17 @@
 
                         <!-- Total Price -->
                         <p class="card-text my-4">TOTAL: <strong>@string.Format("{0}đ", CalculateTotal().ToString("N0"))</strong></p>
-                        <button class="btn btn-primary text-white w-100" @onclick="Checkout">Checkout</button>
+                        @if (currentUser != null)
+                        {
+                            <button class="btn btn-primary text-white w-100" @onclick="Checkout">Checkout</button>
+                        }
+                        else
+                        {
+                            <div class="text-primary text">
+                                Please login to checkout
+                            </div>
+                            <button class="btn btn-primary text-white w-100" @onclick="GoToLogin">Login</button>
+                        }
                     </div>
                 </div>
             </div>
@@ -354,6 +364,11 @@
     //==============================================
     //              CHECKOUT FLOW
     //==============================================
+    private void GoToLogin()
+    {
+        NavigationManager.NavigateTo("/accounts/login");
+    }
+
     private async Task Checkout()
     {
         // Populate order items list

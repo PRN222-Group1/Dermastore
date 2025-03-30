@@ -12,7 +12,8 @@ namespace Dermastore.Domain.Specifications.Users
         }
 
         public UserSpecification(string email)
-            : base(x => x.Email.Equals(email))
+            : base(x => x.Email.Equals(email)
+            && x.Status == UserStatus.Active)
         {
             AddInclude(x => x.Membership);
         }

@@ -3,8 +3,10 @@
 @using Dermastore.Application.DTOs.QuestionDTOs
 @using Dermastore.Application.DTOs.AnswerDTOs
 @using Dermastore.Application.Commands.Questions
+@using Microsoft.AspNetCore.Authorization
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
+@attribute [Authorize(Roles = "Staff")]
 
 <h3>Add Question</h3>
 

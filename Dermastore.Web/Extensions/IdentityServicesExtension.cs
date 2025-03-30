@@ -26,6 +26,12 @@ namespace Dermastore.Web.Extensions
             })
             .AddIdentityCookies();
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Change the login path here
+                options.LoginPath = "/accounts/login";
+            });
+
             services.AddIdentityCore<User>(opt =>
             {
                 //Set you account options here (e.g., Password, Email)

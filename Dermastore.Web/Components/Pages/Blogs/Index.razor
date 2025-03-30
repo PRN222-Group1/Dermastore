@@ -79,7 +79,7 @@
     private IReadOnlyList<BlogDto> blogs;
     private BlogSpecParams BlogSpecParams { get; set; } = new();
     private int TotalPages;
-    private string Role;
+    private string Role = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {

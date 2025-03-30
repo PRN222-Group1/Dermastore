@@ -3,9 +3,11 @@
 @using Dermastore.Application.DTOs.Blogs
 @using Dermastore.Application.Queries.Blogs.GetBlogById
 @using MediatR
+@using Microsoft.AspNetCore.Authorization
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
+@attribute [Authorize(Roles = "Staff")]
 
 <PageTitle>Edit Blog</PageTitle>
 
