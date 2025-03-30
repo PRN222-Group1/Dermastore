@@ -34,12 +34,15 @@ namespace Dermastore.Domain.Specifications.Orders
             ApplyPaging(specParams.PageSize * (specParams.PageIndex - 1),
                 specParams.PageSize);
 
+            AddOrderByDescending(x => x.OrderDate);
+
             if (!string.IsNullOrEmpty(specParams.Sort))
             {
                 switch (specParams.Sort)
                 {
                     case "dateAsc":
                         AddOrderBy(x => x.OrderDate);
+                        AddOrderByDescending(null);
                         break;
                     case "dateDesc":
                         AddOrderByDescending(x => x.OrderDate);

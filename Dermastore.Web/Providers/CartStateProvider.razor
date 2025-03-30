@@ -1,0 +1,93 @@
+﻿@using Dermastore.Application.Commands.Carts
+@using Dermastore.Application.DTOs
+@using Dermastore.Application.DTOs.CartDTOs
+@using Dermastore.Application.Extensions
+@using Dermastore.Application.Queries.Carts
+@using MediatR
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedLocalStorage ProtectedLocalStore
+@inject IMediator Mediator
+
+@if (isLoaded)
+{
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    private bool isLoaded;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public CartDto Cart { get; private set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isLoaded = false;
+            await LoadStateAsync();
+            isLoaded = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadStateAsync()
+    {
+        // Get cartId from local storage
+        var result = await ProtectedLocalStore.GetAsync<string>("cartId");
+        var cartId = result.Success ? result.Value : null;
+
+        if (!string.IsNullOrEmpty(cartId))
+        {
+            var query = new GetCartQuery(cartId);
+            Cart = await Mediator.Send(query);
+        }
+        else
+        {
+            Cart = new CartDto(); // Return an empty cart if no cartId found
+        }
+
+        isLoaded = true;
+    }
+
+    public async Task UpdateCartAsync(CartDto cart)
+    {
+        var command = new UpdateCartCommand(cart);
+        var updatedCart = await Mediator.Send(command);
+        Cart = updatedCart.ToDto();
+        NotifyCartStateChanged();
+    }
+
+    public async Task DeleteCartAsync()
+    {
+        if (Cart != null)
+        {
+            var command = new DeleteCartCommand(Cart.Id);
+            var result = await Mediator.Send(command);
+
+            if (result)
+            {
+                Cart = null;
+                await ProtectedLocalStore.DeleteAsync("cartId");
+            }
+        }
+
+        NotifyCartStateChanged();
+    }
+
+    public async Task SetCartIdAsync(string cartId)
+    {
+        await ProtectedLocalStore.SetAsync("cartId", cartId);
+    }
+
+    public event Action? OnChange;
+
+    private void NotifyCartStateChanged() => OnChange?.Invoke();
+}

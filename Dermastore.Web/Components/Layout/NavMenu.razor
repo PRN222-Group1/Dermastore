@@ -9,8 +9,9 @@
 @inject CartStateContainer CartStateContainer
 @inject ProtectedLocalStorage ProtectedLocalStore
 @inject AuthStateProvider AuthStateProvider
-@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
 @inject IMediator Mediator
+@rendermode InteractiveServer
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-0">
     <div class="container-fluid ps-0">
@@ -142,14 +143,16 @@
 
             <!-- Section 3: Search Bar and Login Button -->
             <div class="d-flex align-items-center">
-                <form class="d-flex me-3">
+                <form class="d-flex me-3" @onsubmit="OnSubmitSearch">
                     <div class="input-group">
-                        <input class="form-control" type="search" placeholder="Search products..." aria-label="Search">
+                        <input class="form-control" type="search" placeholder="Search products..." aria-label="Search"
+                               @bind="searchTerm">
                         <button class="btn btn-light" type="submit">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
                 </form>
+
                 @if (user != null && user.Identity != null && user.Identity.IsAuthenticated)
                 {
                     <div class="nav-item">
@@ -205,6 +208,7 @@
     private IReadOnlyList<CategoryDto> categories;
     private ClaimsPrincipal? user;
     private string role;
+    private string searchTerm = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -213,6 +217,7 @@
 
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         user = authState.User;
+        role = user.GetUserRole();
 
         // Subscribe to AuthenticationStateChanged event to trigger re-render on login/logout
         AuthStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
@@ -240,9 +245,20 @@
                 await CartStateContainer.LoadCartAsync(result.Value);
             }
 
-            CartStateContainer.OnChange += StateHasChanged;
+            // Use InvokeAsync to switch to the Dispatcher when modifying UI state
+            CartStateContainer.OnChange += async () => await InvokeAsync(StateHasChanged);
 
-            StateHasChanged();
+            // Ensure the state changes after rendering
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnSubmitSearch()
+    {
+        // Redirect to the products page with the search term in the query string
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            NavigationManager.NavigateTo($"/products?search={searchTerm}");
         }
     }
 }

@@ -251,7 +251,7 @@
                                             </div>
                                             <div>
                                                 <h6 class="mb-0">Order @order.Status</h6>
-                                                <small class="text-muted">@order.OrderDate.AddMinutes(3).ToString("MMM dd, yyyy hh:mm tt")</small>
+                                                <small class="text-muted">@order.OrderDate.ToString("MMM dd, yyyy hh:mm tt")</small>
                                             </div>
                                         </li>
                                     }
@@ -319,13 +319,6 @@
                 <a href="/orders" class="btn btn-outline-secondary me-2">
                     <i class="bi bi-arrow-left me-1"></i> Back to Orders
                 </a>
-
-                @if (order.Status == "Completed")
-                {
-                    <button class="btn btn-outline-primary">
-                        <i class="bi bi-file-earmark-text me-1"></i> Download Invoice
-                    </button>
-                }
             </div>
         </div>
     }

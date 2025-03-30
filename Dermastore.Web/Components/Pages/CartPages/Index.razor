@@ -19,7 +19,7 @@
 @rendermode InteractiveServer
 @inject IToastService ToastService
 @inject CartStateContainer CartStateContainer
-@inject ProtectedLocalStorage ProtectedLocalStore
+@inject ProtectedLocalStorage ProtectedLocalStorage
 @inject AuthStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
@@ -136,6 +136,10 @@ WarningIcon="fa fa-exclamation-circle" />
                                     }
                                 }
                             </select>
+                            @if (!string.IsNullOrEmpty(error))
+                            {
+                                <div class="mt-2 text-danger">@error</div>
+                            }
                         </div>
 
                         <!-- Promotion Code Input -->
@@ -196,6 +200,7 @@ WarningIcon="fa fa-exclamation-circle" />
     private string? selectedDeliveryMethod;
     private UserDto? currentUser;
     private bool? updateResult;
+    private string? error;
 
     //==============================================
     //                  LIFE CYCLE
@@ -221,13 +226,18 @@ WarningIcon="fa fa-exclamation-circle" />
     {
         if (firstRender)
         {
-            var result = await ProtectedLocalStore.GetAsync<string>("cartId");
+            var result = await ProtectedLocalStorage.GetAsync<string>("cartId");
             if (result.Success && result.Value != null)
             {
                 await CartStateContainer.LoadCartAsync(result.Value);
             }
             await LoadDeliveryMethods();
-            CartStateContainer.OnChange += StateHasChanged;
+
+            // Use InvokeAsync to switch to the Dispatcher when modifying UI state
+            CartStateContainer.OnChange += async () => await InvokeAsync(StateHasChanged);
+
+            // Ensure the state changes after rendering
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -269,7 +279,7 @@ WarningIcon="fa fa-exclamation-circle" />
     private async Task ClearCart()
     {
         await CartStateContainer.DeleteCartAsync();
-        await ProtectedLocalStore.DeleteAsync("cartId");
+        await ProtectedLocalStorage.DeleteAsync("cartId");
         ToastService.ShowSuccess("Cart Removed");
     }
 
@@ -372,6 +382,11 @@ WarningIcon="fa fa-exclamation-circle" />
     private async Task Checkout()
     {
         // Populate order items list
+        if (string.IsNullOrEmpty(selectedDeliveryMethod))
+        {
+            error = "You must select a delivery method";
+            return;
+        }
         var deliveryMethod = deliveryMethods.FirstOrDefault(d => d.Id == int.Parse(selectedDeliveryMethod));
 
         var orderItems = new List<OrderItemDto>();
