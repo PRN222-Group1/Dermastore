@@ -1,56 +1,170 @@
-﻿@* @page "/manage-policy" *@
-@* @inject  FirebaseService *@
-@* @rendermode InteractiveServer *@
-@* @    using Microsoft.AspNetCore.Components.Forms *@
-@* <h3>ManagePolicyPage</h3> *@
-@* <h2>Upload Policy File</h2> *@
+﻿@page "/manage-policy"
+@rendermode InteractiveServer
+@using MediatR
+@using Dermastore.Application.Commands.Policies
+@using Dermastore.Application.DTOs
+@using Microsoft.AspNetCore.Components.Forms
+@inject IMediator MediatR
 
-@* <InputFile OnChange="OnFileSelected" accept=".pdf, .html" /> *@
-@* <button @onclick="UploadPolicy" disabled="@(!IsFileSelected)"> *@
-@*     Upload Policy *@
-@* </button> *@
+<div class="container mt-4">
+    <h3 class="mb-4 text-primary">Manage Policy</h3>
 
-@* @if (!string.IsNullOrEmpty(statusMessage)) *@
-@* { *@
-@*     <p>@statusMessage</p> *@
-@* } *@
+    <div class="card p-4">
+        <h4 class="card-title text-secondary mb-3">Upload Policy File</h4>
 
-@* @code { *@
-@*     private IBrowserFile selectedFile; *@
-@*     private string statusMessage = string.Empty; *@
+        <div class="row align-items-center">
+            <div class="col-md-8 mb-3">
+                <InputFile OnChange="OnFileSelected" accept=".pdf, .html" class="form-control" id="policyFile" />
+                @if (selectedFile != null)
+                {
+                    <small class="text-muted mt-1 d-block">Selected: @selectedFile.Name (@((selectedFile.Size / 1024f).ToString("F2")) KB)</small>
+                }
+            </div>
+            <div class="col-md-4 mb-3 text-md-end">
+                <button class="btn btn-primary" @onclick="UploadPolicy" disabled="@(!IsFileSelected)">
+                    <i class="bi bi-upload me-2"></i>Upload Policy
+                </button>
+            </div>
+        </div>
 
-@*     // Indicates whether a file has been selected. *@
-@*     private bool IsFileSelected => selectedFile != null; *@
+        @if (isUploading)
+        {
+            <div class="progress mt-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">Uploading...</div>
+            </div>
+        }
 
-@*     // Called when a file is selected. *@
-@*     private void OnFileSelected(InputFileChangeEventArgs e) *@
-@*     { *@
-@*         selectedFile = e.File; *@
-@*     } *@
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="alert @(statusMessage.Contains("successfully") ? "alert-success" : "alert-danger") mt-3" role="alert">
+                @statusMessage
+                @if (statusMessage.Contains("File URL"))
+                {
+                    <a href="@fileUrl" target="_blank" class="alert-link ms-2">View File</a>
+                }
+            </div>
+        }
+    </div>
+</div>
 
-@*     // Called when the "Upload Policy" button is clicked. *@
-@*     private async Task UploadPolicy() *@
-@*     { *@
-@*         if (selectedFile == null) *@
-@*         { *@
-@*             statusMessage = "Please select a file."; *@
-@*             return; *@
-@*         } *@
+<style>
+    .container {
+        max-width: 800px;
+    }
 
-@*         // Open a read stream from the selected file. *@
-@*         // Adjust maxAllowedSize as needed. *@
-@*         using var stream = selectedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); *@
+    .card {
+        border-radius: 10px;
+        border: none;
+        /* Stronger card shadow (removed shadow-sm class from HTML) */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
 
-@*         statusMessage = "Uploading..."; *@
-@*         var fileName = "policy.pdf"; *@
-@*         var fileUrl = await FirebaseService.UploadFile(stream,fileName, false); *@
-@*         if (!string.IsNullOrEmpty(fileUrl)) *@
-@*         { *@
-@*             statusMessage = $"Policy updated successfully! File URL: {fileUrl}"; *@
-@*         } *@
-@*         else *@
-@*         { *@
-@*             statusMessage = "Error uploading file."; *@
-@*         } *@
-@*     } *@
-@* } *@
+    .form-control {
+        border-radius: 8px;
+        /* Stronger form control shadow */
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            /* Slightly stronger focus shadow/glow */
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.35);
+        }
+
+    .btn-primary {
+        border-radius: 8px;
+        padding: 8px 20px;
+        font-size: 16px;
+        /* Optional: Add subtle shadow to button */
+        /* box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3); */
+    }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+        }
+
+    .progress {
+        height: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .alert {
+        border-radius: 8px;
+        /* Stronger alert shadow */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    .text-primary {
+        color: #0d6efd !important;
+    }
+
+    .text-secondary {
+        color: #6c757d !important;
+    }
+
+    /* Ensure text-md-end applies correctly on medium screens and up */
+    @@media (min-width: 768px) {
+        .text-md-end {
+            text-align: end !important;
+        }
+    }
+</style>
+
+@code {
+    private IBrowserFile selectedFile;
+    private string statusMessage = string.Empty;
+    private bool isUploading = false;
+    private string fileUrl = string.Empty;
+
+    private bool IsFileSelected => selectedFile != null;
+
+    private void OnFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+        statusMessage = string.Empty; // Clear previous message
+        StateHasChanged();
+    }
+
+    private async Task UploadPolicy()
+    {
+        if (selectedFile == null)
+        {
+            statusMessage = "Please select a file.";
+            return;
+        }
+
+        try
+        {
+            isUploading = true;
+            statusMessage = "Uploading...";
+            StateHasChanged();
+
+            using var stream = selectedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); // 10 MB limit
+            var fileName = "policy.pdf";
+            var fileUpload = new Dermastore.Application.DTOs.FileUploadDto { fileName = fileName, fileStream = stream, isImageUpload = false };
+            var command = new Dermastore.Application.Commands.Policies.PolicyUploadCommand(fileUpload);
+            fileUrl = await MediatR.Send(command);
+
+            if (!string.IsNullOrEmpty(fileUrl))
+            {
+                statusMessage = $"Policy updated successfully! File URL: {fileUrl}";
+            }
+            else
+            {
+                statusMessage = "Error uploading file. Received empty URL.";
+            }
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Upload failed: {ex.Message}";
+        }
+        finally
+        {
+            isUploading = false;
+            selectedFile = null;
+            StateHasChanged();
+        }
+    }
+}

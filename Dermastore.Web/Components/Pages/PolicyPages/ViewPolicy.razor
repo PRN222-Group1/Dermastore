@@ -1,68 +1,80 @@
-﻿@* @page "/policy" *@
-@* @inject             IFirebaseService FirebaseService *@
-@* @rendermode InteractiveServer *@
-@* @inject IJSRuntime JS *@
+﻿@page "/policy"
+@using MediatR
+@using Dermastore.Application.Queries.Policies
+@rendermode InteractiveServer
+@inject IMediator Mediator
 
-@* <h3>View Policy</h3> *@
-@* <h2>Our Policy</h2> *@
+<div class="banner-wrapper">
+    <div class="banner-bg"></div>       <div class="banner-overlay"></div>  <div class="banner-content text-center">
+        <h2 class="text-white fw-bold">Warranty Policy</h2>
+        <p class="text-white">We are here to assist you with any questions.</p>
+    </div>
+</div>
 
-@* <canvas id="pdfCanvas" style="border:1px solid #ccc;"></canvas> *@
+<div class="container my-5 text-center">
+    <h3 class="mb-4">Policy</h3>
 
-@* @if (string.IsNullOrEmpty(policyUrl)) *@
-@* { *@
-@*     <p>Loading policy...</p> *@
-@* } *@
+    @if (string.IsNullOrEmpty(policyUrl))
+    {
+        <p class="text-muted">Loading policy...</p>
+    }
+    else
+    {
+        <div class="mx-auto" style="max-width: 800px;">
+            <iframe src="@policyUrl" style="width: 100%; height: 800px; border: none;"></iframe>
+        </div>
+    }
+</div>
 
-@* @code { *@
-@*     private string policyUrl; *@
+<style>
+    /* Banner Container */
+    .banner-wrapper {
+        position: relative;
+        height: 300px;
+        overflow: hidden;
+    }
 
-@*     protected override async Task OnInitializedAsync() *@
-@*     { *@
-@*         policyUrl = await FirebaseService.GetPolicyUrlAsync("policy.pdf"); *@
-@*         Console.WriteLine($"Policy URL: {policyUrl}"); *@
-@*     } *@
+    /* Blurred Background Image */
+    .banner-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("https://cdn3.vectorstock.com/i/1000x1000/32/02/customer-service-word-concepts-banner-vector-28883202.jpg") no-repeat center center;
+        background-size: cover;
+        filter: blur(4px); /* Adjust blur level as needed */
+        z-index: 1; /* Background layer */
+    }
 
-@*     protected override async Task OnAfterRenderAsync(bool firstRender) *@
-@*     { *@
-@*         if (firstRender && !string.IsNullOrEmpty(policyUrl)) *@
-@*         { *@
-@*             Console.WriteLine("Rendering PDF with URL: " + policyUrl); *@
-@*             await JS.InvokeVoidAsync("renderPDF", policyUrl); *@
-@*         } *@
-@*     } *@
-@* } *@
+    /* Light Green Overlay */
+    .banner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(144, 238, 144, 0.4); /* Light green with 40% opacity. Adjust color and opacity (0.0 to 1.0) as needed */
+        z-index: 2; /* Overlay layer - above background */
+    }
 
-@* <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script> *@
-@* <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"></script> *@
-@* <script> *@
-@*     window.renderPDF = function (url) { *@
-@*         if (!window['pdfjs-dist/build/pdf']) { *@
-@*             console.error("PDF.js not loaded!"); *@
-@*             return; *@
-@*         } *@
-@*         const pdfjsLib = window['pdfjs-dist/build/pdf']; *@
-@*         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js'; *@
 
-@*         pdfjsLib.getDocument(url).promise.then(function(pdf) { *@
-@*             pdf.getPage(1).then(function(page) { *@
-@*                 const scale = 1.5; *@
-@*                 const viewport = page.getViewport({ scale: scale }); *@
-@*                 const canvas = document.getElementById('pdfCanvas'); *@
-@*                 if (!canvas) { *@
-@*                     console.error("Canvas not found!"); *@
-@*                     return; *@
-@*                 } *@
-@*                 const context = canvas.getContext('2d'); *@
-@*                 canvas.height = viewport.height; *@
-@*                 canvas.width = viewport.width; *@
-@*                 const renderContext = { *@
-@*                     canvasContext: context, *@
-@*                     viewport: viewport *@
-@*                 }; *@
-@*                 page.render(renderContext); *@
-@*             }); *@
-@*         }).catch(function(error) { *@
-@*             console.error("Error rendering PDF: ", error.message, error.stack); *@
-@*         }); *@
-@*     } *@
-@* </script> *@
+    /* Text on Top */
+    .banner-content {
+        position: relative;
+        z-index: 3; /* Content layer - above overlay */
+        top: 50%;
+        transform: translateY(-50%);
+    }
+</style>
+
+@code {
+    private string policyUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Retrieve the policy PDF URL (e.g., "policy.pdf") from your mediator query.
+        var query = new GetPolicyQuery("policy.pdf");
+        policyUrl = await Mediator.Send(query);
+    }
+}
