@@ -1,6 +1,7 @@
 ﻿using Dermastore.Domain.Entities;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Infrastructure.Data;
+using Dermastore.Infrastructure.Services;
 using Dermastore.Infrastructure.Services.Firebase;
 using Dermastore.Web.Components;
 using Dermastore.Web.Extensions;
@@ -13,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddScoped<IFirebaseService, FirebaseService>();
+builder.Services.AddScoped<IPromotionService, PromotionService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
