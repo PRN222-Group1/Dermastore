@@ -1,6 +1,7 @@
 ﻿@page "/callback"
 @using Dermastore.Application.Commands.Vnpays
 @using Dermastore.Web.Containers
+@using Dermastore.Web.Interfaces
 @using MediatR
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 
@@ -8,7 +9,7 @@
 @inject NavigationManager Navigation
 @inject CartStateContainer CartStateContainer
 @inject ProtectedLocalStorage ProtectedLocalStorage
-@rendermode InteractiveServer
+@inject ISignalRService SignalRService
 
 <div class="d-flex flex-column justify-content-center align-items-center vh-100">
     @if (isProcessing)
@@ -26,12 +27,12 @@
             @if (paymentResult.Value != -1)
             {
                 <p>Your order has been paid successfully. Thank you for your purchase!</p>
-                <a class="btn btn-secondary" href="/orders/@paymentResult">Go to Orders</a>
+                <a class="btn btn-secondary text-white" href="/orders/details/@paymentResult">Go to Orders</a>
             }
             else
             {
                 <p>There was an issue with your payment. Please try again.</p>
-                <a class="btn btn-secondary" href="/orders">Go to Orders</a>
+                <a class="btn btn-secondary text-white" href="/orders">Go to Orders</a>
             }
         </div>
     }
@@ -40,27 +41,6 @@
 @code {
     private int? paymentResult;
     private bool isProcessing = true;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var result = await ProtectedLocalStorage.GetAsync<string>("cartId");
-            if (result.Success && result.Value != null)
-            {
-                await CartStateContainer.LoadCartAsync(result.Value);
-            }
-
-            // Use InvokeAsync to switch to the Dispatcher when modifying UI state
-            CartStateContainer.OnChange += async () => await InvokeAsync(StateHasChanged);
-
-            // Clear Cart
-            await ClearCart();
-
-            // Ensure the state changes after rendering
-            await InvokeAsync(StateHasChanged);
-        }
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -74,6 +54,9 @@
 
             // Send the command to process the callback
             paymentResult = await Mediator.Send(new ProcessCallbackCommand(query));
+
+            // Send SignalR message to load order
+            await SignalRService.LoadOrders();
         }
         catch (Exception ex)
         {
@@ -85,13 +68,6 @@
             // Mark as processing completed
             isProcessing = false;
         }
-    }
-
-    // Clear the cart after payment
-    private async Task ClearCart()
-    {
-        await CartStateContainer.DeleteCartAsync();
-        await ProtectedLocalStorage.DeleteAsync("cartId");
     }
 
     private string GetAlertClass(int result) => result != -1 ? "alert-success" : "alert-danger";

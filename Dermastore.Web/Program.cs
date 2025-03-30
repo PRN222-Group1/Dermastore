@@ -2,6 +2,7 @@
 using Dermastore.Infrastructure.Data;
 using Dermastore.Web.Components;
 using Dermastore.Web.Extensions;
+using Dermastore.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using VNPAY.NET;
@@ -27,6 +28,8 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+app.MapHub<SignalRServer>(builder.Configuration["SignalRUrl"]);
 
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 

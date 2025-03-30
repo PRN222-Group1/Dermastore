@@ -1,17 +1,11 @@
-﻿using Dermastore.Domain.Entities;
-using Dermastore.Domain.Entities.OrderAggregate;
+﻿using Dermastore.Domain.Entities.OrderAggregate;
 using Dermastore.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dermastore.Domain.Specifications.Orders
 {
     public class OrderSpecification : BaseSpecification<Order>
     {
-        public OrderSpecification()
+        public OrderSpecification() : base(x => x.Status == OrderStatus.Completed)
         {
             AddInclude(p => p.OrderItems);
             AddOrderBy(p => p.Id);
@@ -23,6 +17,7 @@ namespace Dermastore.Domain.Specifications.Orders
             || x.User.PhoneNumber.Equals(specParams.Search)
             || x.User.Email.ToLower().Equals(specParams.Search.ToLower())) 
             && (!specParams.UserId.HasValue || x.User.Id == specParams.UserId.Value)
+            && (!specParams.Year.HasValue || x.OrderDate.Year == specParams.Year.Value)
             && (string.IsNullOrEmpty(specParams.Status) || x.Status == ParseStatus<OrderStatus>(specParams.Status)))
         {
             AddInclude(p => p.User);

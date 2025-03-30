@@ -13,6 +13,7 @@
 @using Dermastore.Application.Queries.Users
 @using Dermastore.Web.Containers
 @using Dermastore.Web.Extensions
+@using Dermastore.Web.Interfaces
 @using Dermastore.Web.Providers
 @using MediatR
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
@@ -23,6 +24,7 @@
 @inject AuthStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
+@inject ISignalRService SignalRService
 
 <BlazoredToasts Position="ToastPosition.TopRight"
 Timeout="5"
@@ -325,10 +327,16 @@ WarningIcon="fa fa-exclamation-circle" />
         {
             appliedPromotion = await Mediator.Send(new GetPromotionQuery(promotionCode));
         }
-
-        CartStateContainer.Cart.Promotion = appliedPromotion;
-        await CartStateContainer.UpdateCartAsync(CartStateContainer.Cart);
-        ToastService.ShowSuccess("Applied promotion: " + appliedPromotion.Code);
+        if (appliedPromotion != null)
+        {
+            CartStateContainer.Cart.Promotion = appliedPromotion;
+            await CartStateContainer.UpdateCartAsync(CartStateContainer.Cart);
+            ToastService.ShowSuccess("Applied promotion: " + appliedPromotion.Code);
+        }
+        else
+        {
+            ToastService.ShowError("Promo code does not exist");
+        }
     }
 
     // Change delivery method and save to the cart
@@ -435,7 +443,11 @@ WarningIcon="fa fa-exclamation-circle" />
         var url = await Mediator.Send(paymentCommand);
 
         NavigationManager.NavigateTo(url);
-    }
 
-    
+        // Delay to load VnPay payment page
+        await Task.Delay(3000);
+
+        // Send SignalR message to load new order
+        await SignalRService.LoadOrders();
+    }
 }

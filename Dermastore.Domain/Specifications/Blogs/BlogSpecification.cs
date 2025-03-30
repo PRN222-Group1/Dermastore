@@ -8,6 +8,7 @@ namespace Dermastore.Domain.Specifications.Blogs
         public BlogSpecification(BlogSpecParams specParams) 
             : base(x => (string.IsNullOrEmpty(specParams.Search)
                     || x.Title.ToLower().Contains(specParams.Search.ToLower()))
+                    && (!specParams.UserId.HasValue || x.UserId == specParams.UserId.Value)
                     && (string.IsNullOrEmpty(specParams.Status) || x.Status == ParseStatus<BlogStatus>(specParams.Status)))
         {
             AddInclude(p => p.User);

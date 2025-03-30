@@ -1,13 +1,13 @@
 ﻿@page "/orders"
-@using Dermastore.Domain.Entities.OrderAggregate
+
 @using Dermastore.Application.Queries.Orders.GetOrders
 @using Dermastore.Application.DTOs.Orders
-@using Dermastore.Domain.Specifications.Orders
 @using Dermastore.Web.Components.Pages.Shared.order
 @using Dermastore.Web.Extensions
 @using Dermastore.Web.Providers
 @using MediatR
 @using Microsoft.AspNetCore.Authorization
+@using Dermastore.Domain.Specifications.Orders
 @using Microsoft.EntityFrameworkCore.Metadata.Internal
 
 @rendermode InteractiveServer
@@ -85,6 +85,7 @@
     </div>
 </div>
 
+<script src="/js/pages/orders.js"></script>
 
 @code {
     private IReadOnlyList<OrderDto>? orders;

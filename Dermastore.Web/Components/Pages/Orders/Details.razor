@@ -1,4 +1,4 @@
-﻿@page "/orders/{Id:int}"
+﻿@page "/orders/details/{Id:int}"
 
 @using Blazored.Toast.Configuration
 @using Dermastore.Application.Commands.Orders
@@ -6,6 +6,7 @@
 @using Dermastore.Application.DTOs.Orders
 @using Dermastore.Application.Queries.Orders.GetOrderById
 @using Dermastore.Web.Extensions
+@using Dermastore.Web.Interfaces
 @using Dermastore.Web.Providers
 @using Dermastore.Web.Utils
 @using MediatR
@@ -16,6 +17,7 @@
 @inject NavigationManager NavigationManager
 @inject AuthStateProvider AuthStateProvider
 @inject IToastService ToastService
+@inject ISignalRService SignalRService
 @attribute [Authorize(Roles = "Customer,Staff")]
 
 <PageTitle>Order Details</PageTitle>

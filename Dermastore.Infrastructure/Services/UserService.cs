@@ -35,7 +35,7 @@ namespace Dermastore.Infrastructure.Services
             return userRole;
         }
 
-        private async Task<IList<User>> GetUsersInRoleAsync(string role)
+        public async Task<IList<User>> GetUsersInRoleAsync(string role)
         {
             return await _userManager.GetUsersInRoleAsync(role);
         }
