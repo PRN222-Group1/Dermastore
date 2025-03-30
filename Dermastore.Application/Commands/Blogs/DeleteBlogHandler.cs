@@ -1,4 +1,5 @@
 ﻿using Dermastore.Domain.Entities;
+using Dermastore.Domain.Enums;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Domain.Specifications.Blogs;
 using MediatR;
@@ -19,7 +20,7 @@ namespace Dermastore.Application.Commands.Blogs
             var spec = new BlogSpecification(request.Id);
             var blog = await _blogRepository.GetEntityWithSpec(spec);
 
-            _blogRepository.Delete(blog);
+            blog.Status = BlogStatus.Draft;
             var result = await _blogRepository.SaveAllAsync();
 
             return result;

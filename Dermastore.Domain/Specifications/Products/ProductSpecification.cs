@@ -21,8 +21,7 @@ namespace Dermastore.Domain.Specifications.Products
             (!productParams.BrandIds.Any() || productParams.BrandIds.Contains(x.BrandId)) &&
             ((!productParams.StartPrice.HasValue || !productParams.EndPrice.HasValue) 
             || (x.Price >= productParams.StartPrice && x.Price <= productParams.EndPrice)) &&
-            (!string.IsNullOrEmpty(productParams.Status) ? x.Status == ParseStatus<ProductStatus>(productParams.Status) 
-            : x.Status == ParseStatus<ProductStatus>("InStock"))
+            (string.IsNullOrEmpty(productParams.Status) || x.Status == ParseStatus<ProductStatus>(productParams.Status))
         )
         {
             AddInclude(p => p.SubCategory);

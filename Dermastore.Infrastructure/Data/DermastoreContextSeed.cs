@@ -142,6 +142,20 @@ namespace Dermastore.Infrastructure.Data
                 }
             }
 
+            if (!context.Blogs.Any())
+            {
+                var blogData = await File
+                    .ReadAllTextAsync(path + @"/Data/SeedData/blogs.json");
+
+                var blogs = JsonSerializer.Deserialize<List<Blog>>(blogData, options);
+
+                if (blogs == null) return;
+
+                context.Blogs.AddRange(blogs);
+
+                await context.SaveChangesAsync();
+            }
+
             if (!context.Categories.Any())
             {
                 var catData = await File

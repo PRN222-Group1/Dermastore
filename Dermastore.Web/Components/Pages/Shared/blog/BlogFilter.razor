@@ -1,0 +1,87 @@
+﻿@using Dermastore.Application.DTOs
+@using Dermastore.Application.Queries.Products
+@using Dermastore.Domain.Specifications.Blogs
+@using Dermastore.Domain.Specifications.Products
+@using MediatR
+@rendermode InteractiveServer
+@inject IMediator Mediator
+
+<div class="filters p-3 border rounded shadow-sm">
+    <!-- Search Bar -->
+    <div class="mb-3">
+        <h5 class="text-primary"><strong>Search Blogs</strong></h5>
+        <input type="text" class="form-control" placeholder="Search blogs..."
+        @bind="BlogSpecParams.Search" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(Role) && Role.Equals("Staff"))
+    {
+        <!-- Filter By Status -->
+        <div class="mb-3">
+            <h5 class="text-primary"><strong>Status</strong></h5>
+            <select class="form-select" @bind="BlogSpecParams.Status">
+                <option value="">Select a status</option>
+                <option value="Published">Published</option>
+                <option value="Draft">Draft</option>
+            </select>
+        </div>
+    }
+
+    <!-- Sort By Filter -->
+    <div class="mb-3">
+        <h5 class="text-primary"><strong>Sort By</strong></h5>
+        <select class="form-select" @bind="BlogSpecParams.Sort">
+            <option value="nameAsc">Name, A to Z</option>
+            <option value="nameDesc">Name, Z to A</option>
+            <option value="dateAsc">Date, Oldest</option>
+            <option value="dateDesc">Date, Latest</option>
+        </select>
+    </div>
+
+    <!-- Apply Filters Button -->
+    <div class="text-center">
+        <button class="btn btn-primary" @onclick="ApplyFilters"><i class="fa fa-search me-2"></i> Apply Filters</button>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center mt-5">
+    <!-- Pagination Controls -->
+    <ul class="pagination">
+        @for (var i = 1; i <= TotalPages; i++)
+        {
+            var pageNumber = i;
+            <li class="page-item @(i == BlogSpecParams.PageIndex ? "active" : "")">
+                <a class="page-link" style="cursor: pointer;" @onclick="(() => SetPage(pageNumber))">@i</a>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter]
+    public BlogSpecParams BlogSpecParams { get; set; } = new();
+
+    [Parameter]
+    public int TotalPages { get; set; }
+
+    [Parameter]
+    public string? Role { get; set; }
+
+    [Parameter]
+    public EventCallback OnFilterChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnPageChanged { get; set; }
+
+    private async Task ApplyFilters()
+    {
+        BlogSpecParams.PageIndex = 1;
+        await OnFilterChanged.InvokeAsync();
+    }
+
+    private async Task SetPage(int pageIndex)
+    {
+        BlogSpecParams.PageIndex = pageIndex;
+        await OnPageChanged.InvokeAsync();
+    }
+}

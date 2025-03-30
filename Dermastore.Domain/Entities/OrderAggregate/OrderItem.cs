@@ -7,5 +7,7 @@
         public int Quantity { get; set; }
         public int? FeedbackId { get; set; }
         public Feedback? Feedback { get; set; }
+
+
     }
 }

@@ -27,6 +27,7 @@ else
         try
         {
             PaymentUrl = await Mediator.Send(new CreatePaymentUrlCommand(orderId));
+            NavigationManager.NavigateTo(PaymentUrl, forceLoad: true);
         }
         catch (Exception ex)
         {

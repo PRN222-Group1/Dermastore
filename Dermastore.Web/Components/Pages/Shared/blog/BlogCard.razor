@@ -1,0 +1,43 @@
+﻿@using Dermastore.Application.DTOs
+@using Dermastore.Application.DTOs.Blogs
+@using Dermastore.Web.Providers
+@using Dermastore.Web.Utils
+@inject NavigationManager NavigationManager
+@inject AuthStateProvider AuthStateProvider
+
+<div>
+    <a href="@($"blogs/details/{Blog.Id}")" class="card-link">
+        <div class="card h-100 shadow-sm clickable-card" style="min-height: 550px;">
+            @* Thêm hình ảnh cho blog card *@
+            <img class="card-img-top" src="@(string.IsNullOrEmpty(Blog.ImageUrl) ? "/assets/default.jpg" : Blog.ImageUrl)" alt="@Blog.Title" />
+            <div class="card-body">
+                <h5 class="card-title">@Blog.Title</h5>
+                <p class="card-text">
+                    @HtmlFormatter.FormatContentWithSubstring(Blog.Content, 150)
+                </p>
+            </div>
+            <div class="card-footer bg-white border-0">
+                <small class="text-muted">Date Published: @Blog.DatePublished.ToString("dd/MM/yyyy")</small>
+            </div>
+        </div>
+    </a>
+    @if (!string.IsNullOrEmpty(Role) && Role.Equals("Staff"))
+    {
+        <div class="d-flex justify-content-center gap-2 mt-3">
+            <div>
+                <a href="/blogs/edit/@Blog.Id" class="btn btn-primary"><i class="fa fa-edit"></i></a>
+            </div>
+            <div>
+                <a href="/blogs/delete/@Blog.Id" class="btn btn-outline-danger"><i class="fa fa-trash"></i></a>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public BlogDto Blog { get; set; }
+
+    [Parameter]
+    public string Role { get; set; }
+}

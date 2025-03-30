@@ -61,14 +61,14 @@ namespace Dermastore.Application.Commands.Vnpays
                     throw new ArgumentException("Failed to upgrade user membership");
                 }
 
-                order.Status = OrderStatus.Complete;
+                order.Status = OrderStatus.Completed;
 
                 if (orderId <= 0)
                     throw new ArgumentException("Cannot find order");
             }
             else
             {
-                order.Status = OrderStatus.Failed;
+                order.Status = OrderStatus.Cancelled;
             }
 
             // Update status
