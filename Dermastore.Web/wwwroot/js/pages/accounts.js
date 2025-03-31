@@ -3,7 +3,7 @@
 var connection = new signalR.HubConnectionBuilder().withUrl("/signalRServer").build();
 
 connection.on("LoadAccounts", function () {
-    location.href = '/accounts';
+    location.href = '/profile';
 });
 
 connection.start().catch(function (err) {

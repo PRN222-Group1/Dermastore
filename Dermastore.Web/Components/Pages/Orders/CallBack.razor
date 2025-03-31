@@ -57,6 +57,8 @@
 
             // Send SignalR message to load order
             await SignalRService.LoadOrders();
+            await SignalRService.LoadDashboard();
+            await SignalRService.LoadAccounts();
         }
         catch (Exception ex)
         {
