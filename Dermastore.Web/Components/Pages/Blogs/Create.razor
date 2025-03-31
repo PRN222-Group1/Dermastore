@@ -1,0 +1,85 @@
+﻿@page "/blogs/create"
+@using Dermastore.Application.Commands.Blogs
+@using Dermastore.Application.DTOs.Blogs
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Providers
+@using MediatR
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+@inject AuthStateProvider AuthStateProvider
+@inject IMediator Mediator
+@attribute [Authorize(Roles = "Staff")]
+
+<PageTitle>Create Blog</PageTitle>
+
+<style>
+    .create-card {
+    max-width: 600px;
+    margin: auto;
+    }
+
+    .card-header {
+    background-color: #588157;
+    color: white;
+    padding: 1rem;
+    }
+
+    .back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    }
+</style>
+
+<div class="container my-5 position-relative">
+
+    <div class="create-card">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <!-- Back Button in Top Left Corner -->
+                <a class="btn btn-primary text-white" href="/blogs">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="mb-0">Create Blog</h2>
+            </div>
+            <div class="card-body">
+                <EditForm method="post" Model="blogDto" OnValidSubmit="AddBlog" FormName="create" Enhance>
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" role="alert" />
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title:</label>
+                        <InputText id="title" @bind-Value="blogDto.Title" class="form-control" />
+                        <ValidationMessage For="() => blogDto.Title" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Content:</label>
+                        <InputTextArea id="content" @bind-Value="blogDto.Content" class="form-control" Rows="8" />
+                        <ValidationMessage For="() => blogDto.Content" class="text-danger" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private BlogToAddDto blogDto { get; set; } = new();
+
+    private async Task AddBlog()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        blogDto.UserId = authUser.GetCurrentUserId().Value;
+
+        // Create command using DTO
+        var command = new CreateBlogCommand(blogDto);
+
+        // Send command using MediatR
+        var blogId = await Mediator.Send(command);
+
+        // Navigate to blog details
+        NavigationManager.NavigateTo($"/blogs/details/{blogId}");
+    }
+}

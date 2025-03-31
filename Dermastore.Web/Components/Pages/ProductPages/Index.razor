@@ -4,15 +4,17 @@
 @using Dermastore.Application.Queries.Products
 @using Dermastore.Domain.Specifications.Products
 @using Dermastore.Web.Components.Pages.Shared.product
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Providers
 @using MediatR
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Dermastore.Domain.Entities
 @using Dermastore.Domain.Interfaces
 @using Dermastore.Infrastructure.Services
-@rendermode InteractiveServer
 @inject IMediator Mediator
-@inject IProductService _productService
+@inject AuthStateProvider AuthStateProvider
+@rendermode InteractiveServer
 
 <div class="mt-5">
     <div class="row">
@@ -25,10 +27,6 @@
         </div>
 
         <div class="col-md-9">
-            <p>
-                <a href="products/create" class="btn btn-primary">Add Product</a>
-            </p>
-
             @if (products != null && products.Any())
             {
                 <div class="row gx-1 gy-4">
@@ -52,6 +50,9 @@
     [SupplyParameterFromQuery]
     public int? SubCategory { get; set; }
 
+    [SupplyParameterFromQuery]
+    public string? Search { get; set; }
+
     private IReadOnlyList<ProductDto> products;
     private ProductSpecParams ProductSpecParams { get; set; } = new();
     private int TotalPages;
@@ -66,6 +67,13 @@
             ProductSpecParams.SubCategoryIds.Add(SubCategory.Value);
             SubCategory = null;
         }
+
+        if (!string.IsNullOrEmpty(Search))
+        {
+            ProductSpecParams.Search = Search;
+            Search = null;
+        }
+
         var productQuery = new GetProductsQuery(ProductSpecParams);
         products = await Mediator.Send(productQuery);
 

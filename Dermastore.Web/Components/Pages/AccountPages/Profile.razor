@@ -1,0 +1,323 @@
+﻿@page "/profile"
+
+@using System.Security.Claims
+@using Blazored.Toast.Configuration
+@using Dermastore.Application.Commands.Users
+@using Dermastore.Application.DTOs
+@using Dermastore.Application.DTOs.AccountDTOs
+@using Dermastore.Application.Queries.Users
+@using Dermastore.Domain.Entities
+@using Dermastore.Domain.Interfaces
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Providers
+@using Dermastore.Application.Extensions
+@using MediatR
+@using Microsoft.AspNetCore.Authorization
+
+@rendermode InteractiveServer
+@inject IToastService ToastService
+@inject IUserService UserService
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+@inject AuthStateProvider AuthStateProvider
+@inject IConfiguration configuration
+@attribute [Authorize(Roles = "Customer")]
+
+<BlazoredToasts Position="ToastPosition.TopRight"
+                Timeout="5"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast"
+                SuccessIcon="fa fa-check-circle"
+                ErrorClass="error-toast"
+                ErrorIcon="fa fa-times-circle"
+                InfoClass="info-toast"
+                InfoIcon="fa fa-info-circle"
+                WarningClass="warning-toast"
+                WarningIcon="fa fa-exclamation-circle" />
+
+<div class="profile-container">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-12 col-lg-10">
+                <div class="card shadow-lg border-0 rounded-3">
+                    <div class="card-header bg-secondary text-white text-center py-4">
+                        <h2 class="font-weight-bold mb-0">My Profile</h2>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <div class="row mb-5">
+                            <div class="col-md-4 text-center">
+                                <div class="avatar-container mb-3">
+                                    @if (string.IsNullOrEmpty(profileImageUrl))
+                                    {
+                                        <div class="profile-avatar-placeholder">
+                                            <span>@(profileDto.FirstName?.FirstOrDefault().ToString().ToUpper())@(profileDto.LastName?.FirstOrDefault().ToString().ToUpper())</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <img src="@profileImageUrl" alt="Profile Avatar" class="profile-avatar" />
+                                    }
+                                    <button @onclick="UploadAvatar" class="btn btn-sm btn-outline-primary mt-2">
+                                        <i class="bi bi-camera"></i> Change Photo
+                                    </button>
+                                </div>
+
+                                <div class="membership-card">
+                                    <div class="membership-header">
+                                        <h4>@(currentMembership?.Name ?? "No Membership")</h4>
+                                    </div>
+                                    <div class="membership-body">
+                                        <div class="points-display">
+                                            <span class="points-label">Points</span>
+                                            <span class="points-value">@userPoint</span>
+                                        </div>
+                                        @if (currentMembership != null)
+                                        {
+                                            <div class="discount-display">
+                                                <span class="discount-value">@(currentMembership.Discount * 100)%</span>
+                                                <span class="discount-label">Discount</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="membership-footer">
+                                        <button class="btn btn-sm btn-outline-light">View Benefits</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-8">
+                                <EditForm method="post" Model="profileDto" OnValidSubmit="UpdateProfile" FormName="create" Enhance>
+                                    <DataAnnotationsValidator />
+
+                                    <div class="row mb-4">
+                                        <div class="col-sm-6 mb-3">
+                                            <label for="firstname" class="form-label fw-bold">First Name</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                                <InputText id="firstname" @bind-Value="profileDto.FirstName" class="form-control" placeholder="Enter first name" />
+                                            </div>
+                                            <ValidationMessage For="() => profileDto.FirstName" class="text-danger small" />
+                                        </div>
+                                        <div class="col-sm-6 mb-3">
+                                            <label for="lastname" class="form-label fw-bold">Last Name</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                                <InputText id="lastname" @bind-Value="profileDto.LastName" class="form-control" placeholder="Enter last name" />
+                                            </div>
+                                            <ValidationMessage For="() => profileDto.LastName" class="text-danger small" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-sm-6 mb-3">
+                                            <label for="email" class="form-label fw-bold">Email Address</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                                <InputText id="email" @bind-Value="profileDto.Email" class="form-control" placeholder="Enter email" />
+                                            </div>
+                                            <ValidationMessage For="() => profileDto.Email" class="text-danger small" />
+                                        </div>
+                                        <div class="col-sm-6 mb-3">
+                                            <label for="phonenumber" class="form-label fw-bold">Phone Number</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                                <InputText id="phonenumber" @bind-Value="profileDto.PhoneNumber" class="form-control" placeholder="Enter phone number" />
+                                            </div>
+                                            <ValidationMessage For="() => profileDto.PhoneNumber" class="text-danger small" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-sm-6 mb-3">
+                                            <label for="gender" class="form-label fw-bold">Gender</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-gender-ambiguous"></i></span>
+                                                <select id="gender" @bind="profileDto.Gender" class="form-select">
+                                                    <option value="0">Male</option>
+                                                    <option value="1">Female</option>
+                                                </select>
+                                            </div>
+                                            <ValidationMessage For="() => profileDto.Gender" class="text-danger small" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-12 mb-3">
+                                            <label for="address" class="form-label fw-bold">Address</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                                <InputText id="address" @bind-Value="profileDto.Address" class="form-control" placeholder="Enter your full address" />
+                                            </div>
+                                            <ValidationMessage For="() => profileDto.Address" class="text-danger small" />
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid mt-4">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="bi bi-check2-circle me-2"></i>Save Profile
+                                        </button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/pages/accounts.js"></script>
+
+<style>
+    /* Profile Avatar Styles */
+    .avatar-container {
+    position: relative;
+    margin-bottom: 20px;
+    }
+
+    .profile-avatar, .profile-avatar-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    }
+
+    .profile-avatar-placeholder span {
+    font-size: 3rem;
+    color: white;
+    font-weight: bold;
+    }
+
+    /* Membership Card Styles */
+    .membership-card {
+    background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+    border-radius: 15px;
+    overflow: hidden;
+    color: white;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    }
+
+    .membership-header {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .membership-header h4 {
+    margin: 0;
+    font-weight: 600;
+    color: #f8f9fa;
+    }
+
+    .membership-body {
+    padding: 15px;
+    display: flex;
+    justify-content: space-around;
+    }
+
+    .points-display, .discount-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    }
+
+    .points-value, .discount-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #f8f9fa;
+    }
+
+    .points-label, .discount-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    }
+
+    .membership-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .form-label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #495057;
+    }
+
+    .bi {
+    line-height: 1;
+    }
+</style>
+
+@code {
+    [SupplyParameterFromForm]
+    private ProfileToUpdateDto profileDto { get; set; } = new();
+    private ClaimsPrincipal? currentUser;
+    private MembershipDto? currentMembership;
+    private int userPoint;
+    private string? profileImageUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        currentUser = authState.User;
+        var user = await GetCurrentUserProfile();
+
+        // Populate profile information
+        profileDto.Id = user.Id;
+        profileDto.FirstName = user.FirstName;
+        profileDto.LastName = user.LastName;
+        profileDto.PhoneNumber = user.PhoneNumber;
+        profileDto.Address = user.Address;
+        profileDto.Email = user.Email;
+        profileDto.Gender = user.Gender == "Male" ? 0 : 1;
+
+        // Populate user points and membership
+        currentMembership = user.Membership;
+        userPoint = user.Point;
+
+        // Todo: Replace with actual profile image if available
+        profileImageUrl = user.ImageUrl;
+    }
+
+    private async Task<UserDto> GetCurrentUserProfile()
+    {
+        var query = new GetUserQuery(currentUser.GetCurrentUserId());
+        var user = await Mediator.Send(query);
+        return user.ToDto();
+    }
+
+    private async Task UpdateProfile()
+    {
+        // Create update profile
+        var command = new UpdateProfileCommand(profileDto);
+        var result = await Mediator.Send(command);
+
+        if (result)
+        {
+            ToastService.ShowSuccess("Profile Updated Successfully");
+        }
+        else
+        {
+            ToastService.ShowError("Update Profile Failed");
+        }
+    }
+
+    private void UploadAvatar()
+    {
+        // Todo: Implement avatar upload functionality
+        // This could open a file dialog or redirect to an upload page
+    }
+}

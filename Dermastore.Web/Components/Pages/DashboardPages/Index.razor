@@ -1,0 +1,216 @@
+﻿@page "/dashboard"
+@using Dermastore.Application.DTOs
+@using Dermastore.Application.Queries.Dashboard
+@using Dermastore.Web.Utils
+@using MediatR
+@inject IMediator Mediator
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<div class="container-fluid mt-4">
+    <h2 class="text-center mb-4">Dermastore Dashboard</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Orders by Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow" style="height: 650px;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Top Selling Product</h5>
+                </div>
+                <div class="card-body text-center">
+                    @if (topProduct != null && topProduct.Any())
+                    {
+                        var product = topProduct.Keys.FirstOrDefault();
+                        var quantity = topProduct.Values.FirstOrDefault();
+
+                        <img src="@product?.ImageUrl" alt="Product Image" class="img-fluid mb-3" style="max-width: 270px; height: auto;" />
+                        <h3>@product?.Name</h3>
+                        <p class="text-muted">@product?.Description</p>
+                        <div class="mt-3">
+                            <h4 class="mb-0">@quantity Units Sold</h4>
+                            <p class="text-success">@PriceFormatter.FormatPrice(product.Price)</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <p>Loading top product data...</p>
+                    }
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow" style="height: 650px;">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Staff Blog Activity</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="staffBlogChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="card-title mb-0">Monthly Sales (Units)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlySalesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Monthly Revenue</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyRevenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/pages/dashboard.js"></script>
+
+
+@code {
+    private Dictionary<string, int> blogsByStaff;
+    private Dictionary<string, int> ordersByStatus;
+    private Dictionary<ProductDto, int> topProduct;
+    private Dictionary<int, int> salesByMonth;
+    private Dictionary<int, decimal> revenueByMonth;
+    private int currentYear = DateTime.Now.Year;
+    private bool dataLoaded = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardData();
+        dataLoaded = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender || !dataLoaded)
+        {
+            return;
+        }
+
+        // Only render charts after data is loaded and component has rendered
+        await RenderCharts();
+
+        // Set back to false to prevent re-rendering charts unless data changes
+        dataLoaded = false;
+    }
+
+    private async Task LoadDashboardData()
+    {
+        // Get data for top selling product
+        var topSellingQuery = new GetMostSoldProductQuery();
+        topProduct = await Mediator.Send(topSellingQuery);
+
+        // Get blog counts by staff
+        var blogsQuery = new GetNumberOfBlogsByStaffQuery();
+        blogsByStaff = await Mediator.Send(blogsQuery);
+
+        // Get orders by status
+        ordersByStatus = new Dictionary<string, int>
+        {
+            { "Pending", await Mediator.Send(new GetNumberOfOrdersByStatusQuery("Pending")) },
+            { "Completed", await Mediator.Send(new GetNumberOfOrdersByStatusQuery("Completed")) },
+            { "Cancelled", await Mediator.Send(new GetNumberOfOrdersByStatusQuery("Cancelled")) }
+        };
+
+        // Get sales by month for selected year
+        salesByMonth = await Mediator.Send(new GetNumberOfItemSoldByMonthQuery(currentYear));
+
+        // Get revenue by month for selected year
+        revenueByMonth = await Mediator.Send(new GetRevenueByMonthQuery(currentYear));
+
+        // Trigger a render to update the UI
+        StateHasChanged();
+    }
+
+    private async Task RenderCharts()
+    {
+        await RenderOrderStatusChart();
+        await RenderStaffBlogChart();
+        await RenderMonthlySalesChart();
+        await RenderMonthlyRevenueChart();
+    }
+
+    private async Task RenderOrderStatusChart()
+    {
+        if (ordersByStatus == null || !ordersByStatus.Any())
+            return;
+
+        var labels = ordersByStatus.Keys.ToArray();
+        var data = ordersByStatus.Values.ToArray();
+        var backgroundColors = new[] { "#6c757d", "#28a745", "#dc3545" };
+
+        await JSRuntime.InvokeVoidAsync("renderPieChart", "orderStatusChart", labels, data, backgroundColors);
+    }
+
+    private async Task RenderStaffBlogChart()
+    {
+        if (blogsByStaff == null || !blogsByStaff.Any())
+            return;
+
+        var labels = blogsByStaff.Keys.ToArray();
+        var data = blogsByStaff.Values.ToArray();
+        var backgroundColors = GenerateColors(blogsByStaff.Count);
+
+        await JSRuntime.InvokeVoidAsync("renderBarChart", "staffBlogChart", labels, data, backgroundColors);
+    }
+
+    private async Task RenderMonthlySalesChart()
+    {
+        if (salesByMonth == null || !salesByMonth.Any())
+            return;
+
+        var sortedMonths = salesByMonth.OrderBy(x => x.Key).ToList();
+        var labels = sortedMonths.Select(x => GetMonthName(x.Key)).ToArray();
+        var data = sortedMonths.Select(x => x.Value).ToArray();
+
+        await JSRuntime.InvokeVoidAsync("renderLineChart", "monthlySalesChart", labels, data, "#ffc107");
+    }
+
+    private async Task RenderMonthlyRevenueChart()
+    {
+        if (revenueByMonth == null || !revenueByMonth.Any())
+            return;
+
+        var sortedMonths = revenueByMonth.OrderBy(x => x.Key).ToList();
+        var labels = sortedMonths.Select(x => GetMonthName(x.Key)).ToArray();
+        var data = sortedMonths.Select(x => (double)x.Value).ToArray();
+
+        await JSRuntime.InvokeVoidAsync("renderLineChart", "monthlyRevenueChart", labels, data, "#dc3545");
+    }
+
+    private string GetMonthName(int month)
+    {
+        return new DateTime(2023, month, 1).ToString("MMMM");
+    }
+
+    private string[] GenerateColors(int count)
+    {
+        var colors = new string[count];
+        for (int i = 0; i < count; i++)
+        {
+            var hue = i * (360 / count);
+            colors[i] = $"hsl({hue}, 70%, 60%)";
+        }
+        return colors;
+    }
+}

@@ -19,9 +19,35 @@ namespace Dermastore.Infrastructure.Config
             );
 
             builder.HasOne(o => o.Promotion).WithMany().HasForeignKey(o => o.PromotionId);
+            builder.HasOne(o => o.Membership).WithMany().HasForeignKey(o => o.MembershipId);
             builder.HasMany(o => o.OrderItems).WithOne().OnDelete(DeleteBehavior.Restrict);
             builder.HasOne(o => o.User).WithMany().HasForeignKey(o => o.UserId);
             builder.HasOne(o => o.DeliveryMethod).WithMany().HasForeignKey(o => o.DeliveryMethodId);
+
+            builder.HasOne(o => o.Promotion)
+                .WithMany()
+                .HasForeignKey(o => o.PromotionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                        builder.HasOne(o => o.Membership)
+                            .WithMany()
+                            .HasForeignKey(o => o.MembershipId)
+                            .OnDelete(DeleteBehavior.Restrict);
+
+                        builder.HasMany(o => o.OrderItems)
+                            .WithOne()
+                            .OnDelete(DeleteBehavior.Restrict);
+
+                        builder.HasOne(o => o.User)
+                            .WithMany()
+                            .HasForeignKey(o => o.UserId)
+                            .OnDelete(DeleteBehavior.Restrict);
+
+                        builder.HasOne(o => o.DeliveryMethod)
+                            .WithMany()
+                            .HasForeignKey(o => o.DeliveryMethodId)
+                            .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

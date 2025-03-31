@@ -1,0 +1,35 @@
+﻿@page "/accounts/logout"
+
+@using Dermastore.Domain.Entities
+@using Dermastore.Web.Containers
+@using Dermastore.Web.Providers
+@using MediatR
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+@inject IConfiguration configuration
+@inject AuthStateProvider AuthStateProvider
+@inject SignInManager<User> SignInManager
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<div class="container my-5">
+    <h2>Logging out...</h2>
+</div>
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SignInManager.SignOutAsync();
+        await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        AuthStateProvider.Logout();
+        NavigationManager.NavigateTo("/accounts/login");
+    }
+}

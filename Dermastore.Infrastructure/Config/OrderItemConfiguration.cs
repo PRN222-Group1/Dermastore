@@ -11,7 +11,7 @@ namespace Dermastore.Infrastructure.Config
             builder.OwnsOne(x => x.ItemOrdered, o =>
             {
                 o.Property(p => p.ProductName).HasColumnType("nvarchar(200)");
-                o.Property(p => p.ImageUrl).HasColumnType("varchar(200)");
+                o.Property(p => p.ImageUrl).HasColumnType("varchar(600)");
                 o.WithOwner();
             });
             builder.HasOne(x => x.Feedback).WithOne().HasForeignKey<OrderItem>(x => x.FeedbackId);

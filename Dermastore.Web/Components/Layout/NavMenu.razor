@@ -1,12 +1,17 @@
 ﻿@using Dermastore.Application.DTOs
 @using Dermastore.Application.Queries.Products
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Providers
 @using MediatR
 @using Dermastore.Web.Containers
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using System.Security.Claims
 @inject CartStateContainer CartStateContainer
 @inject ProtectedLocalStorage ProtectedLocalStore
-@rendermode InteractiveServer
+@inject AuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
 @inject IMediator Mediator
+@rendermode InteractiveServer
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-0">
     <div class="container-fluid ps-0">
@@ -22,7 +27,7 @@
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item dropdown p-3 d-flex align-items-center position-static">
                     <a class="nav-link dropdown-toggle" href="/products" id="categoryDropdown" role="button" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
+                    aria-haspopup="true" aria-expanded="false">
                         <i class="fa-solid fa-bag-shopping me-2"></i> Dermastore
                     </a>
                     <div class="dropdown-menu w-100 bg-secondary p-4 position-absolute top-100 start-0" aria-labelledby="categoryDropdown">
@@ -52,7 +57,7 @@
                                     <div class="promo-section">
                                         <a target="_blank" href="#">
                                             <img src="/assets/NavMenuPlaceholder.png"
-                                                 alt="Our Latest Products" class="img-fluid rounded mb-2" style="max-height: 300px; object-fit: cover;">
+                                            alt="Our Latest Products" class="img-fluid rounded mb-2" style="max-height: 300px; object-fit: cover;">
                                         </a>
                                         <p class="text-white mb-0">Our Latest Products</p>
                                     </div>
@@ -61,25 +66,86 @@
                         </div>
                     </div>
                 </li>
-                <!-- Rest of the navigation items remain the same -->
+
+                @if (string.IsNullOrEmpty(role) || (!string.IsNullOrEmpty(role) && !role.Equals("Manager")))
+                {
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/blogs" role="button">
+                            <i class="fa-solid fa-blog me-2"></i> Blogs
+                        </a>
+                    </li>
+
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/beauty-match" role="button">
+                            <i class="fa fa-check me-2"></i> Skin Test
+                        </a>
+                    </li>
+                }
+
                 <li class="nav-item p-3 d-flex align-items-center">
-                    <a class="nav-link" href="#" role="button">
-                        <i class="fa-solid fa-blog me-2"></i> Blogs
-                    </a>
-                </li>
-                <li class="nav-item p-3 d-flex align-items-center">
-                    <a class="nav-link" href="/beauty-match" role="button">
-                        <i class="fa fa-check me-2"></i> Skin Test
+                    <a class="nav-link" href="/policy" role="button">
+                        <i class="fa fa-lock me-2"></i> Policy
                     </a>
                 </li>
 
+
+                @if (!string.IsNullOrEmpty(role) && (role.Equals("Customer") || role.Equals("Staff")))
+                {
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/orders" role="button">
+                            <i class="fa-solid fa-receipt me-2"></i> Orders
+                        </a>
+                    </li>
+                }
+                
+
+                @if (!string.IsNullOrEmpty(role) && role.Equals("Manager"))
+                {
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/accounts" role="button">
+                            <i class="fa-solid fa-circle-user me-2"></i> Accounts
+                        </a>
+                    </li>
+
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/manage-product" role="button">
+                            <i class="fa fa-list-alt me-2"></i> Products
+                        </a>
+                    </li>
+
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/manage-promotion" role="button">
+                            <i class="fa fa-bullhorn me-2"></i> Promotions
+                        </a>
+                    </li>
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/dashboard" role="button">
+                            <i class="fa fa-bar-chart me-2"></i> Dashboard
+                        </a>
+                    </li>
+                }
+            </ul>
+
+
+            <!-- Section 3: Search Bar and Login Button -->
+            <div class="d-flex align-items-center">
+                <form class="d-flex me-3" @onsubmit="OnSubmitSearch">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Search products..." aria-label="Search"
+                               @bind="searchTerm">
+                        <button class="btn btn-light" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+
                 <!-- Cart Dropdown Items List -->
-                <li class="nav-item dropdown p-3 d-flex align-items-center">
+                <li class="nav-item dropdown py-3 px-0 d-flex align-items-center">
                     <a class="nav-link dropdown-toggle" href="/cart" id="cartDropdown" role="button" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                        <i class="fa-solid fa-cart-shopping me-2"></i> Cart
+                        <i class="fa-solid fa-cart-shopping me-2"></i>
                     </a>
-                    <div class="dropdown-menu bg-secondary p-4 position-absolute top-100" aria-labelledby="cartDropdown" style="min-width: 350px;">
+                    <div class="dropdown-menu bg-secondary p-4 position-absolute end-0 top-100" aria-labelledby="cartDropdown" style="min-width: 350px;">
                         @if (CartStateContainer.Cart != null && CartStateContainer.Cart.Items != null && CartStateContainer.Cart.Items.Any())
                         {
                             <ul class="list-unstyled bg-secondary">
@@ -87,7 +153,7 @@
                                 {
                                     <li class="d-flex align-items-center mb-3 bg-secondary">
                                         <img src="@cartItem.ImageUrl" alt="@cartItem.ProductName" class="img-fluid me-2"
-                                                style="width: 70px; height: 70px; object-fit: cover; border-radius: 4px;">
+                                             style="width: 70px; height: 70px; object-fit: cover; border-radius: 4px;">
                                         <div>
                                             <h6 class="text-white m-0">@cartItem.ProductName</h6>
                                             <small class="text-white">Price: @string.Format("{0}đ", cartItem.Price.ToString("N0"))</small>
@@ -105,23 +171,32 @@
                         }
                     </div>
                 </li>
-            </ul>
 
-            <!-- Section 3: Search Bar and Login Button -->
-            <div class="d-flex align-items-center">
-                <form class="d-flex me-3">
-                    <div class="input-group">
-                        <input class="form-control" type="search" placeholder="Search products..." aria-label="Search">
-                        <button class="btn btn-light" type="submit">
-                            <i class="fa fa-search"></i>
-                        </button>
+                @if (!string.IsNullOrEmpty(role) && role.Equals("Customer"))
+                {
+                    <li class="nav-item py-3 px-0 d-flex align-items-center">
+                        <a class="nav-link" href="/profile" role="button">
+                            <i class="fa-solid fa-circle-user"></i>
+                        </a>
+                    </li>
+                }
+
+                @if (user != null && user.Identity != null && user.Identity.IsAuthenticated)
+                {
+                    <div class="nav-item">
+                        <a class="nav-link" href="/accounts/logout" role="button">
+                            <i class="fa fa-sign-out me-2"></i> Logout
+                        </a>
                     </div>
-                </form>
-                <div class="nav-item">
-                    <a class="nav-link" href="/accounts/login" role="button">
-                        <i class="fa fa-sign-in me-2"></i> Login
-                    </a>
-                </div>
+                }
+                else
+                {
+                    <div class="nav-item">
+                        <a class="nav-link" href="/accounts/login" role="button">
+                            <i class="fa fa-sign-in me-2"></i> Login
+                        </a>
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -129,41 +204,62 @@
 
 <script>
     $(document).ready(function () {
-        if ($(window).width() >= 980) {
-            var timeout;
+    if ($(window).width() >= 980) {
+    var timeout;
 
-            // Show the dropdown menu when hovering over the toggle
-            $(".navbar .dropdown-toggle").hover(function () {
-                clearTimeout(timeout);
-                $(this).parent().addClass("show");
-                $(this).parent().find(".dropdown-menu").addClass("show");
-            });
+    // Show the dropdown menu when hovering over the toggle
+    $(".navbar .dropdown-toggle").hover(function () {
+    clearTimeout(timeout);
+    $(this).parent().addClass("show");
+    $(this).parent().find(".dropdown-menu").addClass("show");
+    });
 
-            // Delay closing the dropdown menu when moving the cursor away
-            $(".navbar .dropdown-menu").mouseleave(function () {
-                var $this = $(this);
-                timeout = setTimeout(function () {
-                    $this.removeClass("show");
-                    $this.parent().removeClass("show");
-                }, 300);  // Adjust delay (in milliseconds) as needed
-            });
+    // Delay closing the dropdown menu when moving the cursor away
+    $(".navbar .dropdown-menu").mouseleave(function () {
+    var $this = $(this);
+    timeout = setTimeout(function () {
+    $this.removeClass("show");
+    $this.parent().removeClass("show");
+    }, 300);  // Adjust delay (in milliseconds) as needed
+    });
 
-            // Also keep the dropdown open when hovering over the menu
-            $(".navbar .dropdown-menu").mouseenter(function () {
-                clearTimeout(timeout);
-            });
-        }
+    // Also keep the dropdown open when hovering over the menu
+    $(".navbar .dropdown-menu").mouseenter(function () {
+    clearTimeout(timeout);
+    });
+    }
     });
 </script>
 
 
 @code {
     private IReadOnlyList<CategoryDto> categories;
+    private ClaimsPrincipal? user;
+    private string role;
+    private string searchTerm = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         var categoryQuery = new GetCategoriesQuery();
         categories = await Mediator.Send(categoryQuery);
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+        role = user.GetUserRole();
+
+        // Subscribe to AuthenticationStateChanged event to trigger re-render on login/logout
+        AuthStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        // Re-render the component when the auth state changes
+        InvokeAsync(async () =>
+        {
+            user = (await task).User;
+            role = user.GetUserRole();
+            StateHasChanged(); // Trigger UI re-render
+        });
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -177,7 +273,20 @@
                 await CartStateContainer.LoadCartAsync(result.Value);
             }
 
-            CartStateContainer.OnChange += StateHasChanged;
+            // Use InvokeAsync to switch to the Dispatcher when modifying UI state
+            CartStateContainer.OnChange += async () => await InvokeAsync(StateHasChanged);
+
+            // Ensure the state changes after rendering
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnSubmitSearch()
+    {
+        // Redirect to the products page with the search term in the query string
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            NavigationManager.NavigateTo($"/products?search={searchTerm}");
         }
     }
 }

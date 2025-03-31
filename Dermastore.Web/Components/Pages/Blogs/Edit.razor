@@ -1,0 +1,97 @@
+﻿@page "/blogs/edit/{Id:int}"
+@using Dermastore.Application.Commands.Blogs
+@using Dermastore.Application.DTOs.Blogs
+@using Dermastore.Application.Queries.Blogs.GetBlogById
+@using MediatR
+@using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IMediator Mediator
+@attribute [Authorize(Roles = "Staff")]
+
+<PageTitle>Edit Blog</PageTitle>
+
+<style>
+    .edit-card {
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .card-header {
+        background-color: #588157;
+        color: white;
+        padding: 1rem;
+    }
+</style>
+
+<div class="container my-5 position-relative">
+    <div class="edit-card">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <!-- Back Button in Top Left Corner -->
+                <a class="btn btn-primary text-white" href="/blogs">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="mb-0">Edit Blog</h2>
+            </div>
+            <div class="card-body">
+                @if (blogDto is null)
+                {
+                    <p class="text-center"><em>Loading...</em></p>
+                }
+                else
+                {
+                    <div>
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title:</label>
+                            <input id="title" @bind="blogDto.Title" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Content:</label>
+                            <textarea id="content" @bind="blogDto.Content" class="form-control" Rows="8" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="status" class="form-label fw-bold">Status:</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fade fa-blog"></i></span>
+                                <select id="status" @bind="blogDto.Status" class="form-select">
+                                    <option value="0">Published</option>
+                                    <option value="1">Draft</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" @onclick="UpdateBlog">Save</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private BlogToUpdateDto blogDto { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var blogQuery = new GetBlogQuery(Id);
+        var blog = await Mediator.Send(blogQuery);
+
+        blogDto.Id = blog.Id;
+        blogDto.Title = blog.Title;
+        blogDto.Content = blog.Content;
+        blogDto.Status = blog.Status == "Published" ? 0 : 1;
+    }
+
+    private async Task UpdateBlog()
+    {
+        var command = new UpdateBlogCommand(blogDto);
+        var blogId = await Mediator.Send(command);
+        NavigationManager.NavigateTo($"/blogs/details/{blogId}");
+    }
+}

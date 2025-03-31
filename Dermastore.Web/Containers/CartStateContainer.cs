@@ -27,7 +27,6 @@ namespace Dermastore.Web.Containers
         }
 
         public event Action? OnChange;
-
         private void NotifyStateChanged() => OnChange?.Invoke();
 
         // Load cart from CartService using cartId from local storage

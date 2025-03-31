@@ -1,0 +1,104 @@
+﻿@page "/blogs"
+@using Dermastore.Application.DTOs.Blogs
+@using Dermastore.Application.Queries.Blogs.GetBlogs
+@using Dermastore.Domain.Entities
+@using Dermastore.Domain.Specifications.Blogs
+@using Dermastore.Web.Components.Pages.Shared.blog
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Providers
+@using MediatR
+@inject IMediator Mediator
+@inject AuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Blog</PageTitle>
+
+<style>
+    .clickable-card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .clickable-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .card-link {
+    text-decoration: none;
+    color: inherit;
+    }
+    .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    }
+</style>
+
+<div class="p-2">
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <h1>BLOG</h1>
+        @if (!string.IsNullOrEmpty(Role) && Role.Equals("Staff"))
+        {
+            <div>
+                <a href="/blogs/create" class="btn btn-primary"><i class="fa fa-plus me-2"></i>Create Blog</a>
+            </div>
+        }
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <BlogFilter 
+            BlogSpecParams="BlogSpecParams" 
+            OnFilterChanged="GetBlogs" 
+            OnPageChanged="GetBlogs"
+            TotalPages="TotalPages"
+            Role="@Role"/>
+        </div>
+        <div class="col-md-9">
+            @if (blogs != null && blogs.Any())
+            {
+                <div class="row">
+                    @foreach (var blog in blogs)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <BlogCard 
+                            Blog="@blog"
+                            Role="@Role"/>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>Loading blogs...</p>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private IReadOnlyList<BlogDto> blogs;
+    private BlogSpecParams BlogSpecParams { get; set; } = new();
+    private int TotalPages;
+    private string Role = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        Role = authUser.GetUserRole();
+        BlogSpecParams.PageSize = 6;
+        BlogSpecParams.Status = (!string.IsNullOrEmpty(Role) && Role.Equals("Staff")) ? null : "Published";
+        await GetBlogs();
+    }
+
+    private async Task GetBlogs()
+    {
+        var blogQuery = new GetBlogsQuery(BlogSpecParams);
+        blogs = await Mediator.Send(blogQuery);
+
+        var countQuery = new CountBlogsQuery(BlogSpecParams);
+        var count = await Mediator.Send(countQuery);
+
+        TotalPages = (int)Math.Ceiling(count / (decimal)BlogSpecParams.PageSize);
+    }
+}

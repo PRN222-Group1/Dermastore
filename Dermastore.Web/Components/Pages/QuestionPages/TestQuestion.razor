@@ -4,8 +4,10 @@
 @using Dermastore.Application.DTOs.AnswerDTOs
 @using Dermastore.Application.Commands.Questions
 @using Dermastore.Application.Queries.Questions
+@using Microsoft.AspNetCore.Authorization
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
+@attribute [Authorize(Roles = "Staff")]
 
 <h3>Test Questions</h3>
 

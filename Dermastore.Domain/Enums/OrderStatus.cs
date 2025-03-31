@@ -9,7 +9,7 @@ namespace Dermastore.Domain.Enums
     public enum OrderStatus
     {
         Pending,
-        Complete,
-        Failed
+        Completed,
+        Cancelled
     }
 }

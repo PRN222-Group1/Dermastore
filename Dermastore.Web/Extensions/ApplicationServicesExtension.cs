@@ -1,10 +1,15 @@
-﻿using Dermastore.Application.Extensions;
+﻿using Blazored.Toast;
+using Dermastore.Application.Extensions;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Infrastructure.Data;
 using Dermastore.Infrastructure.Services;
 using Dermastore.Web.Containers;
+using Dermastore.Web.Interfaces;
+using Dermastore.Web.Providers;
+using Dermastore.Web.Services;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using VNPAY.NET;
 
 namespace Dermastore.Web.Extensions
 {
@@ -34,9 +39,20 @@ namespace Dermastore.Web.Extensions
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IDashboardService, DashboardService>();
             services.AddSingleton<ICartService, CartService>();
             services.AddSingleton<CartStateContainer>();
+            services.AddSingleton<IVnpay, Vnpay>();
+            services.AddScoped<IVnpayService, VnpayService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddSingleton<AuthStateProvider>();
+            services.AddScoped<ISignalRService, SignalRService>();
+            services.AddBlazoredToast();
 
+            // Add SignalR
+            services.AddSignalR();
+
+            // Add Redis
             services.AddSingleton<IConnectionMultiplexer>(redisConfig =>
             {
                 var connString = config.GetConnectionString("Redis")

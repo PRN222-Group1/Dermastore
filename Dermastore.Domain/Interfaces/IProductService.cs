@@ -12,4 +12,5 @@ public interface IProductService
     Task<IReadOnlyList<Product>> GetProducts(ISpecification<Product> spec);
     Task<Product> GetProduct(int id);
     Task<int> CountProduct(ISpecification<Product> spec);
+    Task<string> UploadProductImage(Stream fileStream, string fileName, bool isNewImage);
 }

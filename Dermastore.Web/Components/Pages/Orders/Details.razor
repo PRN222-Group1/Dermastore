@@ -1,0 +1,412 @@
+﻿@page "/orders/details/{Id:int}"
+
+@using Blazored.Toast.Configuration
+@using Dermastore.Application.Commands.Orders
+@using Dermastore.Application.Commands.Vnpays
+@using Dermastore.Application.DTOs.Orders
+@using Dermastore.Application.Queries.Orders.GetOrderById
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Interfaces
+@using Dermastore.Web.Providers
+@using Dermastore.Web.Utils
+@using MediatR
+@using Microsoft.AspNetCore.Authorization
+
+@rendermode InteractiveServer
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+@inject AuthStateProvider AuthStateProvider
+@inject IToastService ToastService
+@inject ISignalRService SignalRService
+@attribute [Authorize(Roles = "Customer,Staff")]
+
+<PageTitle>Order Details</PageTitle>
+
+<BlazoredToasts Position="ToastPosition.TopRight"
+                Timeout="5"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast"
+                SuccessIcon="fa fa-check-circle"
+                ErrorClass="error-toast"
+                ErrorIcon="fa fa-times-circle"
+                InfoClass="info-toast"
+                InfoIcon="fa fa-info-circle"
+                WarningClass="warning-toast"
+                WarningIcon="fa fa-exclamation-circle" />
+
+<div class="container my-5">
+    @if (order == null)
+    {
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+            <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center p-4">
+                <div>
+                    <h1 class="mb-1 fs-4">Order #@order.Id</h1>
+                    <p class="mb-0 text-muted">
+                        Placed on @order.OrderDate.ToString("MMMM dd, yyyy") at @order.OrderDate.ToString("hh:mm tt")
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="me-3">
+                        <span class="badge fs-6 @GetStatusBadgeClass()">
+                            <i class="@GetStatusIcon() me-1"></i> @order.Status
+                        </span>
+                    </div>
+
+                    @if (order.Status == "Pending" && Role == "Customer")
+                    {
+                        <button class="btn btn-success" @onclick="OnPay">
+                            <i class="bi bi-credit-card me-1"></i> Pay Now
+                        </button>
+                    }
+
+                    @if (order.Status == "Pending" && (Role == "Customer" || Role == "Staff"))
+                    {
+                        <div class="btn-group">
+                            <button class="btn btn-danger" @onclick="CancelOrder">
+                                <i class="bi bi-x-circle me-1"></i> Cancel Order
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card border h-100">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Shipping Details</h5>
+                            </div>
+                            <div class="card-body">
+                                @if (order.User != null)
+                                {
+                                    <p class="mb-2">
+                                        <strong>Customer:</strong> @order.User.FirstName @order.User.LastName
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Email:</strong> @order.User.Email
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Phone:</strong> @order.User.PhoneNumber
+                                    </p>
+                                }
+                                <p class="mb-0">
+                                    <strong>Address:</strong> @order.ShippingAddress
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border h-100">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0"><i class="bi bi-truck me-2"></i>Delivery Information</h5>
+                            </div>
+                            <div class="card-body">
+                                @if (order.DeliveryMethod != null)
+                                {
+                                    <p class="mb-2">
+                                        <strong>Method:</strong> @order.DeliveryMethod.Name
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Estimated Time:</strong> @order.DeliveryMethod.DeliveryTime
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Cost:</strong> @PriceFormatter.FormatPrice(order.DeliveryMethod.Price)
+                                    </p>
+                                    <p class="mb-0 text-muted fst-italic">
+                                        @order.DeliveryMethod.Description
+                                    </p>
+                                }
+                                else
+                                {
+                                    <p class="mb-0 text-muted">Delivery method information not available.</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (order.Promotion != null || order.Membership != null)
+                {
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-tag me-2"></i>Applied Discounts</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        @if (order.Promotion != null)
+                                        {
+                                            <div class="col-md-6">
+                                                <div class="p-3 bg-light rounded mb-2">
+                                                    <h6 class="mb-1">Promotion</h6>
+                                                    <p class="mb-1"><strong>@order.Promotion.Name</strong></p>
+                                                    <p class="mb-1">Discount: @order.Promotion.Discount.ToString("P0")</p>
+                                                    @if (!string.IsNullOrEmpty(order.Promotion.Code))
+                                                    {
+                                                        <p class="mb-0">Code: <span class="badge bg-secondary">@order.Promotion.Code</span></p>
+                                                    }
+                                                    <p class="mb-0 small text-muted">
+                                                        Valid: @order.Promotion.EffectiveDate.ToString("MMM dd, yyyy") - @order.Promotion.ExpiryDate.ToString("MMM dd, yyyy")
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (order.Membership != null)
+                                        {
+                                            <div class="col-md-6">
+                                                <div class="p-3 bg-light rounded mb-2">
+                                                    <h6 class="mb-1">Membership Benefit</h6>
+                                                    <p class="mb-1"><strong>@order.Membership.Name</strong></p>
+                                                    <p class="mb-1">Discount: @order.Membership.Discount.ToString("P0")</p>
+                                                    <p class="mb-0 small text-muted">
+                                                        Required Points: @order.Membership.MinPoint
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="card border mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-box me-2"></i>Order Items</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-center">Price</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in order.OrderItems)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="@item.ItemOrdered.ImageUrl" alt="@item.ItemOrdered.ProductName"
+                                                    class="me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"
+                                                    onerror="this.src='/assets/NavMenuPlaceHolder.png';" />
+                                                    <div>
+                                                        <h6 class="mb-0">@item.ItemOrdered.ProductName</h6>
+                                                        <a href="/products/details/@item.ItemOrdered.ProductId" class="text-decoration-none small">
+                                                            View Product
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center align-middle">@PriceFormatter.FormatPrice(item.Price)</td>
+                                            <td class="text-center align-middle">
+                                                <span class="badge bg-light text-dark">@item.Quantity</span>
+                                            </td>
+                                            <td class="text-end align-middle fw-bold">@PriceFormatter.FormatPrice(item.Price * item.Quantity)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border h-100">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Order Timeline</h5>
+                            </div>
+                            <div class="card-body p-3">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex px-0">
+                                        <div class="me-3 text-success">
+                                            <i class="bi bi-check-circle-fill fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">Order Placed</h6>
+                                            <small class="text-muted">@order.OrderDate.ToString("MMM dd, yyyy hh:mm tt")</small>
+                                        </div>
+                                    </li>
+
+                                    @if (order.Status == "Completed" || order.Status == "Cancelled")
+                                    {
+                                        <li class="list-group-item d-flex px-0">
+                                            <div class="me-3 @(order.Status == "Completed" ? "text-success" : "text-danger")">
+                                                <i class="bi @(order.Status == "Completed" ? "bi-check-circle-fill" : "bi-x-circle-fill") fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">Order @order.Status</h6>
+                                                <small class="text-muted">@order.OrderDate.ToString("MMM dd, yyyy hh:mm tt")</small>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border h-100">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0"><i class="bi bi-calculator me-2"></i>Order Summary</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between py-3">
+                                        <span>Subtotal</span>
+                                        <span>@PriceFormatter.FormatPrice(order.SubTotal)</span>
+                                    </li>
+
+                                    @if (order.DeliveryMethod != null)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between py-3">
+                                            <span>Shipping (@order.DeliveryMethod.Name)</span>
+                                            <span>@PriceFormatter.FormatPrice(order.DeliveryMethod.Price)</span>
+                                        </li>
+                                    }
+
+                                    @if (order.Promotion != null || order.Membership != null)
+                                    {
+                                        var totalDiscountPercentage = (order.Promotion?.Discount ?? 0) + (order.Membership?.Discount ?? 0);
+                                        var totalDiscountAmount = order.SubTotal * totalDiscountPercentage;
+
+                                        <li class="list-group-item d-flex justify-content-between py-3 text-success">
+                                            <span>
+                                                @if (order.Promotion != null && order.Membership != null)
+                                                {
+                                                    <span>Promotion (@order.Promotion.Name) & Membership Discount (@order.Membership.Name)</span>
+                                                }
+                                                else if (order.Promotion != null)
+                                                {
+                                                    <span>Promotion (@order.Promotion.Name)</span>
+                                                }
+                                                else if (order.Membership != null)
+                                                {
+                                                    <span>Membership Discount (@order.Membership.Name)</span>
+                                                }
+                                            </span>
+                                            <span>-@PriceFormatter.FormatPrice(totalDiscountAmount)</span>
+                                        </li>
+                                    }
+
+
+                                    <li class="list-group-item d-flex justify-content-between py-3 bg-light">
+                                        <span class="fw-bold">Total</span>
+                                        <span class="fw-bold fs-5 text-success">@PriceFormatter.FormatPrice(order.GetTotal())</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white p-4 text-center">
+                <a href="/orders" class="btn btn-outline-secondary me-2">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Orders
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private OrderDto? order;
+    private string Role = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        Role = user.GetUserRole();
+
+        await LoadOrderAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadOrderAsync();
+    }
+
+    private async Task LoadOrderAsync()
+    {
+        try
+        {
+            var query = new GetOrderQuery(Id);
+            order = await Mediator.Send(query);
+
+            if (order == null)
+            {
+                NavigationManager.NavigateTo("/orders");
+            }
+        }
+        catch
+        {
+            NavigationManager.NavigateTo("/orders");
+        }
+    }
+
+    private async Task OnPay()
+    {
+        string paymentUrl = await Mediator.Send(new CreatePaymentUrlCommand(Id));
+        NavigationManager.NavigateTo(paymentUrl);
+    }
+
+    private async Task CancelOrder()
+    {
+        var command = new CancelOrderCommand(Id);
+        var result = await Mediator.Send(command);
+
+        if (result)
+        {
+            ToastService.ShowSuccess("Cancelled order successfully");
+        }
+        else
+        {
+            ToastService.ShowError("Cancelled order failed");
+        }
+
+        await LoadOrderAsync();
+    }
+
+    private string GetStatusBadgeClass()
+    {
+        return order?.Status switch
+        {
+            "Pending" => "bg-warning text-dark py-2 px-3",
+            "Completed" => "bg-success py-2 px-3",
+            "Cancelled" => "bg-danger py-2 px-3",
+            _ => "bg-secondary py-2 px-3"
+        };
+    }
+
+    private string GetStatusIcon()
+    {
+        return order?.Status switch
+        {
+            "Pending" => "bi bi-hourglass-split",
+            "Completed" => "bi bi-check-circle",
+            "Cancelled" => "bi bi-x-circle",
+            _ => "bi bi-question-circle"
+        };
+    }
+}

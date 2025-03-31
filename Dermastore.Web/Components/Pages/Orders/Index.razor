@@ -1,0 +1,145 @@
+﻿@page "/orders"
+
+@using Dermastore.Application.Queries.Orders.GetOrders
+@using Dermastore.Application.DTOs.Orders
+@using Dermastore.Web.Components.Pages.Shared.order
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Providers
+@using MediatR
+@using Microsoft.AspNetCore.Authorization
+@using Dermastore.Domain.Specifications.Orders
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+
+@rendermode InteractiveServer
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+@inject AuthStateProvider AuthStateProvider
+@attribute [Authorize(Roles = "Customer,Staff")]
+
+<PageTitle>Orders</PageTitle>
+
+<style>
+    .orders-container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .nav-tabs .nav-link {
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .btn-custom {
+        background-color: #588157;
+        color: #fff;
+    }
+</style>
+
+<div class="row my-5">
+    <div class="col-md-3">
+        <OrderFilter 
+            OrderSpecParams="OrderSpecParams"
+            OnFilterChanged="LoadOrdersAsync"
+            OnPageChanged="LoadOrdersAsync"
+            TotalPages="TotalPages"
+            Role="@Role"/>
+    </div>
+    <div class="container orders-container col-md-9">
+        <h1 class="mb-4">Orders</h1>
+        <!-- Thanh Tab với 3 trạng thái: Pending, Completed, Cancelled -->
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link @(OrderSpecParams.Status == "Pending" ? "active" : "")" href="javascript:void(0)" @onclick="SelectPendingTab">
+                    Pending
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(OrderSpecParams.Status == "Completed" ? "active" : "")" href="javascript:void(0)" @onclick="SelectCompletedTab">
+                    Completed
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(OrderSpecParams.Status == "Cancelled" ? "active" : "")" href="javascript:void(0)" @onclick="SelectCancelledTab">
+                    Cancelled
+                </a>
+            </li>
+        </ul>
+
+        @if (orders == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else if (!orders.Any())
+        {
+            <p class="text-center">No orders found for @OrderSpecParams.Status status.</p>
+        }
+        else
+        {
+            @foreach (var order in orders)
+            {
+                <OrderCard 
+                Order="order"
+                Role="@Role"/>
+            }
+        }
+    </div>
+</div>
+
+<script src="/js/pages/orders.js"></script>
+
+@code {
+    private IReadOnlyList<OrderDto>? orders;
+    private OrderSpecParams OrderSpecParams { get; set; } = new();
+    private int TotalPages;
+    private string Role = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        Role = authUser.GetUserRole();
+        OrderSpecParams.PageSize = 2;
+
+
+        if (Role == "Customer")
+        {
+            OrderSpecParams.UserId = authUser.GetCurrentUserId();
+        }
+        else if (Role == "Staff")
+        {
+            OrderSpecParams.UserId = null;
+        }
+
+        OrderSpecParams.Status = "Pending";
+        await LoadOrdersAsync();
+    }
+
+    private async Task LoadOrdersAsync()
+    {
+        var query = new GetOrdersQuery(OrderSpecParams);
+        orders = await Mediator.Send(query);
+
+        var countQuery = new CountOrdersQuery(OrderSpecParams);
+        var count = await Mediator.Send(countQuery);
+
+        TotalPages = (int)Math.Ceiling(count / (decimal)OrderSpecParams.PageSize);
+    }
+
+    private async Task SelectPendingTab()
+    {
+        OrderSpecParams.Status = "Pending";
+        await LoadOrdersAsync();
+    }
+
+    private async Task SelectCompletedTab()
+    {
+        OrderSpecParams.Status = "Completed";
+        await LoadOrdersAsync();
+    }
+
+    private async Task SelectCancelledTab()
+    {
+        OrderSpecParams.Status = "Cancelled";
+        await LoadOrdersAsync();
+    }
+}

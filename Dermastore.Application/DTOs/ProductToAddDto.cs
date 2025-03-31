@@ -11,5 +11,8 @@ namespace Dermastore.Application.DTOs
         public string ImageUrl { get; set; }
         public int CategoryId { get; set; }
         public int AnswerId { get; set; }
+        public int SubCategoryId { get; set; }
+        public int BrandId { get; set; }
+        public decimal Price { get; set; }
     }
 }

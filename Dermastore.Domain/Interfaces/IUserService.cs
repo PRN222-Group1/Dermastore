@@ -12,8 +12,9 @@ namespace Dermastore.Domain.Interfaces
         Task<IReadOnlyList<User>> ListUsersAsync(ISpecification<User> spec);
         Task<int> CountAsync(ISpecification<User> spec);
         Task<string> GetUserRoleAsync(User user);
+        Task<IList<User>> GetUsersInRoleAsync(string role);
         Task<IdentityResult> AddUserToRoleAsync(User user, string role);
-        Task<IdentityResult> CreateUserAsync(User user);
+        Task<IdentityResult> CreateUserAsync(User user, string password);
         Task<IdentityResult> UpdateUserAsync(User user);
         Task<User> GetUserByClaims(ClaimsPrincipal principal);
         Task<User> GetUserByIdAsync(int id);

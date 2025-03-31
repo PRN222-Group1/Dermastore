@@ -1,20 +1,54 @@
 ﻿@page "/cart"
+@using Blazored.Toast.Configuration
+@using Blazored.Toast.Services
+@using Dermastore.Application.Commands.Customers
+@using Dermastore.Application.Commands.Orders
+@using Dermastore.Application.Commands.Vnpays
+@using Dermastore.Application.DTOs
+@using Dermastore.Application.DTOs.AccountDTOs
 @using Dermastore.Application.DTOs.CartDTOs
+@using Dermastore.Application.DTOs.Orders
+@using Dermastore.Application.Extensions;
+@using Dermastore.Application.Queries.DeliveryMethods
+@using Dermastore.Application.Queries.Promotions
+@using Dermastore.Application.Queries.Users
 @using Dermastore.Web.Containers
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Interfaces
+@using Dermastore.Web.Providers
 @using MediatR
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@inject CartStateContainer CartStateContainer
-@inject ProtectedLocalStorage ProtectedLocalStore
 @rendermode InteractiveServer
+@inject IToastService ToastService
+@inject CartStateContainer CartStateContainer
+@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject AuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
 @inject IMediator Mediator
+@inject ISignalRService SignalRService
 
-<div class="container py-4">
-    <h2 class="text-primary mb-4">Your Cart</h2>
+<BlazoredToasts Position="ToastPosition.TopRight"
+Timeout="5"
+IconType="IconType.FontAwesome"
+SuccessClass="success-toast"
+SuccessIcon="fa fa-check-circle"
+ErrorClass="error-toast"
+ErrorIcon="fa fa-times-circle"
+InfoClass="info-toast"
+InfoIcon="fa fa-info-circle"
+WarningClass="warning-toast"
+WarningIcon="fa fa-exclamation-circle" />
+
+<div class="p-4 my-5 card shadow-lg col-md-11 mx-auto min-vh-100">
+    <h2 class="text-primary mb-4">Shopping Cart</h2>
+
+    <div class="border-1 border-bottom border-dark my-3"></div>
+
     @if (CartStateContainer.Cart != null && CartStateContainer.Cart.Items.Any())
     {
         <div class="row">
             <!-- Cart Items -->
-            <div class="col-md-8">
+            <div class="col-md-8 pe-5">
                 @foreach (var item in CartStateContainer.Cart.Items)
                 {
                     <div class="d-flex align-items-center border-bottom pb-3 mb-3">
@@ -32,19 +66,125 @@
                     </div>
                 }
                 <!-- Clear Cart Button -->
-                <button class="btn btn-danger mt-3" @onclick="ClearCart">Clear Cart</button>
+                <button class="btn btn-danger mt-3" @onclick="ClearCart"><i class="fa fa-shopping-cart me-2"></i>Clear Cart</button>
+
+                @if (currentUser != null)
+                {
+                    <!-- Shipping Information -->
+                    <div class="card p-3 my-4">
+                        <h5 class="mb-3">Shipping Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-sm-6">
+                                <label class="form-label">First Name</label>
+                                <input class="form-control" @bind="currentUser.FirstName" />
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label">First Name</label>
+                                <input class="form-control" @bind="currentUser.LastName" />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-6">
+                                <label class="form-label">Phone Number</label>
+                                <input class="form-control" @bind="currentUser.PhoneNumber" />
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label">Email</label>
+                                <input class="form-control" @bind="currentUser.Email" />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <label class="form-label">Address</label>
+                                <input class="form-control" @bind="currentUser.Address" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clear Cart Button -->
+                    <div class="d-flex justify-content-start align-items-center gap-3">
+                        <button class="btn btn-primary" @onclick="UpdateCustomerInfo"><i class="fa fa-edit me-2"></i>Update</button>
+                        @if (updateResult.HasValue && updateResult.Value){
+                            <div class="text-success">Update Successfully</div>
+                        }
+                        @if (updateResult.HasValue && !updateResult.Value)
+                        {
+                            <div class="text-danger">Update Failed</div>
+                        }
+                    </div>
+                }
             </div>
-            <!-- Cart Summary -->
+
+            <!-- Order Summary -->
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title text-primary">Summary</h4>
-                        <p class="card-text mb-2">Subtotal: <strong>@string.Format("{0}đ", CartStateContainer.Cart.Items.Sum(i => i.Price * i.Quantity).ToString("N0"))</strong></p>
-                        <!-- Promotion Code Input -->
-                        <div class="form-group mb-3">
-                            <input type="text" class="form-control" placeholder="Promotion code" @bind="promotionCode" />
+                        <h3 class="card-title text-primary">Order Summary</h3>
+
+                        <div class="border-1 border-bottom border-dark my-3"></div>
+
+                        <!-- Subtotal Price -->
+                        <p class="card-text mb-4">SUBTOTAL: <strong>@string.Format("{0}đ", CalculateSubtotal().ToString("N0"))</strong></p>
+
+                        <!-- Delivery Method Dropdown -->
+                        <div class="form-group mb-4">
+                            <label for="deliveryMethod" class="form-label">Delivery Method</label>
+                            <select id="deliveryMethod" class="form-select" @onchange="HandleDeliveryMethodChange">
+                                <option value="">Select a delivery method</option>
+                                @if (deliveryMethods != null)
+                                {
+                                    @foreach (var deliveryMethod in deliveryMethods)
+                                    {
+                                        <option value="@deliveryMethod.Id" selected="@(selectedDeliveryMethod == deliveryMethod.Id.ToString())">@deliveryMethod.Name | @string.Format("{0}đ", deliveryMethod.Price.ToString("N0"))</option>
+                                    }
+                                }
+                            </select>
+                            @if (!string.IsNullOrEmpty(error))
+                            {
+                                <div class="mt-2 text-danger">@error</div>
+                            }
                         </div>
-                        <button class="btn btn-primary w-100" @onclick="ApplyPromotion">Apply Promotion</button>
+
+                        <!-- Promotion Code Input -->
+                        <div class="form-group mb-4">
+                            <label for="promotionCode" class="form-label">Promotion Code</label>
+                            <input type="text" id="promotionCode" class="form-control" placeholder="Promotion code" @bind="promotionCode"/>
+                        </div>
+                        <div class="d-flex justify-content-start align-items-center gap-3">
+                            <button class="btn btn-secondary text-white w-25" @onclick="ApplyPromotion">Apply</button>
+                            @if (appliedPromotion != null)
+                            {
+                                <p class="text-success mb-0">@appliedPromotion.Name | <strong>@string.Format("{0}%", appliedPromotion.Discount * 100)</strong></p>
+                            }
+                        </div>
+
+                        <!--  Customer Membership -->
+                        @if (currentUser != null && currentUser.Membership != null)
+                        {
+                            <div class="mt-4 mb-2">Membership</div>
+                            <div class="d-flex justify-content-start align-items-center gap-3">
+                                <div class="badge bg-primary">@currentUser.Membership.Name</div>
+                                <div><strong>@string.Format("{0}%", currentUser.Membership.Discount * 100) Off</strong></div>
+                            </div>
+                        }
+
+
+                        <div class="border-1 border-bottom border-dark my-3"></div>
+
+
+                        <!-- Total Price -->
+                        <p class="card-text my-4">TOTAL: <strong>@string.Format("{0}đ", CalculateTotal().ToString("N0"))</strong></p>
+                        @if (currentUser != null)
+                        {
+                            <button class="btn btn-primary text-white w-100" @onclick="Checkout">Checkout</button>
+                        }
+                        else
+                        {
+                            <div class="text-primary text">
+                                Please login to checkout
+                            </div>
+                            <button class="btn btn-primary text-white w-100" @onclick="GoToLogin">Login</button>
+                        }
                     </div>
                 </div>
             </div>
@@ -58,13 +198,65 @@
 
 @code {
     private string promotionCode = string.Empty;
+    private PromotionDto? appliedPromotion;
+    private IReadOnlyList<DeliveryMethodDto> deliveryMethods;
+    private string? selectedDeliveryMethod;
+    private UserDto? currentUser;
+    private bool? updateResult;
+    private string? error;
 
+    //==============================================
+    //                  LIFE CYCLE
+    //==============================================
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDeliveryMethods();
+        await LoadCurrentUser();
+        appliedPromotion = CartStateContainer.Cart != null ? CartStateContainer.Cart.Promotion : null;
+
+        if (appliedPromotion != null)
+        {
+            promotionCode = appliedPromotion.Code;
+        }
+
+        if (CartStateContainer.Cart != null && CartStateContainer.Cart.DeliveryMethod != null)
+        {
+            selectedDeliveryMethod = CartStateContainer.Cart.DeliveryMethod.Id.ToString();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await ProtectedLocalStorage.GetAsync<string>("cartId");
+            if (result.Success && result.Value != null)
+            {
+                await CartStateContainer.LoadCartAsync(result.Value);
+            }
+            await LoadDeliveryMethods();
+
+            // Use InvokeAsync to switch to the Dispatcher when modifying UI state
+            CartStateContainer.OnChange += async () => await InvokeAsync(StateHasChanged);
+
+            // Ensure the state changes after rendering
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    //==============================================
+    //              CART STATE MANAGEMENT
+    //==============================================
+
+
+    // Increase quantity of a specific item
     private async Task IncreaseQuantity(CartItemDto item)
     {
         item.Quantity++;
         await CartStateContainer.UpdateCartAsync(CartStateContainer.Cart);
     }
 
+    // Decrease quantity of a specific item
     private async Task DecreaseQuantity(CartItemDto item)
     {
         if (item.Quantity > 1)
@@ -74,6 +266,7 @@
         }
     }
 
+    // Remove item from the cart
     private async Task RemoveItem(CartItemDto item)
     {
         CartStateContainer.Cart.Items.Remove(item);
@@ -85,26 +278,177 @@
         }
     }
 
+    // Completely remove the cart
     private async Task ClearCart()
     {
         await CartStateContainer.DeleteCartAsync();
+        await ProtectedLocalStorage.DeleteAsync("cartId");
+        ToastService.ShowSuccess("Cart Removed");
     }
 
+    // Calculate the total price of all item (does not include promotions, extra fees)
+    private decimal CalculateSubtotal()
+    {
+        return CartStateContainer.Cart.Items.Sum(i => i.Price * i.Quantity);
+    }
+
+    // Calculate the total price  (include promotions, extra fees)
+    private decimal CalculateTotal()
+    {
+        var subtotal = CalculateSubtotal();
+        decimal discount = 0;
+        decimal deliveryCost = 0;
+
+        if (!string.IsNullOrEmpty(selectedDeliveryMethod))
+        {
+            var deliveryMethod = deliveryMethods.FirstOrDefault(d => d.Id == int.Parse(selectedDeliveryMethod));
+            if (deliveryMethod != null)
+            {
+                deliveryCost = deliveryMethod.Price;
+            }
+        }
+
+        if (appliedPromotion != null)
+        {
+            discount += appliedPromotion.Discount;
+        }
+
+        if (currentUser != null && currentUser.Membership != null)
+        {
+            discount += currentUser.Membership.Discount;
+        }
+
+        return (subtotal * (1 - discount)) + deliveryCost;
+    }
+
+    // Apply promotion and save to the cart
     private async Task ApplyPromotion()
     {
-        // Implement logic to apply the promotion code
+        if (!string.IsNullOrWhiteSpace(promotionCode))
+        {
+            appliedPromotion = await Mediator.Send(new GetPromotionQuery(promotionCode));
+        }
+        if (appliedPromotion != null)
+        {
+            CartStateContainer.Cart.Promotion = appliedPromotion;
+            await CartStateContainer.UpdateCartAsync(CartStateContainer.Cart);
+            ToastService.ShowSuccess("Applied promotion: " + appliedPromotion.Code);
+        }
+        else
+        {
+            ToastService.ShowError("Promo code does not exist");
+        }
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    // Change delivery method and save to the cart
+    private async Task HandleDeliveryMethodChange(ChangeEventArgs e)
     {
-        if (firstRender)
+        selectedDeliveryMethod = e.Value.ToString();
+        var deliveryMethod = deliveryMethods.FirstOrDefault(d => d.Id == int.Parse(selectedDeliveryMethod));
+        CartStateContainer.Cart.DeliveryMethod = deliveryMethod;
+        await CartStateContainer.UpdateCartAsync(CartStateContainer.Cart);
+    }
+
+    // Load delivery methods for dropdown
+    private async Task LoadDeliveryMethods()
+    {
+        deliveryMethods = await Mediator.Send(new GetDeliveryMethodsQuery());
+    }
+
+    // Get current user
+    private async Task LoadCurrentUser()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        var query = new GetUserQuery(authUser.GetCurrentUserId());
+        var user = await Mediator.Send(query);
+        currentUser = user.ToDto();
+    }
+
+    // Update customer information (shipping address,...)
+    private async Task UpdateCustomerInfo()
+    {
+        var command = new UpdateCustomerCommand(currentUser);
+        updateResult = await Mediator.Send(command);
+        if (updateResult.Value)
         {
-            var result = await ProtectedLocalStore.GetAsync<string>("cartId");
-            if (result.Success && result.Value != null)
-            {
-                await CartStateContainer.LoadCartAsync(result.Value);
-            }
-            CartStateContainer.OnChange += StateHasChanged;
+            ToastService.ShowSuccess("Updated shipping information");
         }
+        else {
+            ToastService.ShowError("Update shipping information failed");
+        }
+    }
+
+
+    //==============================================
+    //              CHECKOUT FLOW
+    //==============================================
+    private void GoToLogin()
+    {
+        NavigationManager.NavigateTo("/accounts/login");
+    }
+
+    private async Task Checkout()
+    {
+        // Populate order items list
+        if (string.IsNullOrEmpty(selectedDeliveryMethod))
+        {
+            error = "You must select a delivery method";
+            return;
+        }
+        var deliveryMethod = deliveryMethods.FirstOrDefault(d => d.Id == int.Parse(selectedDeliveryMethod));
+
+        var orderItems = new List<OrderItemDto>();
+
+        if (CartStateContainer.Cart != null && CartStateContainer.Cart.Items.Any())
+        {
+            foreach (CartItemDto cartItem in CartStateContainer.Cart.Items)
+            {
+                var productItem = new ProductItemOrderedDto()
+                {
+                    ImageUrl = cartItem.ImageUrl,
+                    ProductName = cartItem.ProductName,
+                    ProductId = cartItem.ProductId
+                };
+
+                var orderItem = new OrderItemDto()
+                {
+                    ItemOrdered = productItem,
+                    Price = cartItem.Price,
+                    Quantity = cartItem.Quantity
+                };
+
+                orderItems.Add(orderItem);
+            }
+        }
+
+        // Create an order in pending state
+        var orderDto = new OrderToAddDto
+        {
+            OrderDate = DateTime.UtcNow,
+            ShippingAddress = currentUser.Address,
+            DeliveryMethodId = deliveryMethod.Id,
+            MembershipId = (currentUser != null && currentUser.Membership != null) ? currentUser.Membership.Id : null,
+            PromotionId = (appliedPromotion != null) ? appliedPromotion.Id : null,
+            SubTotal = CalculateSubtotal(),
+            UserId = currentUser.Id,
+            OrderItems = orderItems
+        };
+
+        // Send create order command
+        var createOrderCommand = new CreateOrderCommand(orderDto);
+        var orderId = await Mediator.Send(createOrderCommand);
+
+        // Send create vnpay checkout url command
+        var paymentCommand = new CreatePaymentUrlCommand(orderId);
+        var url = await Mediator.Send(paymentCommand);
+
+        NavigationManager.NavigateTo(url);
+
+        // Delay to load VnPay payment page
+        await Task.Delay(3000);
+
+        // Send SignalR message to load new order
+        await SignalRService.LoadOrders();
     }
 }

@@ -1,18 +1,21 @@
 ﻿@page "/accounts/login"
 
-@using Dermastore.Application.DTOs
+@using System.Security.Claims
+@using Dermastore.Application.DTOs.AccountDTOs
 @using Dermastore.Application.Queries.Users
 @using Dermastore.Domain.Entities
 @using Dermastore.Domain.Interfaces
+@using Dermastore.Web.Containers
 @using Dermastore.Web.Extensions
+@using Dermastore.Web.Providers
 @using MediatR
-@using System.Security.Claims
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 
 @inject IUserService UserService
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
+@inject AuthStateProvider AuthStateProvider
 @inject IConfiguration configuration
 @inject SignInManager<User> SignInManager
 
@@ -26,21 +29,32 @@
                 <div class="card-body p-4 p-md-5">
                     <EditForm method="post" Model="loginDto" OnValidSubmit="LoginUser" FormName="create" Enhance>
                         <DataAnnotationsValidator />
-                        <ValidationSummary class="text-danger" role="alert" />
+
                         <div class="form-floating mb-4">
                             <div class="form-label">Email:</div>
-                            <InputText id="email" @bind-Value="loginDto.Email" class="form-control" />
+                            <InputText id="email" @bind-Value="loginDto.Email" class="form-control p-3" />
                             <ValidationMessage For="() => loginDto.Email" class="text-danger" />
                         </div>
 
                         <div class="form-floating mb-4">
                             <div class="form-label">Password:</div>
-                            <InputText id="password" @bind-Value="loginDto.Password" type="password" class="form-control" />
+                            <InputText id="password" @bind-Value="loginDto.Password" type="password" class="form-control p-3" />
                             <ValidationMessage For="() => loginDto.Password" class="text-danger" />
                         </div>
 
-                        <div class="d-grid">
+                        @if (!string.IsNullOrEmpty(error))
+                        {
+                            <div class="d-grid text-danger mb-2">
+                                @error
+                            </div>
+                        }
+                        <div class="d-grid mb-3">
                             <button type="submit" class="btn btn-secondary btn-lg text-white">Sign In</button>
+                        </div>
+
+                        <div class="text-center">
+                            <span>Don't have an account? </span>
+                            <a href="/accounts/register" class="text-primary">Sign Up</a>
                         </div>
                     </EditForm>
                 </div>
@@ -49,12 +63,15 @@
     </div>
 </div>
 
+
 @code {
     [SupplyParameterFromForm]
     private LoginDto loginDto { get; set; } = new();
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
+
+    private string? error;
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,7 +92,7 @@
 
         if (user == null) {
             // Route to detail page
-            NavigationManager.NavigateTo($"/accounts/login");
+            error = "User does not exist or suspended";
             return;
         }
 
@@ -83,9 +100,13 @@
         var signInResult = await SignInManager.PasswordSignInAsync(user, 
             loginDto.Password, loginDto.RememberMe, lockoutOnFailure: false);
 
+
         if (signInResult.Succeeded) {
             // Redirect to home page or return URL
+            AuthStateProvider.SetUser(HttpContext.User);
             NavigationManager.NavigateTo(loginDto.ReturnUrl ?? "/");
         }
+        
+        error = "Incorrect user password";
     }
 }

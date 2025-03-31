@@ -1,4 +1,5 @@
 ﻿using Dermastore.Domain.Entities;
+using Dermastore.Domain.Entities.OrderAggregate;
 using Dermastore.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using System.Reflection;
@@ -58,6 +59,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Pork",
                         Email = "john@test.com",
                         Address = "57 Something",
+                        PhoneNumber = "0837129211",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Fmale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "john1234", "Customer"),
@@ -69,6 +71,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Doe",
                         Email = "jane@test.com",
                         Address = "123 Elm Street",
+                        PhoneNumber = "0837129212",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Ffemale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "jane1234", "Customer"),
@@ -80,6 +83,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Smith",
                         Email = "mike@test.com",
                         Address = "456 Oak Avenue",
+                        PhoneNumber = "0837129213",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Fmale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "mike1234", "Customer"),
@@ -92,6 +96,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Johnson",
                         Email = "alice.staff@test.com",
                         Address = "789 Maple Road",
+                        PhoneNumber = "0389234123",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Ffemale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "alice1234", "Staff"),
@@ -103,6 +108,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Williams",
                         Email = "bob.staff@test.com",
                         Address = "101 Pine Drive",
+                        PhoneNumber = "0348453439",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Fmale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "bobby1234", "Staff"),
@@ -114,6 +120,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Brown",
                         Email = "carol.staff@test.com",
                         Address = "202 Cedar Lane",
+                        PhoneNumber = "0483935183",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Ffemale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "carol1234", "Staff"),
@@ -126,6 +133,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Clark",
                         Email = "dave.manager@test.com",
                         Address = "303 Birch Boulevard",
+                        PhoneNumber = "0482553124",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Fmale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "dave1234", "Manager")
@@ -136,6 +144,20 @@ namespace Dermastore.Infrastructure.Data
                     await userManager.CreateAsync(account.user, account.password);
                     await userManager.AddToRoleAsync(account.user, account.role);
                 }
+            }
+
+            if (!context.Blogs.Any())
+            {
+                var blogData = await File
+                    .ReadAllTextAsync(path + @"/Data/SeedData/blogs.json");
+
+                var blogs = JsonSerializer.Deserialize<List<Blog>>(blogData, options);
+
+                if (blogs == null) return;
+
+                context.Blogs.AddRange(blogs);
+
+                await context.SaveChangesAsync();
             }
 
             if (!context.Categories.Any())
@@ -201,6 +223,36 @@ namespace Dermastore.Infrastructure.Data
                 var quizResult = JsonSerializer.Deserialize<List<QuizResult>>(quizDatas);
                 if (quizResult == null) return;
                 context.QuizResults.AddRange(quizResult);
+                await context.SaveChangesAsync();
+            }
+
+            if (!context.DeliveryMethods.Any())
+            {
+                var deliveryMethodData = await File
+                    .ReadAllTextAsync(path + @"/Data/SeedData/deliveryMethods.json");
+                var deliveryMethods = JsonSerializer.Deserialize<List<DeliveryMethod>>(deliveryMethodData);
+                if (deliveryMethods == null) return;
+                context.DeliveryMethods.AddRange(deliveryMethods);
+                await context.SaveChangesAsync();
+            }
+
+            if (!context.Promotions.Any())
+            {
+                var promotionData = await File
+                    .ReadAllTextAsync(path + @"/Data/SeedData/promotions.json");
+                var promotions = JsonSerializer.Deserialize<List<Promotion>>(promotionData, options);
+                if (promotions == null) return;
+                context.Promotions.AddRange(promotions);
+                await context.SaveChangesAsync();
+            }
+
+            if (!context.Orders.Any())
+            {
+                var orderDatas = await File
+                    .ReadAllTextAsync(path + @"/Data/SeedData/orders.json");
+                var orderResult = JsonSerializer.Deserialize<List<Order>>(orderDatas);
+                if (orderResult == null) return;
+                context.Orders.AddRange(orderResult);
                 await context.SaveChangesAsync();
             }
 
