@@ -64,6 +64,13 @@ namespace Dermastore.Infrastructure.Data.Migrations
                     b.Property<DateOnly>("DatePublished")
                         .HasColumnType("date");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(200)");

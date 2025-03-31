@@ -1,12 +1,6 @@
-﻿using Dermastore.Application.DTOs;
-using Dermastore.Application.DTOs.Blogs;
+﻿using Dermastore.Application.DTOs.Blogs;
 using Dermastore.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
+using Dermastore.Domain.Enums;
 
 namespace Dermastore.Application.Extensions
 {
@@ -22,7 +16,10 @@ namespace Dermastore.Application.Extensions
                 Title = blog.Title,
                 Content = blog.Content,
                 UserId = blog.UserId,
+                User = blog.User != null ? blog.User.ToDto() : null,
                 DatePublished = blog.DatePublished,
+                ImageUrl = blog.ImageUrl,
+                Status = blog.Status.ToString()
             };
         }
 
@@ -35,7 +32,8 @@ namespace Dermastore.Application.Extensions
                 Title = blogDto.Title,
                 Content = blogDto.Content,
                 UserId = blogDto.UserId,
-                DatePublished = blogDto.DatePublished,
+                DatePublished = DateOnly.FromDateTime(DateTime.Now),
+                ImageUrl = blogDto.ImageUrl
             };
         }
 
@@ -46,7 +44,7 @@ namespace Dermastore.Application.Extensions
 
             blog.Title = blogDto.Title;
             blog.Content = blogDto.Content;
-            blog.UserId = blogDto.UserId;
+            blog.Status = (BlogStatus)blogDto.Status;
         }
 
     }

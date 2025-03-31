@@ -1,9 +1,15 @@
 ﻿@page "/callback"
 @using Dermastore.Application.Commands.Vnpays
+@using Dermastore.Web.Containers
+@using Dermastore.Web.Interfaces
 @using MediatR
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 
 @inject IMediator Mediator
 @inject NavigationManager Navigation
+@inject CartStateContainer CartStateContainer
+@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject ISignalRService SignalRService
 
 <div class="d-flex flex-column justify-content-center align-items-center vh-100">
     @if (isProcessing)
@@ -21,12 +27,12 @@
             @if (paymentResult.Value != -1)
             {
                 <p>Your order has been paid successfully. Thank you for your purchase!</p>
-                <a class="btn btn-secondary" href="">Go to Details</a>
+                <a class="btn btn-secondary text-white" href="/orders/details/@paymentResult">Go to Orders</a>
             }
             else
             {
                 <p>There was an issue with your payment. Please try again.</p>
-                <a class="btn btn-secondary" href="">Return Home</a>
+                <a class="btn btn-secondary text-white" href="/orders">Go to Orders</a>
             }
         </div>
     }
@@ -48,6 +54,9 @@
 
             // Send the command to process the callback
             paymentResult = await Mediator.Send(new ProcessCallbackCommand(query));
+
+            // Send SignalR message to load order
+            await SignalRService.LoadOrders();
         }
         catch (Exception ex)
         {

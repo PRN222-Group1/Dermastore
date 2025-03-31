@@ -19,7 +19,7 @@ namespace Dermastore.Application.Queries.Blogs.GetBlogs
 
         public async Task<IReadOnlyList<BlogDto>> Handle(GetBlogsQuery request, CancellationToken cancellationToken)
         {
-            var spec = new BlogSpecification();
+            var spec = new BlogSpecification(request.BlogSpecParams);
             var blogs = await _blogRepository.ListAsync(spec);
             var blogsToReturn = blogs.Select(p => p.ToDto()).ToList();
             return blogsToReturn;

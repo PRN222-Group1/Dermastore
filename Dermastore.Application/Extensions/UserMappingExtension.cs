@@ -22,6 +22,7 @@ namespace Dermastore.Application.Extensions
                 Point = user.Point,
                 Membership = user.Membership != null 
                     ? user.Membership.ToDto() : null,
+                Status = user.Status.ToString(),
             };
         }
 
@@ -37,6 +38,24 @@ namespace Dermastore.Application.Extensions
                 UserName = user.Email,
                 PhoneNumber = user.PhoneNumber ?? string.Empty,
                 Gender = (Gender) user.Gender,
+                ImageUrl = string.Empty,
+                MembershipId = 1,
+                Status = UserStatus.Active,
+            };
+        }
+
+        public static User? StaffToEntity(this UserToAddDto? user)
+        {
+            if (user == null) return null;
+            return new User
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Address = user.Address,
+                Email = user.Email ?? string.Empty,
+                UserName = user.Email,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
+                Gender = (Gender)user.Gender,
                 ImageUrl = string.Empty,
                 MembershipId = 1,
                 Status = UserStatus.Active,

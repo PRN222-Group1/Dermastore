@@ -1,46 +1,90 @@
-﻿@page "/blogs/details"
+﻿@page "/blogs/details/{Id:int}"
+
 @using Dermastore.Application.DTOs.Blogs
 @using Dermastore.Application.Queries.Blogs.GetBlogById
-@using Microsoft.EntityFrameworkCore
-@using Dermastore.Domain.Entities
-@inject NavigationManager NavigationManager
+@using Dermastore.Web.Utils
 @using MediatR
+@inject NavigationManager NavigationManager
 @inject IMediator Mediator
 
-<PageTitle>Details</PageTitle>
+<PageTitle>Blog Detail</PageTitle>
 
-<h1>Details</h1>
-
-<div>
-    <h2>Blog</h2>
-    <hr />
-    @if (blogDto is null)
-    {
-        <p><em>Loading...</em></p>
+<style>
+    .blog-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     }
-    else
-    {
-        <dl class="row">
-            <dt class="col-sm-2">Title</dt>
-            <dd class="col-sm-10">@blogDto.Title</dd>
-            <dt class="col-sm-2">Description</dt>
-            <dd class="col-sm-10">@blogDto.Content</dd>
-            <dt class="col-sm-2">Status</dt>
-            <dd class="col-sm-10">@blogDto.UserId</dd>
-            <dt class="col-sm-2">Quantity</dt>
-            <dd class="col-sm-10">@blogDto.DatePublished</dd>
-        </dl>
-        <div>
-            <a href="@($"/blogs/edit?id={blogDto.Id}")">Edit</a> |
-            <a href="@($"/blogs")">Back to List</a>
+
+    .blog-header {
+    border-bottom: 2px solid #eee;
+    padding-bottom: 1rem;
+    }
+
+    .blog-title {
+    font-size: 2.5rem;
+    color: #333;
+    }
+
+    .blog-meta {
+    font-size: 0.9rem;
+    }
+
+    .blog-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: black;
+    background: rgba(0,0,0,0.03);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Back Button in Top Left Corner -->
+            <div class="d-flex justify-content-between mb-3">
+                <a class="btn btn-outline-secondary" href="/blogs">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </div>
+
+            <article class="blog-card">
+                <header class="blog-header text-center mb-5">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <h1 class="blog-title display-4 font-weight-bold">@blogDto?.Title</h1>
+                    </div>
+                    <p class="blog-meta text-muted text-center">
+                        By <span class="text-secondary">@blogDto?.User.LastName, @blogDto?.User.FirstName</span> |
+                        <span>@blogDto?.DatePublished.ToString("MM/dd/yyyy")</span> |
+                    </p>
+                </header>
+
+                <div class="blog-content">
+                    <div class="blog-body p-4">
+                        <img class="mb-3 rounded blog-img" src="@blogDto?.ImageUrl" />
+                        @if (blogDto != null)
+                        {
+                            @((MarkupString)HtmlFormatter.FormatContent(blogDto.Content))
+                        }
+                        else
+                        {
+                            <p class="lead">Loading...</p>
+                        }
+                    </div>
+                </div>
+            </article>
         </div>
-    }
+    </div>
 </div>
-@code {
-    private BlogDto? blogDto;
 
-    [SupplyParameterFromQuery]
-    private int Id { get; set; }
+@code {
+    private BlogDto? blogDto { get; set; }
+
+    [Parameter]
+    public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

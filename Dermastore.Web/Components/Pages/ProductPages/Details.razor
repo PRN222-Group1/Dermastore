@@ -5,6 +5,7 @@
 @using Dermastore.Application.Queries.Products
 @using Dermastore.Web.Containers
 @using Dermastore.Web.Extensions
+@using Dermastore.Web.Utils
 @using MediatR
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using Microsoft.EntityFrameworkCore
@@ -17,7 +18,7 @@
 @inject CartStateContainer CartStateContainer
 @inject ProtectedLocalStorage ProtectedLocalStore
 
-<PageTitle>Product Details</PageTitle>
+<PageTitle>@(productDto?.Name ?? "Product Details") | Dermastore</PageTitle>
 
 <BlazoredToasts Position="ToastPosition.TopRight"
                 Timeout="5"
@@ -33,40 +34,93 @@
 
 @if (productDto is null)
 {
-    <p class="text-muted">Loading...</p>
+    <div class="container min-vh-75 d-flex justify-content-center align-items-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 }
 else
 {
-    <div class="container my-4">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card shadow-lg p-3 rounded">
-                    <img src="@productDto.ImageUrl" class="img-fluid rounded-3" alt="@productDto.Name" style="height: 100%; object-fit: contain;">
+    <div class="container my-5">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="/products" class="text-decoration-none">Products</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@productDto.Name</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="position-sticky" style="top: 2rem;">
+                    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                        <div class="product-image-wrapper p-4 bg-light" style="height: 400px; display: flex; align-items: center; justify-content: center;">
+                            <img src="@productDto.ImageUrl" class="img-fluid product-image" alt="@productDto.Name"
+                                 style="max-height: 100%; max-width: 100%; object-fit: contain; transition: transform 0.3s ease;">
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card-body">
-                    <h2 class="card-title text-primary">@productDto.Name</h2>
-                    <p class="text-muted">@productDto.Description</p>
-                    <p><strong>Status:</strong> <span class="badge bg-@GetStatusColor(productDto.Status.ToString())">@productDto.Status</span></p>
-                    <p><strong>Price:</strong> @string.Format("{0}đ", productDto.Price.ToString("N0"))</p>
-                    <p><strong>Quantity:</strong> <span id="quantity">@productDto.Quantity</span></p>
-                    <p><strong>Category:</strong> @productDto.SubCategory</p>
-                    <p><strong>Brand:</strong> @productDto.Brand</p>
 
-                    <div class="input-group mt-4">
-                        <button class="btn btn-outline-secondary" @onclick="DecreaseQuantity">
-                            <i class="fa fa-minus"></i>
-                        </button>
-                        <input type="number" class="form-control text-center" value="@Quantity" readonly style="max-width: 80px;" />
-                        <button class="btn btn-outline-secondary" @onclick="IncreaseQuantity">
-                            <i class="fa fa-plus"></i>
-                        </button>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h1 class="product-title fw-bold text-primary mb-0">@productDto.Name</h1>
+                        <span class="badge bg-@GetStatusColor(productDto.Status.ToString()) rounded-pill fs-6 px-3 py-2">
+                            @(productDto.Status.ToString() == "InStock" ? "In Stock" : "Out of Stock")
+                        </span>
                     </div>
 
-                    <div class="mt-3">
-                        <button class="btn btn-success btn-lg" @onclick="AddToCart">
-                            <i class="bi bi-cart-fill"></i> Add to Cart
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="fs-4 fw-bold text-success me-2">@PriceFormatter.FormatPrice(productDto.Price)</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-muted fs-5 lh-base">@productDto.Description</p>
+                    </div>
+
+                    <div class="product-details my-4">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="detail-item p-3 bg-light rounded-3">
+                                    <span class="detail-label fs-6 text-muted">Category</span>
+                                    <p class="detail-value mb-0 fs-5 fw-medium">@productDto.SubCategory</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-item p-3 bg-light rounded-3">
+                                    <span class="detail-label fs-6 text-muted">Brand</span>
+                                    <p class="detail-value mb-0 fs-5 fw-medium">@productDto.Brand</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-item p-3 bg-light rounded-3">
+                                    <span class="detail-label fs-6 text-muted">Available Quantity</span>
+                                    <p class="detail-value mb-0 fs-5 fw-medium">@productDto.Quantity</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group mt-4">
+                        <label class="form-label fw-medium">Quantity</label>
+                        <div class="input-group quantity-selector d-flex align-items-center">
+                            <button class="btn btn-primary" @onclick="DecreaseQuantity">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                            <input type="number" class="form-control text-center bg-white border-0 pe-0" value="@Quantity" readonly style="max-width: 50px;" />
+                            <button class="btn btn-primary" @onclick="IncreaseQuantity">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button class="btn btn-primary btn-lg w-100 py-3 rounded-3 d-flex align-items-center justify-content-center"
+                                @onclick="AddToCart"
+                                disabled="@(productDto.Status.ToString() != "InStock")">
+                            <i class="bi bi-cart-plus me-2"></i> Add to Cart
                         </button>
                     </div>
                 </div>
@@ -74,6 +128,33 @@ else
         </div>
     </div>
 }
+
+<style>
+    .product-image:hover {
+        transform: scale(1.05);
+    }
+
+    .quantity-selector .btn {
+        height: 38px;
+        width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Toast styles */
+    .success-toast {
+        background-color: #d4edda !important;
+        color: #155724 !important;
+        border-color: #c3e6cb !important;
+    }
+
+    .error-toast {
+        background-color: #f8d7da !important;
+        color: #721c24 !important;
+        border-color: #f5c6cb !important;
+    }
+</style>
 
 @code {
     private ProductDto? productDto;
@@ -95,10 +176,9 @@ else
 
     private void IncreaseQuantity()
     {
-        Quantity++;
-        if (Quantity > productDto.Quantity)
+        if (productDto != null && Quantity < productDto.Quantity)
         {
-            Quantity = productDto.Quantity;
+            Quantity++;
         }
         StateHasChanged();
     }
@@ -114,7 +194,7 @@ else
 
     private async Task AddToCart()
     {
-        if (productDto != null)
+        if (productDto != null && productDto.Status.ToString() == "InStock")
         {
             var cart = CartStateContainer.Cart;
 
@@ -156,7 +236,10 @@ else
             // Update the cart and save cart id to local storage
             await CartStateContainer.UpdateCartAsync(cart);
 
-            ToastService.ShowSuccess("Added product to cart");
+            ToastService.ShowSuccess($"{productDto.Name} added to your cart");
+
+            // Reset quantity after adding to cart
+            Quantity = 1;
         }
     }
 

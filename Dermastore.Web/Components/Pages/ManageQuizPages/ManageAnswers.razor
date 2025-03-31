@@ -6,7 +6,10 @@
 @using Dermastore.Application.DTOs.QuizResultDTOs
 @using Dermastore.Application.Queries.Questions
 @using Dermastore.Application.DTOs.QuestionDTOs
+@using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
 @inject IMediator Mediator
+@attribute [Authorize(Roles = "Staff")]
 
 <div>
     <button class="btn btn-create mb-2" @onclick="ShowCreateAnswerModal">Create Answer</button>

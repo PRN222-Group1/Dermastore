@@ -12,16 +12,17 @@ namespace Dermastore.Domain.Specifications.Users
         }
 
         public UserSpecification(string email)
-            : base(x => x.Email.Equals(email))
+            : base(x => x.Email.Equals(email)
+            && x.Status == UserStatus.Active)
         {
             AddInclude(x => x.Membership);
         }
 
         public UserSpecification(UserSpecParams userSpecParams)
             : base(x => (string.IsNullOrEmpty(userSpecParams.Search)
-                        || x.FirstName.ToLower().Contains(userSpecParams.Search)
-                        || x.LastName.ToLower().Contains(userSpecParams.Search)
-                        || x.Email.Contains(userSpecParams.Search))
+                        || x.FirstName.ToLower().Contains(userSpecParams.Search.ToLower())
+                        || x.LastName.ToLower().Contains(userSpecParams.Search.ToLower())
+                        || x.Email.Contains(userSpecParams.Search.ToLower()))
                         && (string.IsNullOrEmpty(userSpecParams.Status)
                         || x.Status == ParseStatus<UserStatus>(userSpecParams.Status)))
         {
@@ -45,9 +46,6 @@ namespace Dermastore.Domain.Specifications.Users
 
             ApplyPaging(userSpecParams.PageSize * (userSpecParams.PageIndex - 1),
                 userSpecParams.PageSize);
-
-            //Sort users alphabetically by first name
-            if (!string.IsNullOrEmpty(userSpecParams.Sort)) AddOrderBy(x => x.FirstName);
         }
     }
 }

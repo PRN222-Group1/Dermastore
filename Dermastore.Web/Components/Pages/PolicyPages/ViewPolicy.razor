@@ -1,0 +1,102 @@
+﻿@page "/policy"
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Providers
+@using MediatR
+@using Dermastore.Application.Queries.Policies
+@rendermode InteractiveServer
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+@inject AuthStateProvider AuthStateProvider
+
+<div class="banner-wrapper">
+    <div class="banner-bg"></div>
+    <div class="banner-overlay"></div>
+    <div class="banner-content text-center">
+        <h2 class="text-white fw-bold">Warranty Policy</h2>
+        <p class="text-white">We are here to assist you with any questions.</p>
+    </div>
+</div>
+
+<div class="container my-5 text-center">
+    <h3 class="mb-4">Policy</h3>
+
+    @if (string.IsNullOrEmpty(policyUrl))
+    {
+        <p class="text-muted">Loading policy...</p>
+    }
+    else
+    {
+        <div class="mx-auto" style="max-width: 800px;">
+            <iframe src="@policyUrl" style="width: 100%; height: 800px; border: none;"></iframe>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Role) && Role.Equals("Manager"))
+    {
+        <!-- Update Policy Button -->
+        <div class="mt-4">
+            <button class="btn btn-primary" @onclick="NavigateToUpdatePolicy"><i class="fa fa-lock me-2"></i>Update Policy</button>
+        </div>
+    }
+</div>
+
+<style>
+    /* Banner Container */
+    .banner-wrapper {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+    }
+
+    /* Blurred Background Image */
+    .banner-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("https://cdn3.vectorstock.com/i/1000x1000/32/02/customer-service-word-concepts-banner-vector-28883202.jpg") no-repeat center center;
+    background-size: cover;
+    filter: blur(4px); /* Adjust blur level as needed */
+    z-index: 1; /* Background layer */
+    }
+
+    /* Light Green Overlay */
+    .banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(144, 238, 144, 0.4); /* Light green with 40% opacity. Adjust color and opacity (0.0 to 1.0) as needed */
+    z-index: 2; /* Overlay layer - above background */
+    }
+
+    /* Text on Top */
+    .banner-content {
+    position: relative;
+    z-index: 3; /* Content layer - above overlay */
+    top: 50%;
+    transform: translateY(-50%);
+    }
+</style>
+
+@code {
+    private string policyUrl;
+    private string Role = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Retrieve the policy PDF URL (e.g., "policy.pdf") from your mediator query.
+        var query = new GetPolicyQuery("policy.pdf");
+        policyUrl = await Mediator.Send(query);
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        Role = authUser.GetUserRole();
+    }
+
+    private void NavigateToUpdatePolicy()
+    {
+        NavigationManager.NavigateTo("/manage-policy");
+    }
+}

@@ -2,8 +2,10 @@
 @using MediatR
 @using Dermastore.Application.DTOs.AnswerDTOs
 @using Dermastore.Application.Commands.Answers
+@using Microsoft.AspNetCore.Authorization
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
+@attribute [Authorize(Roles = "Staff")]
 
 <h3>Add Answer</h3>
 

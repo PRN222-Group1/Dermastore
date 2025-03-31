@@ -42,6 +42,12 @@
                             <ValidationMessage For="() => loginDto.Password" class="text-danger" />
                         </div>
 
+                        @if (!string.IsNullOrEmpty(error))
+                        {
+                            <div class="d-grid text-danger mb-2">
+                                @error
+                            </div>
+                        }
                         <div class="d-grid mb-3">
                             <button type="submit" class="btn btn-secondary btn-lg text-white">Sign In</button>
                         </div>
@@ -65,6 +71,8 @@
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
+    private string? error;
+
     protected override async Task OnInitializedAsync()
     {
         if (HttpMethods.IsGet(HttpContext.Request.Method))
@@ -84,7 +92,7 @@
 
         if (user == null) {
             // Route to detail page
-            NavigationManager.NavigateTo($"/accounts/login");
+            error = "User does not exist or suspended";
             return;
         }
 
@@ -98,5 +106,7 @@
             AuthStateProvider.SetUser(HttpContext.User);
             NavigationManager.NavigateTo(loginDto.ReturnUrl ?? "/");
         }
+        
+        error = "Incorrect user password";
     }
 }

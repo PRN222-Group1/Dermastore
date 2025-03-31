@@ -1,5 +1,6 @@
 ﻿@page "/cart"
 @using Blazored.Toast.Configuration
+@using Blazored.Toast.Services
 @using Dermastore.Application.Commands.Customers
 @using Dermastore.Application.Commands.Orders
 @using Dermastore.Application.Commands.Vnpays
@@ -13,16 +14,18 @@
 @using Dermastore.Application.Queries.Users
 @using Dermastore.Web.Containers
 @using Dermastore.Web.Extensions
+@using Dermastore.Web.Interfaces
 @using Dermastore.Web.Providers
 @using MediatR
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @rendermode InteractiveServer
 @inject IToastService ToastService
 @inject CartStateContainer CartStateContainer
-@inject ProtectedLocalStorage ProtectedLocalStore
+@inject ProtectedLocalStorage ProtectedLocalStorage
 @inject AuthStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 @inject IMediator Mediator
+@inject ISignalRService SignalRService
 
 <BlazoredToasts Position="ToastPosition.TopRight"
 Timeout="5"
@@ -69,7 +72,7 @@ WarningIcon="fa fa-exclamation-circle" />
                 {
                     <!-- Shipping Information -->
                     <div class="card p-3 my-4">
-                        <h5 class="mb-3">Shipping</h5>
+                        <h5 class="mb-3">Shipping Information</h5>
                         <div class="row mb-3">
                             <div class="col-sm-6">
                                 <label class="form-label">First Name</label>
@@ -136,6 +139,10 @@ WarningIcon="fa fa-exclamation-circle" />
                                     }
                                 }
                             </select>
+                            @if (!string.IsNullOrEmpty(error))
+                            {
+                                <div class="mt-2 text-danger">@error</div>
+                            }
                         </div>
 
                         <!-- Promotion Code Input -->
@@ -167,7 +174,17 @@ WarningIcon="fa fa-exclamation-circle" />
 
                         <!-- Total Price -->
                         <p class="card-text my-4">TOTAL: <strong>@string.Format("{0}đ", CalculateTotal().ToString("N0"))</strong></p>
-                        <button class="btn btn-primary text-white w-100" @onclick="Checkout">Checkout</button>
+                        @if (currentUser != null)
+                        {
+                            <button class="btn btn-primary text-white w-100" @onclick="Checkout">Checkout</button>
+                        }
+                        else
+                        {
+                            <div class="text-primary text">
+                                Please login to checkout
+                            </div>
+                            <button class="btn btn-primary text-white w-100" @onclick="GoToLogin">Login</button>
+                        }
                     </div>
                 </div>
             </div>
@@ -186,6 +203,7 @@ WarningIcon="fa fa-exclamation-circle" />
     private string? selectedDeliveryMethod;
     private UserDto? currentUser;
     private bool? updateResult;
+    private string? error;
 
     //==============================================
     //                  LIFE CYCLE
@@ -211,13 +229,18 @@ WarningIcon="fa fa-exclamation-circle" />
     {
         if (firstRender)
         {
-            var result = await ProtectedLocalStore.GetAsync<string>("cartId");
+            var result = await ProtectedLocalStorage.GetAsync<string>("cartId");
             if (result.Success && result.Value != null)
             {
                 await CartStateContainer.LoadCartAsync(result.Value);
             }
             await LoadDeliveryMethods();
-            CartStateContainer.OnChange += StateHasChanged;
+
+            // Use InvokeAsync to switch to the Dispatcher when modifying UI state
+            CartStateContainer.OnChange += async () => await InvokeAsync(StateHasChanged);
+
+            // Ensure the state changes after rendering
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -259,7 +282,7 @@ WarningIcon="fa fa-exclamation-circle" />
     private async Task ClearCart()
     {
         await CartStateContainer.DeleteCartAsync();
-        await ProtectedLocalStore.DeleteAsync("cartId");
+        await ProtectedLocalStorage.DeleteAsync("cartId");
         ToastService.ShowSuccess("Cart Removed");
     }
 
@@ -305,10 +328,16 @@ WarningIcon="fa fa-exclamation-circle" />
         {
             appliedPromotion = await Mediator.Send(new GetPromotionQuery(promotionCode));
         }
-
-        CartStateContainer.Cart.Promotion = appliedPromotion;
-        await CartStateContainer.UpdateCartAsync(CartStateContainer.Cart);
-        ToastService.ShowSuccess("Applied promotion: " + appliedPromotion.Code);
+        if (appliedPromotion != null)
+        {
+            CartStateContainer.Cart.Promotion = appliedPromotion;
+            await CartStateContainer.UpdateCartAsync(CartStateContainer.Cart);
+            ToastService.ShowSuccess("Applied promotion: " + appliedPromotion.Code);
+        }
+        else
+        {
+            ToastService.ShowError("Promo code does not exist");
+        }
     }
 
     // Change delivery method and save to the cart
@@ -354,9 +383,19 @@ WarningIcon="fa fa-exclamation-circle" />
     //==============================================
     //              CHECKOUT FLOW
     //==============================================
+    private void GoToLogin()
+    {
+        NavigationManager.NavigateTo("/accounts/login");
+    }
+
     private async Task Checkout()
     {
         // Populate order items list
+        if (string.IsNullOrEmpty(selectedDeliveryMethod))
+        {
+            error = "You must select a delivery method";
+            return;
+        }
         var deliveryMethod = deliveryMethods.FirstOrDefault(d => d.Id == int.Parse(selectedDeliveryMethod));
 
         var orderItems = new List<OrderItemDto>();
@@ -405,7 +444,11 @@ WarningIcon="fa fa-exclamation-circle" />
         var url = await Mediator.Send(paymentCommand);
 
         NavigationManager.NavigateTo(url);
-    }
 
-    
+        // Delay to load VnPay payment page
+        await Task.Delay(3000);
+
+        // Send SignalR message to load new order
+        await SignalRService.LoadOrders();
+    }
 }

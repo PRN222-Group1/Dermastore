@@ -59,7 +59,7 @@ a, .btn-link {
 }
 
  breakpoint and up - mega dropdown styles 
-@media screen and (min-width: 992px) {
+@media screen and (min-width: 200px) {
 
      remove the padding from the navbar so the dropdown hover state is not broken 
     .navbar {

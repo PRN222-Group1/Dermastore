@@ -14,7 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Components\Pages\PolicyPages\ViewPolicy.razor.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazored.Toast" Version="4.2.1" />
+    <PackageReference Include="ChartJs.Blazor.Fork" Version="2.0.2" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.11" />
@@ -33,6 +38,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Dermastore.Application\Dermastore.Application.csproj" />
     <ProjectReference Include="..\Dermastore.Infrastructure\Dermastore.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="SignalR\" />
   </ItemGroup>
 
 </Project>

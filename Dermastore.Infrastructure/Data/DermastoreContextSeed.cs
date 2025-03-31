@@ -96,6 +96,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Johnson",
                         Email = "alice.staff@test.com",
                         Address = "789 Maple Road",
+                        PhoneNumber = "0389234123",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Ffemale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "alice1234", "Staff"),
@@ -107,6 +108,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Williams",
                         Email = "bob.staff@test.com",
                         Address = "101 Pine Drive",
+                        PhoneNumber = "0348453439",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Fmale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "bobby1234", "Staff"),
@@ -118,6 +120,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Brown",
                         Email = "carol.staff@test.com",
                         Address = "202 Cedar Lane",
+                        PhoneNumber = "0483935183",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Ffemale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "carol1234", "Staff"),
@@ -130,6 +133,7 @@ namespace Dermastore.Infrastructure.Data
                         LastName = "Clark",
                         Email = "dave.manager@test.com",
                         Address = "303 Birch Boulevard",
+                        PhoneNumber = "0482553124",
                         ImageUrl = "https://firebasestorage.googleapis.com/v0/b/mechat-926e4.appspot.com/o/teamo%2Fimages%2Fplaceholders%2Fmale-user.jpg?alt=media",
                         MembershipId = 1
                     }, "dave1234", "Manager")
@@ -140,6 +144,20 @@ namespace Dermastore.Infrastructure.Data
                     await userManager.CreateAsync(account.user, account.password);
                     await userManager.AddToRoleAsync(account.user, account.role);
                 }
+            }
+
+            if (!context.Blogs.Any())
+            {
+                var blogData = await File
+                    .ReadAllTextAsync(path + @"/Data/SeedData/blogs.json");
+
+                var blogs = JsonSerializer.Deserialize<List<Blog>>(blogData, options);
+
+                if (blogs == null) return;
+
+                context.Blogs.AddRange(blogs);
+
+                await context.SaveChangesAsync();
             }
 
             if (!context.Categories.Any())

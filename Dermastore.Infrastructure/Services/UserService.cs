@@ -12,7 +12,6 @@ namespace Dermastore.Infrastructure.Services
     public class UserService : IUserService
     {
         private readonly UserManager<User> _userManager;
-        private readonly string _studentRoleName = "Student";
 
         public UserService(UserManager<User> userManager)
         {
@@ -36,7 +35,7 @@ namespace Dermastore.Infrastructure.Services
             return userRole;
         }
 
-        private async Task<IList<User>> GetUsersInRoleAsync(string role)
+        public async Task<IList<User>> GetUsersInRoleAsync(string role)
         {
             return await _userManager.GetUsersInRoleAsync(role);
         }
@@ -70,17 +69,12 @@ namespace Dermastore.Infrastructure.Services
         public async Task<IReadOnlyList<User>> ListUsersAsync(ISpecification<User> spec)
         {
             var query = _userManager.Users.AsQueryable();
-            var students = await GetUsersInRoleAsync(_studentRoleName);
-            query = query.Where(u => students.Contains(u));
             return await ApplySpecification(query, spec).ToListAsync();
         }
 
         public async Task<int> CountAsync(ISpecification<User> spec)
         {
             var query = _userManager.Users.AsQueryable();
-            var students = await GetUsersInRoleAsync(_studentRoleName);
-            query = query.Where(u => students.Contains(u));
-
             query = spec.ApplyCriteria(query);
             return await query.CountAsync();
         }

@@ -15,11 +15,15 @@ namespace Dermastore.Application.Extensions
                 ShippingAddress = order.ShippingAddress,
                 SubTotal = order.SubTotal,
                 UserId = order.UserId,
+                User = order.User != null ? order.User.ToDto() : null,
                 PromotionId = order.PromotionId.HasValue ? order.PromotionId.Value : null,
+                Promotion = order.Promotion != null ? order.Promotion.ToDto() : null,
                 MembershipId = order.MembershipId.HasValue ? order.MembershipId.Value : null,
+                Membership = order.Membership != null ? order.Membership.ToDto() : null,
                 DeliveryMethodId = order.DeliveryMethodId,
-                Status = order.Status,
-                OrderItems = order.OrderItems,
+                DeliveryMethod = order.DeliveryMethod != null ? order.DeliveryMethod.ToDto() : null,
+                Status = order.Status.ToString(),
+                OrderItems = order.OrderItems.Select(o => o.ToDto()).ToList(),
             };
         }
 
