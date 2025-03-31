@@ -27,13 +27,6 @@
         </div>
 
         <div class="col-md-9">
-            @if (!string.IsNullOrEmpty(Role) && Role.Equals("Manager"))
-            {
-                <p>
-                    <a href="products/create" class="btn btn-primary"><i class="fa fa-plus me-2"></i>Add Product</a>
-                </p>
-            }
-
             @if (products != null && products.Any())
             {
                 <div class="row gx-1 gy-4">
@@ -63,13 +56,9 @@
     private IReadOnlyList<ProductDto> products;
     private ProductSpecParams ProductSpecParams { get; set; } = new();
     private int TotalPages;
-    private string Role;
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var authUser = authState.User;
-        Role = authUser.GetUserRole();
         await GetProducts();
     }
 

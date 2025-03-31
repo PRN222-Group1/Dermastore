@@ -5,6 +5,7 @@
 @using Dermastore.Application.DTOs.AnswerDTOs
 @using Dermastore.Application.Commands.Questions
 @using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
 @inject IMediator Mediator
 @attribute [Authorize(Roles = "Staff")]
 

@@ -3,16 +3,21 @@ using Dermastore.Domain.Enums;
 using Dermastore.Domain.Interfaces;
 using Dermastore.Domain.Specifications;
 using Dermastore.Domain.Specifications.Products;
+using Dermastore.Infrastructure.Services.Firebase;
 
 namespace Dermastore.Infrastructure.Services;
 
 public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IGenericRepository<Product> _productRepository;
+    private readonly IFirebaseService _firebaseService;
 
-    public ProductService(IUnitOfWork unitOfWork)
+    public ProductService(IUnitOfWork unitOfWork, IGenericRepository<Product> productRepository, IFirebaseService firebaseService)
     {
         _unitOfWork = unitOfWork;
+        _productRepository = productRepository;
+        _firebaseService = firebaseService;
     }
 
 
@@ -32,7 +37,8 @@ public class ProductService : IProductService
         product1.Status = product.Status;
         product1.Quantity = product.Quantity;
         product1.SubCategoryId = product.SubCategoryId;
-       
+        product1.BrandId = product.BrandId;
+
         repository.Update(product1);
 
         return await _unitOfWork.Complete();
@@ -55,12 +61,14 @@ public class ProductService : IProductService
                 ImageUrl = product.ImageUrl,
                 Status = product.Status,
                 Quantity = product.Quantity,
-                SubCategoryId = product.SubCategoryId
+                AnswerId = product.AnswerId,
+                BrandId = product.BrandId,
+                SubCategoryId = product.SubCategoryId,
+                Price = product.Price
             };
 
             _unitOfWork.Repository<Product>().Add(pd);
-            var result = await _unitOfWork.Complete();
-            return result;
+            return await _unitOfWork.Complete();
         }
         catch (Exception ex)
         {
@@ -111,5 +119,10 @@ public class ProductService : IProductService
     {
         var count = await _unitOfWork.Repository<Product>().CountAsync(spec);
         return count;
+    }
+
+    public async Task<string> UploadProductImage(Stream fileStream, string fileName, bool isNewImage)
+    {
+        return await _firebaseService.UploadFile(fileStream, fileName, true); // true for images
     }
 }

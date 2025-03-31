@@ -1,4 +1,6 @@
 ﻿@page "/beauty-match"
+@using Dermastore.Web.Extensions
+@using Dermastore.Web.Providers
 @using MediatR
 @using Dermastore.Application.DTOs.QuestionDTOs
 @using Dermastore.Application.Queries.Questions
@@ -16,6 +18,7 @@
 @rendermode InteractiveServer
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
+@inject AuthStateProvider AuthStateProvider
 
 <style>
     .selected-answer {
@@ -116,6 +119,15 @@
                 }
 
             </div>
+
+            @if (!string.IsNullOrEmpty(Role) && Role.Equals("Staff"))
+            {
+                <div class="d-flex justify-content-center mt-4">
+                    <button class="btn btn-outline-primary" @onclick="GoToManageQuiz">
+                        Manage Quiz
+                    </button>
+                </div>
+            }
         </div>
     </div>
 
@@ -126,6 +138,7 @@
     // Dictionary to track selected answers (key: question id, value: answer id)
     private Dictionary<int, int> selectedAnswerIds = new Dictionary<int, int>();
     private int currentQuestionIndex = 0;
+    private string Role = string.Empty;
     public UserQuestionPage()
     {
     }
@@ -140,6 +153,11 @@
         {
             var query = new GetQuestionsQuery();
             questionDtos = await Mediator.Send(query);
+
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var authUser = authState.User;
+            Role = authUser.GetUserRole();
+
             if (questionDtos.Count == 0)
             {
                 NavigationManager.NavigateTo("notfound");
@@ -191,5 +209,10 @@
         string serializedResult = JsonSerializer.Serialize(quizResult);
         string encodedResult = Uri.EscapeDataString(serializedResult);
         NavigationManager.NavigateTo($"/quiz-result?result={encodedResult}");
+    }
+
+    private void GoToManageQuiz()
+    {
+        NavigationManager.NavigateTo("/manage-quiz");
     }
 }

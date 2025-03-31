@@ -67,18 +67,27 @@
                     </div>
                 </li>
 
+                @if (string.IsNullOrEmpty(role) || (!string.IsNullOrEmpty(role) && !role.Equals("Manager")))
+                {
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/blogs" role="button">
+                            <i class="fa-solid fa-blog me-2"></i> Blogs
+                        </a>
+                    </li>
+
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/beauty-match" role="button">
+                            <i class="fa fa-check me-2"></i> Skin Test
+                        </a>
+                    </li>
+                }
+
                 <li class="nav-item p-3 d-flex align-items-center">
-                    <a class="nav-link" href="/blogs" role="button">
-                        <i class="fa-solid fa-blog me-2"></i> Blogs
+                    <a class="nav-link" href="/policy" role="button">
+                        <i class="fa fa-lock me-2"></i> Policy
                     </a>
                 </li>
 
-                <li class="nav-item p-3 d-flex align-items-center">
-                    <a class="nav-link" href="/beauty-match" role="button">
-                        <i class="fa fa-check me-2"></i> Skin Test
-                    </a>
-                </li>
- 
 
                 @if (!string.IsNullOrEmpty(role) && (role.Equals("Customer") || role.Equals("Staff")))
                 {
@@ -98,15 +107,26 @@
                         </a>
                     </li>
 
-                    
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/manage-product" role="button">
+                            <i class="fa fa-list-alt me-2"></i> Products
+                        </a>
+                    </li>
+
+                    <li class="nav-item p-3 d-flex align-items-center">
+                        <a class="nav-link" href="/manage-promotion" role="button">
+                            <i class="fa fa-bullhorn me-2"></i> Promotions
+                        </a>
+                    </li>
                 }
+
+                <li class="nav-item p-3 d-flex align-items-center">
+                    <a class="nav-link" href="/dashboard" role="button">
+                        <i class="fa fa-bar-chart me-2"></i> Dashboard
+                    </a>
+                </li>
             </ul>
 
-            <li class="nav-item p-3 d-flex align-items-center">
-                <a class="nav-link" href="/dashboard" role="button">
-                    <i class="fa fa-bar-chart me-2"></i> Dashboard
-                </a>
-            </li>
 
             <!-- Section 3: Search Bar and Login Button -->
             <div class="d-flex align-items-center">

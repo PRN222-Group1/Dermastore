@@ -25,5 +25,12 @@ namespace Dermastore.Domain.Specifications.Promotions
         )
         {
         }
+
+        public PromotionSpecification(PromotionSpecParams promotionParams)
+            : base(x => string.IsNullOrEmpty(promotionParams.Search) || x.Name.ToLower().Contains(promotionParams.Search.ToLower()))
+        {
+            ApplyPaging(promotionParams.PageSize * (promotionParams.PageIndex - 1), promotionParams.PageSize);
+            AddOrderBy(x => x.Name);
+        }
     }
 }

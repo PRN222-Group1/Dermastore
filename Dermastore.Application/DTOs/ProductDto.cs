@@ -1,4 +1,5 @@
-﻿using Dermastore.Domain.Enums;
+﻿using Dermastore.Application.DTOs.AnswerDTOs;
+using Dermastore.Domain.Enums;
 
 namespace Dermastore.Application.DTOs
 {
@@ -15,5 +16,6 @@ namespace Dermastore.Application.DTOs
         public string? SubCategory { get; set; }
         public int BrandId { get; set; }
         public string? Brand{ get; set; }
+        public AnswerDto? AnswerDTO { get; set; } = new AnswerDto();
     }
 }

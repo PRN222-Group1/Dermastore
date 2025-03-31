@@ -16,9 +16,37 @@
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" 
             crossorigin="anonymous">
     </script>
-    <script src="/js/microsoft/signalr/dist/browser/signalr.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
-   
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"></script>
+
+    <script>
+        window.renderPDF = function (url) {
+          const pdfjsLib = window['pdfjs-dist/build/pdf'];
+          // Set the workerSrc property to load the PDF.js worker.
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js';
+
+          pdfjsLib.getDocument(url).promise.then(function(pdf) {
+            // Render only the first page. For multiple pages, loop here.
+            pdf.getPage(1).then(function(page) {
+              const scale = 1.5;
+              const viewport = page.getViewport({ scale: scale });
+              const canvas = document.getElementById('pdfCanvas');
+              const context = canvas.getContext('2d');
+              canvas.height = viewport.height;
+              canvas.width = viewport.width;
+              const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+              };
+              page.render(renderContext);
+            });
+          }).catch(function(error) {
+            console.error("Error rendering PDF: ", error);
+          });
+        }
+    </script>
+
     <HeadOutlet />
 </head>
 
